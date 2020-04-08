@@ -1,0 +1,126 @@
+AdminApiService:
+  Db:
+    LogsConnString:
+      settings-key: AdminApiService-LogsConnString
+      types:
+        - AzureTableStorage
+
+  TokenSymbol:
+    settings-key: Constant-TokenSymbol
+  MobileAppImageDoOptimization:
+    settings-key: AdminApiService-MobileAppImageDoOptimization
+  MobileAppImageMinWidth:
+    settings-key: BackofficePlatform-MobileAppImageMinWidth
+  MobileAppImageWarningFileSizeInKB:
+    settings-key: AdminApiService-MobileAppImageWarningFileSizeInKB
+  SuggestedAdminPasswordLength:
+    settings-key: AdminApiService-SuggestedAdminPasswordLength
+  IsPublicBlockchainFeatureDisabled:
+    settings-key: IsPublicBlockchainFeatureDisabled
+    types:
+      - Optional
+
+CampaignServiceClient:
+  ServiceUrl:
+    settings-key: CampaignServiceUrl
+
+BonusCustomerProfileServiceClient:
+  ServiceUrl:
+    settings-key: BonusCustomerProfileServiceUrl
+
+CustomerManagementServiceClient:
+  ServiceUrl:
+    settings-key: CustomerManagementServiceUrl
+
+WalletManagementServiceClient:
+  ServiceUrl:
+    settings-key: WalletManagementServiceUrl
+
+CustomerProfileServiceClient:
+  ServiceUrl:
+    settings-key: CustomerProfileServiceUrl
+
+ReferralServiceClient:
+  ServiceUrl:
+    settings-key: ReferralServiceUrl
+
+SessionsServiceClient:
+  ServiceUrl:
+    settings-key: AdminSessionsServiceUrl
+
+AdminManagementServiceClient:
+  ServiceUrl:
+    settings-key: AdminManagementServiceUrl
+
+OperationsHistoryServiceClient:
+  ServiceUrl:
+    settings-key: OperationsHistoryServiceUrl
+
+TokensStatisticsJobClient:
+  ServiceUrl:
+    settings-key: TokensStatisticsJobUrl
+
+PrivateBlockchainFacadeClient:
+  ServiceUrl:
+    settings-key: PrivateBlockchainFacadeServiceUrl
+
+PaymentTransfersServiceClient:
+  ServiceUrl:
+    settings-key: PaymentTransfersServiceUrl
+
+DashboardStatisticsServiceClient:
+  ServiceUrl:
+    settings-key: DashboardStatisticsServiceUrl
+
+PartnerManagementServiceClient:
+  ServiceUrl:
+    settings-key: PartnerManagementServiceUrl
+
+QuorumExplorerServiceClient:
+  ServiceUrl:
+    settings-key: QuorumExplorerServiceUrl
+
+TiersServiceClient:
+  ServiceUrl:
+    settings-key: TiersServiceUrl
+
+AgentManagementServiceClient:
+  ServiceUrl:
+    settings-key: AgentManagementServiceUrl
+
+CurrencyConverterServiceClient:
+  ServiceUrl:
+    settings-key: CurrencyConvertorServiceUrl
+
+CrossChainWalletLinkerServiceClient:
+  ServiceUrl:
+    settings-key: CrossChainWalletLinkerServiceUrl
+
+CredentialsServiceClient:
+  ServiceUrl:
+    settings-key: CredentialsServiceUrl
+
+CrossChainTransfersServiceClient:
+  ServiceUrl:
+    settings-key: CrossChainTransfersServiceUrl
+
+ReportServiceClient:
+  ServiceUrl:
+    settings-key: ReportingServiceUrl
+
+VouchersServiceClient:
+  ServiceUrl:
+    settings-key: VouchersServiceUrl
+
+SlackNotifications:
+  AzureQueue:
+    ConnectionString:
+      settings-key: SlackNotificationsConnString
+      types:
+        - AzureTableStorage
+    QueueName:
+      settings-key: SlackQueueName
+
+MonitoringServiceClient:
+  MonitoringServiceUrl:
+    settings-key: MonitoringServiceUrl
