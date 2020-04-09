@@ -25,6 +25,7 @@ using Lykke.Service.WalletManagement.Client;
 using MAVN.Service.AdminAPI.Settings.Clients;
 using MAVN.Service.AdminAPI.Settings.Service;
 using MAVN.Service.AdminAPI.Settings.Slack;
+using MAVN.Service.SmartVouchers.Client;
 
 namespace MAVN.Service.AdminAPI.Settings
 {
@@ -82,5 +83,7 @@ namespace MAVN.Service.AdminAPI.Settings
         public ReportServiceClientSettings ReportServiceClient { get; set; }
 
         public VouchersServiceClientSettings VouchersServiceClient { get; set; }
+
+        public SmartVouchersServiceClientSettings SmartVouchersServiceClient { get; set; }
     }
 }
