@@ -21,6 +21,7 @@ using MAVN.Service.AdminAPI.Models.Auth;
 using MAVN.Service.AdminAPI.Models.Blockchain;
 using MAVN.Service.AdminAPI.Models.BonusTypes;
 using MAVN.Service.AdminAPI.Models.BurnRules;
+using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Customers;
 using MAVN.Service.AdminAPI.Models.Dashboard;
 using MAVN.Service.AdminAPI.Models.EarnRules;
@@ -31,13 +32,18 @@ using MAVN.Service.AdminAPI.Models.Partners.Responses;
 using MAVN.Service.AdminAPI.Models.Payments;
 using MAVN.Service.AdminAPI.Models.Reports;
 using MAVN.Service.AdminAPI.Models.Settings;
+using MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns;
+using MAVN.Service.AdminAPI.Models.SmartVouchers.Vouchers;
 using MAVN.Service.AdminAPI.Models.Statistics;
 using MAVN.Service.AdminAPI.Models.Tiers;
+using MAVN.Service.SmartVouchers.Client.Models.Requests;
+using MAVN.Service.SmartVouchers.Client.Models.Responses;
 using BurnRuleCreateRequest = MAVN.Service.AdminAPI.Models.BurnRules.BurnRuleCreateRequest;
 using CustomerActivityStatus = Lykke.Service.CustomerManagement.Client.Enums.CustomerActivityStatus;
 using CustomersStatisticResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomersStatisticResponse;
 using CustomerStatisticsByDayResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomerStatisticsByDayResponse;
 using CustomerWalletActivityStatus = Lykke.Service.WalletManagement.Client.Enums.CustomerWalletActivityStatus;
+using FileResponseModel = MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns.FileResponseModel;
 using PublicAddressStatus = MAVN.Service.AdminAPI.Models.Customers.Enums.PublicAddressStatus;
 
 namespace MAVN.Service.AdminAPI
@@ -282,6 +288,19 @@ namespace MAVN.Service.AdminAPI
 
             CreateMap< Lykke.Service.CurrencyConvertor.Client.Models.Responses.GlobalCurrencyRateModel, GlobalCurrencyRateModel>();
             CreateMap<GlobalCurrencyRateModel, Lykke.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>();
+            
+            CreateMap<VoucherCampaignResponseModel, SmartVoucherCampaignResponse>();
+            CreateMap<VoucherCampaignDetailsResponseModel, SmartVoucherCampaignDetailsResponse>();
+            CreateMap<SmartVoucherCampaignCreateRequest, VoucherCampaignCreateModel>()
+                .ForMember(x => x.CreatedBy, opt => opt.Ignore());
+            CreateMap<SmartVoucherCampaignEditRequest, VoucherCampaignEditModel>();
+            CreateMap<SmartVoucherCampaignSetImageRequest, CampaignImageFileRequest>();
+            CreateMap<VoucherCampaignContentResponseModel, SmartVoucherCampaignContentResponse>();
+            CreateMap<SmartVouchers.Client.Models.Responses.FileResponseModel, FileResponseModel>();
+            CreateMap<SmartVoucherCampaignContentCreateRequest,VoucherCampaignContentCreateModel>();
+            CreateMap<VoucherResponseModel,SmartVoucherResponse>();
+            CreateMap<VoucherDetailsResponseModel, SmartVoucherDetailsResponse>();
+            CreateMap<PagedRequestModel, BasePaginationRequestModel>();
         }
 
         private static DateTime ToDateTime(long input)

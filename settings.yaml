@@ -112,6 +112,10 @@ VouchersServiceClient:
   ServiceUrl:
     settings-key: VouchersServiceUrl
 
+SmartVouchersServiceClient:
+  ServiceUrl:
+    settings-key: SmartVouchersServiceUrl
+
 SlackNotifications:
   AzureQueue:
     ConnectionString:

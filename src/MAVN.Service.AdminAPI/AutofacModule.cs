@@ -28,6 +28,7 @@ using Lykke.SettingsReader;
 using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.DomainServices;
 using MAVN.Service.AdminAPI.Settings;
+using MAVN.Service.SmartVouchers.Client;
 
 namespace MAVN.Service.AdminAPI
 {
@@ -83,6 +84,7 @@ namespace MAVN.Service.AdminAPI
             builder.RegisterCrossChainTransfersClient(_appSettings.CrossChainTransfersServiceClient, null);
             builder.RegisterReportClient(_appSettings.ReportServiceClient, null);
             builder.RegisterVouchersClient(_appSettings.VouchersServiceClient);
+            builder.RegisterSmartVouchersClient(_appSettings.SmartVouchersServiceClient, null);
         }
     }
 }
