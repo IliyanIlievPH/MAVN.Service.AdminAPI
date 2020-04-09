@@ -31,19 +31,6 @@ namespace MAVN.Service.AdminAPI.Controllers
         }
 
         /// <summary>
-        /// Get voucher details by its short code.
-        /// </summary>
-        /// <param name="voucherShortCode"></param>
-        [HttpGet("{voucherShortCode}")]
-        [ProducesResponseType(typeof(SmartVoucherDetailsResponse), (int)HttpStatusCode.OK)]
-        public async Task<SmartVoucherDetailsResponse> GetByShortCodeAsync(string voucherShortCode)
-        {
-            var result = await _smartVouchersClient.VouchersApi.GetByShortCodeAsync(voucherShortCode);
-
-            return _mapper.Map<SmartVoucherDetailsResponse>(result);
-        }
-
-        /// <summary>
         /// Get smart vouchers for specified voucher campaign.
         /// </summary>
         /// <param name="campaignId">Voucher campaign id.</param>

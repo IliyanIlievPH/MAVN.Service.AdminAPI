@@ -88,22 +88,6 @@ namespace MAVN.Service.AdminAPI.Controllers
         }
 
         /// <summary>
-        /// Get smart voucher campaigns by Ids.
-        /// </summary>
-        /// <returns>
-        /// Smart voucher campaigns details.
-        /// </returns>
-        /// <response code="200">Smart voucher campaigns.</response>
-        [HttpGet("ids")]
-        [ProducesResponseType(typeof(VoucherCampaignsListResponseModel), (int)HttpStatusCode.OK)]
-        public async Task<List<SmartVoucherCampaignResponse>> GetCampaignsByIds([FromQuery] Guid[] voucherCampaignsIds)
-        {
-            var campaigns = await _smartVouchersClient.CampaignsApi.GetCampaignsByIds(voucherCampaignsIds);
-
-            return _mapper.Map<List<SmartVoucherCampaignResponse>>(campaigns.Campaigns);
-        }
-
-        /// <summary>
         /// Create smart voucher campaign
         /// </summary>
         /// <returns>

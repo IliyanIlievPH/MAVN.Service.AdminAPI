@@ -299,7 +299,6 @@ namespace MAVN.Service.AdminAPI
             CreateMap<SmartVouchers.Client.Models.Responses.FileResponseModel, FileResponseModel>();
             CreateMap<SmartVoucherCampaignContentCreateRequest,VoucherCampaignContentCreateModel>();
             CreateMap<VoucherResponseModel,SmartVoucherResponse>();
-            CreateMap<VoucherDetailsResponseModel, SmartVoucherDetailsResponse>();
             CreateMap<PagedRequestModel, BasePaginationRequestModel>();
         }
 
