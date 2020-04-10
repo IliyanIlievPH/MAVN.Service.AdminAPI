@@ -20,7 +20,7 @@ namespace MAVN.Service.AdminAPI.Settings.Service
         public DbSettings Db { get; set; }
 
         [Optional]
-        public bool? IsPublicBlockchainFeatureDisabled { get; set; }
+        public bool IsPublicBlockchainFeatureDisabled { get; set; }
 
         [Optional]
         public bool IsPhoneVerificationDisabled { get; set; }

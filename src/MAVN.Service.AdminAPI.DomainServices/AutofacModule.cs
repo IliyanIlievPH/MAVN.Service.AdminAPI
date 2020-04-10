@@ -6,7 +6,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
     public class AutofacModule : Module
     {
         private readonly string _tokenName;
-        private readonly bool? _isPublicBlockchainFeatureDisabled;
+        private readonly bool _isPublicBlockchainFeatureDisabled;
         private readonly bool _mobileAppImageDoOptimization;
         private readonly int _mobileAppImageMinWidth;
         private readonly int _mobileAppImageWarningFileSizeInKB;
@@ -15,7 +15,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
 
         public AutofacModule(
             string tokenName,
-            bool? isPublicBlockchainFeatureDisabled,
+            bool isPublicBlockchainFeatureDisabled,
             bool mobileAppImageDoOptimization,
             int mobileAppImageMinWidth,
             int mobileAppImageWarningFileSizeInKB,
