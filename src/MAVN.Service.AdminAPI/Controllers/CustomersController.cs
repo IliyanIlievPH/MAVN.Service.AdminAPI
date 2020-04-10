@@ -276,7 +276,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 await _agentManagementClient.Agents.GetByCustomerIdAsync(customerIdGuid);
 
             if (customerProfileResponseTask.Profile.IsEmailVerified &&
-                customerProfileResponseTask.Profile.IsPhoneVerified)
+                (_settingsService.IsPhoneVerificationDisabled() || customerProfileResponseTask.Profile.IsPhoneVerified))
             {
                 var customerStatusTask =
                     _customerManagementServiceClient.CustomersApi.GetCustomerBlockStateAsync(customerId);

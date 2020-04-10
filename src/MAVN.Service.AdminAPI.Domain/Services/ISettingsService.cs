@@ -5,5 +5,7 @@
         string GetTokenName();
 
         bool IsPublicBlockchainFeatureDisabled();
+
+        bool IsPhoneVerificationDisabled();
     }
 }

@@ -21,5 +21,8 @@ namespace MAVN.Service.AdminAPI.Settings.Service
 
         [Optional]
         public bool? IsPublicBlockchainFeatureDisabled { get; set; }
+
+        [Optional]
+        public bool IsPhoneVerificationDisabled { get; set; }
     }
 }

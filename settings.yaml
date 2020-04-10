@@ -19,6 +19,10 @@ AdminApiService:
     settings-key: IsPublicBlockchainFeatureDisabled
     types:
       - Optional
+  IsPhoneVerificationDisabled:
+    settings-key: IsPhoneVerificationDisabled
+    types:
+      - Optional
 
 CampaignServiceClient:
   ServiceUrl:
