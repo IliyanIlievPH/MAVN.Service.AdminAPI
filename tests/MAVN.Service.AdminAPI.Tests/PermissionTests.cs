@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using MAVN.Service.AdminAPI.Domain.Enums;
@@ -12,9 +12,11 @@ namespace MAVN.Service.AdminAPI.Tests
         private readonly HashSet<string> _expectedPermissionLevels = new HashSet<string>
         {
             nameof(PermissionLevel.View),
-            nameof(PermissionLevel.Edit)
+            nameof(PermissionLevel.Edit),
+            nameof(PermissionLevel.PartnerView),
+            nameof(PermissionLevel.PartnerEdit),
         };
-        
+
         /// <summary>
         ///     Ensures each permission level is unique and it's value has not changed.
         ///     Verifies that newly added permission levels has test cases.
