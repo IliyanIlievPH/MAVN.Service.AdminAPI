@@ -12,9 +12,9 @@ using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns;
 using MAVN.Service.SmartVouchers.Client;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
-using MAVN.Service.SmartVouchers.Client.Models.Responses;
 using MAVN.Service.SmartVouchers.Client.Models.Responses.Enums;
 using Microsoft.AspNetCore.Mvc;
+using PublishedAndActiveCampaignsVouchersCountResponse = MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns.PublishedAndActiveCampaignsVouchersCountResponse;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -105,12 +105,11 @@ namespace MAVN.Service.AdminAPI.Controllers
         }
 
         /// <summary>
-        /// Create smart voucher campaign
+        /// Update smart voucher campaign
         /// </summary>
         /// <returns>
-        /// Campaign ID
         /// </returns>
-        /// <response code="200">Created campaign id.</response>
+        /// <response code="204"></response>
         [HttpPut]
         [ProducesResponseType(typeof(UpdateVoucherCampaignErrorCodes), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.NoContent)]
@@ -157,6 +156,26 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if(error != SaveImageErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(error.ToString()));
+        }
+
+        /// <summary>
+        /// Get total vouchers count for active and published campaigns
+        /// </summary>
+        /// <returns>
+        /// </returns>
+        /// <response code="200">Total count</response>
+        [HttpGet("totalsupply")]
+        [ProducesResponseType(typeof(PublishedAndActiveCampaignsVouchersCountResponse), (int)HttpStatusCode.OK)]
+        public async Task<PublishedAndActiveCampaignsVouchersCountResponse> GetPublishedAndActiveCampaignsVouchersCountAsync()
+        {
+            var result = await _smartVouchersClient.CampaignsApi.GetPublishedAndActiveCampaignsVouchersCountAsync();
+
+            return new PublishedAndActiveCampaignsVouchersCountResponse
+            {
+                ActiveCampaignsVouchersTotalCount = result.ActiveCampaignsVouchersTotalCount,
+                PublishedCampaignsVouchersTotalCount = result.PublishedCampaignsVouchersTotalCount
+            };
+
         }
     }
 }
