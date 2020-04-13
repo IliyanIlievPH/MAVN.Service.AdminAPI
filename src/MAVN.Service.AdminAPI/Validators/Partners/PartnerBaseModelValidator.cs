@@ -10,8 +10,8 @@ namespace MAVN.Service.AdminAPI.Validators.Partners
             CascadeMode = CascadeMode.StopOnFirstFailure;
 
             RuleFor(o => o.Name)
-                .NotEmpty()
-                .WithMessage("Name required")
+                //.NotEmpty()
+                //.WithMessage("Name required")
                 .Length(3, 50)
                 .WithMessage("Name should be between 3 and 50 chars");
 
