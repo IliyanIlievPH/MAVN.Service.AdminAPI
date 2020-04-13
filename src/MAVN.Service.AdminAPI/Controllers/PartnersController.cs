@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
-    [Permission(new PermissionType[] { PermissionType.ProgramPartners, PermissionType.ActionRules }, PermissionLevel.View)]
+    [Permission(new [] { PermissionType.ProgramPartners, PermissionType.ActionRules }, PermissionLevel.PartnerView)]
     [LykkeAuthorizeWithoutCache]
     [Route("/api/[controller]")]
     public class PartnersController : ControllerBase
@@ -28,7 +28,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IMapper _mapper;
 
-        public PartnersController(IRequestContext requestContext,
+        public PartnersController(
+            IRequestContext requestContext,
             IPartnerManagementClient partnerManagementClient,
             IMapper mapper)
         {
@@ -89,7 +90,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="204">The partner successfully added..</response>
         /// <response code="400">An error occurred while adding partner.</response>
         [HttpPost]
-        [Permission(PermissionType.ProgramPartners, PermissionLevel.Edit)]
+        [Permission(PermissionType.ProgramPartners, PermissionLevel.PartnerEdit)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task AddAsync([FromBody] PartnerCreateRequest request)
@@ -117,7 +118,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">Partner successfully update.</response>
         /// <response code="400">An error occurred while updating partner.</response>
         [HttpPut]
-        [Permission(PermissionType.ProgramPartners, PermissionLevel.Edit)]
+        [Permission(PermissionType.ProgramPartners, PermissionLevel.PartnerEdit)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task UpdatePartnerAsync([FromBody] PartnerUpdateRequest request)

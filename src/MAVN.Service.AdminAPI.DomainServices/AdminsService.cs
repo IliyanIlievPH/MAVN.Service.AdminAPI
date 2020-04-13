@@ -19,11 +19,11 @@ namespace MAVN.Service.AdminAPI.DomainServices
         private readonly IAdminManagementServiceClient _adminManagementServiceClient;
         private readonly ICredentialsGeneratorService _credentialsGeneratorService;
         private readonly IMapper _mapper;
-        
+
         public AdminsService(
             IAdminManagementServiceClient adminManagementServiceClient,
-            IMapper mapper,
-            ICredentialsGeneratorService credentialsGeneratorService)
+            ICredentialsGeneratorService credentialsGeneratorService,
+            IMapper mapper)
         {
             _adminManagementServiceClient = adminManagementServiceClient;
             _mapper = mapper;
@@ -169,26 +169,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
         /// <summary>
         /// Simplified method for quick cache access, use only with existing admins.
         /// </summary>
-        public async Task<bool> AdminHasPermissionAsync(string adminId, IReadOnlyList<PermissionType> types, PermissionLevel level)
-        {
-            if (string.IsNullOrWhiteSpace(adminId))
-            {
-                return false;
-            }
-            
-            var adminPermissions = await GetAdminPermissionsAsync(adminId);
-
-            if (level == PermissionLevel.View)
-            {
-                return adminPermissions.Any(x =>
-                        types.Contains(x.Type) && (x.Level == PermissionLevel.View || x.Level == PermissionLevel.Edit));
-            }
-            else
-            {
-                return adminPermissions.Any(x =>
-                        types.Contains(x.Type) && x.Level == PermissionLevel.Edit);
-            }
-        }
+        
 
         public async Task<(AdminServiceResponseError, Admin)> UpdateAdminAsync(
             string adminId, string phoneNumber,
@@ -284,25 +265,6 @@ namespace MAVN.Service.AdminAPI.DomainServices
         public List<PermissionType> GetAllPermissions()
         {
             return Enum.GetValues(typeof(PermissionType)).Cast<PermissionType>().ToList();
-        }
-
-        private async Task<List<Permission>> GetAdminPermissionsAsync(string adminId)
-        {
-            var adminPermissions = await _adminManagementServiceClient.AdminsApi.GetPermissionsAsync(
-                new GetAdminByIdRequestModel
-                {
-                    AdminUserId = adminId
-                });
-
-            var permissions = adminPermissions != null
-                ? adminPermissions.Select(x => new Permission
-                {
-                    Level = _mapper.Map<PermissionLevel>(x.Level),
-                    Type = Enum.Parse<PermissionType>(x.Type)
-                })
-                : new List<Permission>();
-
-            return permissions.ToList();
         }
     }
 }

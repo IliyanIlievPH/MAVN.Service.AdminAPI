@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Falcon.Common.Middleware.Authentication;
 using JetBrains.Annotations;
 using Lykke.Job.TokensStatistics.Client;
 using Lykke.Service.AdminManagement.Client;
@@ -27,6 +26,7 @@ using Lykke.Service.WalletManagement.Client;
 using Lykke.SettingsReader;
 using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.DomainServices;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Settings;
 using MAVN.Service.SmartVouchers.Client;
 

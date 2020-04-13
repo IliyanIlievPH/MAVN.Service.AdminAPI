@@ -34,7 +34,7 @@ using RewardType = Lykke.Service.Campaign.Client.Models.Enums.RewardType;
 namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
-    [Permission(PermissionType.ActionRules, PermissionLevel.View)]
+    [Permission(PermissionType.ActionRules, PermissionLevel.PartnerView)]
     [LykkeAuthorizeWithoutCache]
     [Route("/api/[controller]")]
     public class EarnRulesController : ControllerBase
