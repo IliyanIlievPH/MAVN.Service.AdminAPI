@@ -15,7 +15,7 @@ env:
   CONTRACT_PROJECT:
   JOB_DOCKER_IMAGE:
   JOB_PROJECT:
-  SERVICE_DOCKER_IMAGE: wamphost-service
+  SERVICE_DOCKER_IMAGE: admin-api
   SERVICE_PROJECT: ./src/MAVN.Service.AdminAPI/MAVN.Service.AdminAPI.csproj
     
   
