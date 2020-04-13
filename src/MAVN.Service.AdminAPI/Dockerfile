@@ -1,4 +1,4 @@
 FROM microsoft/dotnet:2.2-aspnetcore-runtime
 WORKDIR /app
 COPY . .
-ENTRYPOINT ["dotnet", "Lykke.Service.AdminApi.dll"]
+ENTRYPOINT ["dotnet", "MAVN.Service.AdminApi.dll"]
