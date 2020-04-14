@@ -29,6 +29,7 @@ using MAVN.Service.AdminAPI.Models.EarnRules;
 using MAVN.Service.AdminAPI.Models.Partners;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 using RewardType = Lykke.Service.Campaign.Client.Models.Enums.RewardType;
 
 namespace MAVN.Service.AdminAPI.Controllers

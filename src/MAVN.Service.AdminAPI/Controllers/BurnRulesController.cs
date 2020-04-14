@@ -37,6 +37,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MoreLinq;
 using BurnRuleCreateRequest = MAVN.Service.AdminAPI.Models.BurnRules.BurnRuleCreateRequest;
+using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {

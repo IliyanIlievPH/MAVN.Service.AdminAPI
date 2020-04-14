@@ -14,6 +14,7 @@ using MAVN.Service.SmartVouchers.Client;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
 using MAVN.Service.SmartVouchers.Client.Models.Responses.Enums;
 using Microsoft.AspNetCore.Mvc;
+using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 using PublishedAndActiveCampaignsVouchersCountResponse = MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns.PublishedAndActiveCampaignsVouchersCountResponse;
 
 namespace MAVN.Service.AdminAPI.Controllers

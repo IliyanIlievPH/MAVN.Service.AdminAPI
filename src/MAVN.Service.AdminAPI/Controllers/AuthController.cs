@@ -15,6 +15,7 @@ using MAVN.Service.AdminAPI.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {

@@ -15,6 +15,7 @@ using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
 using Microsoft.AspNetCore.Mvc;
+using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
