@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MAVN.Service.SmartVouchers.Client.Models.Enums;
-using MAVN.Service.SmartVouchers.Client.Models.Requests;
 
 namespace MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns
 {
@@ -30,9 +28,6 @@ namespace MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns
 
         /// <summary>Voucher campaign end date</summary>
         public DateTime? ToDate { get; set; }
-
-        /// <summary>Voucher campaign state</summary>
-        public VoucherCampaignState State { get; set; }
 
         /// <summary>Voucher campaign contents</summary>
         public List<SmartVoucherCampaignContentCreateRequest> LocalizedContents { get; set; }
