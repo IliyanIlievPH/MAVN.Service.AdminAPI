@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Falcon.Common.Middleware.Authentication;
 using JetBrains.Annotations;
 using Lykke.Job.TokensStatistics.Client;
 using Lykke.Service.AdminManagement.Client;
@@ -29,6 +30,7 @@ using MAVN.Service.AdminAPI.DomainServices;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Settings;
 using MAVN.Service.SmartVouchers.Client;
+using RequestContext = MAVN.Service.AdminAPI.Infrastructure.RequestContext;
 
 namespace MAVN.Service.AdminAPI
 {
@@ -46,6 +48,7 @@ namespace MAVN.Service.AdminAPI
         {
             builder.RegisterType<RequestContext>()
                 .As<IRequestContext>()
+                .As<IExtRequestContext>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ReferralService>()

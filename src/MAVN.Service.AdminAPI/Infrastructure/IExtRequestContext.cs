@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Falcon.Common.Middleware.Authentication;
 using MAVN.Service.AdminAPI.Domain.Enums;
 
 namespace MAVN.Service.AdminAPI.Infrastructure
 {
-    public interface IRequestContext
+    public interface IExtRequestContext : IRequestContext
     {
         string SessionToken { get; }
         string UserId { get; }

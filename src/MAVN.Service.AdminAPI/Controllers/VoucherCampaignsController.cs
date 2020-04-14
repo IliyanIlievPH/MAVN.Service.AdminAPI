@@ -7,6 +7,7 @@ using Falcon.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns;
@@ -14,7 +15,6 @@ using MAVN.Service.SmartVouchers.Client;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
 using MAVN.Service.SmartVouchers.Client.Models.Responses.Enums;
 using Microsoft.AspNetCore.Mvc;
-using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 using PublishedAndActiveCampaignsVouchersCountResponse = MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns.PublishedAndActiveCampaignsVouchersCountResponse;
 
 namespace MAVN.Service.AdminAPI.Controllers
@@ -26,10 +26,13 @@ namespace MAVN.Service.AdminAPI.Controllers
     public class VoucherCampaignsController : ControllerBase
     {
         private readonly ISmartVouchersClient _smartVouchersClient;
-        private readonly IRequestContext _requestContext;
+        private readonly IExtRequestContext _requestContext;
         private readonly IMapper _mapper;
 
-        public VoucherCampaignsController(ISmartVouchersClient smartVouchersClient, IRequestContext requestContext, IMapper mapper)
+        public VoucherCampaignsController(
+            ISmartVouchersClient smartVouchersClient,
+            IExtRequestContext requestContext,
+            IMapper mapper)
         {
             _smartVouchersClient = smartVouchersClient;
             _requestContext = requestContext;

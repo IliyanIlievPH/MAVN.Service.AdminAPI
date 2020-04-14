@@ -19,7 +19,7 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
     {
         private readonly IReadOnlyList<PermissionType> _permissionTypes;
         private readonly PermissionLevel _permissionLevel;
-        private IRequestContext _requestContext;
+        private IExtRequestContext _requestContext;
 
         public PermissionAttribute(
             PermissionType permissionType,
@@ -39,7 +39,7 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            _requestContext = context.HttpContext.RequestServices.GetService<IRequestContext>();
+            _requestContext = context.HttpContext.RequestServices.GetService<IExtRequestContext>();
 
             try
             {

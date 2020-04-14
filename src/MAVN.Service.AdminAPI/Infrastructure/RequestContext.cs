@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace MAVN.Service.AdminAPI.Infrastructure
 {
-    public class RequestContext : IRequestContext
+    public class RequestContext : IExtRequestContext
     {
         private readonly HttpContext _httpContext;
         private readonly ISessionsServiceClient _sessionsServiceClient;

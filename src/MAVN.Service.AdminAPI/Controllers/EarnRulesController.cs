@@ -21,6 +21,7 @@ using Lykke.Service.PartnerManagement.Client;
 using Lykke.Service.PartnerManagement.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Infrastructure.CustomFilters;
 using MAVN.Service.AdminAPI.Models.ActionRules;
@@ -29,7 +30,6 @@ using MAVN.Service.AdminAPI.Models.EarnRules;
 using MAVN.Service.AdminAPI.Models.Partners;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 using RewardType = Lykke.Service.Campaign.Client.Models.Enums.RewardType;
 
 namespace MAVN.Service.AdminAPI.Controllers
@@ -44,7 +44,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ICampaignClient _campaignsClient;
         private readonly ISettingsService _settingsService;
         private readonly IMapper _mapper;
-        private readonly IRequestContext _requestContext;
+        private readonly IExtRequestContext _requestContext;
         private readonly ICurrencyConvertorClient _currencyConverterClient;
         private readonly IImageService _imageService;
         private readonly IPartnerManagementClient _partnerManagementClient;
@@ -54,7 +54,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             ICampaignClient campaignClient,
             ISettingsService settingsService,
             IMapper mapper,
-            IRequestContext requestContext,
+            IExtRequestContext requestContext,
             ICurrencyConvertorClient convertorClient,
             IImageService imageService,
             IPartnerManagementClient partnerManagementClient,

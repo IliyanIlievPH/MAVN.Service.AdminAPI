@@ -9,13 +9,13 @@ using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Service.Sessions.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.Constants;
 using MAVN.Service.AdminAPI.Models.Admins;
 using MAVN.Service.AdminAPI.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {

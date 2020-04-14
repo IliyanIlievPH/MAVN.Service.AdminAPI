@@ -10,12 +10,12 @@ using Lykke.Service.PartnerManagement.Client;
 using Lykke.Service.PartnerManagement.Client.Enums;
 using Lykke.Service.PartnerManagement.Client.Models.Partner;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
 using Microsoft.AspNetCore.Mvc;
-using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -25,12 +25,12 @@ namespace MAVN.Service.AdminAPI.Controllers
     [Route("/api/[controller]")]
     public class PartnersController : ControllerBase
     {
-        private readonly IRequestContext _requestContext;
+        private readonly IExtRequestContext _requestContext;
         private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IMapper _mapper;
 
         public PartnersController(
-            IRequestContext requestContext,
+            IExtRequestContext requestContext,
             IPartnerManagementClient partnerManagementClient,
             IMapper mapper)
         {

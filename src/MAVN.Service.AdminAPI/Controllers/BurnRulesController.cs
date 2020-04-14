@@ -27,6 +27,7 @@ using Lykke.Service.Vouchers.Client.Models;
 using Lykke.Service.Vouchers.Client.Models.Vouchers;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.Constants;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Infrastructure.CustomFilters;
@@ -37,7 +38,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MoreLinq;
 using BurnRuleCreateRequest = MAVN.Service.AdminAPI.Models.BurnRules.BurnRuleCreateRequest;
-using IRequestContext = MAVN.Service.AdminAPI.Infrastructure.IRequestContext;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -47,7 +47,7 @@ namespace MAVN.Service.AdminAPI.Controllers
     [Permission(PermissionType.ActionRules, PermissionLevel.PartnerView)]
     public class BurnRulesController : ControllerBase
     {
-        private readonly IRequestContext _requestContext;
+        private readonly IExtRequestContext _requestContext;
         private readonly ICampaignClient _campaignsClient;
         private readonly ICurrencyConvertorClient _currencyConverterClient;
         private readonly IImageService _imageService;
@@ -57,7 +57,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ILog _log;
 
         public BurnRulesController(
-            IRequestContext requestContext,
+            IExtRequestContext requestContext,
             ICampaignClient campaignClient,
             ICurrencyConvertorClient currencyConverterClient,
             IImageService imageService,
