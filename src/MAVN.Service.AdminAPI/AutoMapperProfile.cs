@@ -43,7 +43,6 @@ using CustomerActivityStatus = Lykke.Service.CustomerManagement.Client.Enums.Cus
 using CustomersStatisticResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomersStatisticResponse;
 using CustomerStatisticsByDayResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomerStatisticsByDayResponse;
 using CustomerWalletActivityStatus = Lykke.Service.WalletManagement.Client.Enums.CustomerWalletActivityStatus;
-using FileResponseModel = MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns.FileResponseModel;
 using PublicAddressStatus = MAVN.Service.AdminAPI.Models.Customers.Enums.PublicAddressStatus;
 
 namespace MAVN.Service.AdminAPI
@@ -87,7 +86,8 @@ namespace MAVN.Service.AdminAPI
             CreateMap<Lykke.Service.Campaign.Client.Models.BonusType.BonusTypeModel,
                 BonusTypeModel>(MemberList.Destination);
 
-            // Earn rules
+            #region Earn rules
+
             CreateMap<EarnRuleCreateModel,
                     Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignCreateModel>(MemberList
                     .Destination)
@@ -132,7 +132,9 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(dest => dest.Asset, opt => opt.Ignore())
                 .ForMember(dest => dest.Vertical, opt => opt.Ignore());
 
-            // Burn Rules
+            #endregion
+
+            #region Burn Rules
 
             CreateMap<BurnRuleListRequest, BurnRulePaginationRequest>(MemberList.Destination)
                 .ForMember(dest => dest.PartnerId, opt => opt.Ignore());
@@ -160,6 +162,10 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(dest => dest.Vertical, opt => opt.MapFrom(src => src.BusinessVertical))
                 .ForMember(dest => dest.BurnRuleContents, opt => opt.Ignore());
 
+            #endregion
+
+            #region Rule Image
+
             CreateMap<ImageAddRequest, FileCreateRequest>(MemberList.Destination)
                 .ForMember(dest => dest.Type, opt => opt.Ignore())
                 .ForMember(dest => dest.Name, opt => opt.Ignore())
@@ -169,6 +175,8 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(dest => dest.Type, opt => opt.Ignore())
                 .ForMember(dest => dest.Name, opt => opt.Ignore())
                 .ForMember(dest => dest.Content, opt => opt.Ignore());
+
+            #endregion
 
             // Customers
             CreateMap<Lykke.Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerModel>(MemberList.Destination)
@@ -288,18 +296,38 @@ namespace MAVN.Service.AdminAPI
 
             CreateMap< Lykke.Service.CurrencyConvertor.Client.Models.Responses.GlobalCurrencyRateModel, GlobalCurrencyRateModel>();
             CreateMap<GlobalCurrencyRateModel, Lykke.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>();
-            
+
+            #region Voucher Campaign
+
             CreateMap<VoucherCampaignResponseModel, SmartVoucherCampaignResponse>();
-            CreateMap<VoucherCampaignDetailsResponseModel, SmartVoucherCampaignDetailsResponse>();
-            CreateMap<SmartVoucherCampaignCreateRequest, VoucherCampaignCreateModel>()
-                .ForMember(x => x.CreatedBy, opt => opt.Ignore());
-            CreateMap<SmartVoucherCampaignEditRequest, VoucherCampaignEditModel>();
-            CreateMap<SmartVoucherCampaignSetImageRequest, CampaignImageFileRequest>();
-            CreateMap<VoucherCampaignContentResponseModel, SmartVoucherCampaignContentResponse>();
-            CreateMap<SmartVouchers.Client.Models.Responses.FileResponseModel, FileResponseModel>();
-            CreateMap<SmartVoucherCampaignContentCreateRequest,VoucherCampaignContentCreateModel>();
-            CreateMap<VoucherResponseModel,SmartVoucherResponse>();
+            CreateMap<VoucherCampaignDetailsResponseModel, SmartVoucherCampaignDetailsResponse>(MemberList.Destination)
+                .ForMember(dest => dest.MobileContents, opt => opt.Ignore());
+
+            CreateMap<SmartVoucherCampaignCreateRequest, VoucherCampaignCreateModel>(MemberList.Destination)
+                .ForMember(dest => dest.Description,
+                    opt => opt.MapFrom(src => string.IsNullOrEmpty(src.Description) ? null : src.Description))
+                .ForMember(dest => dest.ToDate,
+                    opt => opt.MapFrom(src => src.ToDate.HasValue ? src.ToDate.Value.Date.AddDays(1).AddMilliseconds(-1) : src.ToDate))
+                .ForMember(dest => dest.LocalizedContents, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
+
+            CreateMap<SmartVoucherCampaignEditRequest, VoucherCampaignEditModel>(MemberList.Destination)
+                .ForMember(dest => dest.Description,
+                    opt => opt.MapFrom(src => string.IsNullOrEmpty(src.Description) ? null : src.Description))
+                .ForMember(dest => dest.ToDate,
+                    opt => opt.MapFrom(src => src.ToDate.HasValue ? src.ToDate.Value.Date.AddDays(1).AddMilliseconds(-1) : src.ToDate))
+                .ForMember(dest => dest.LocalizedContents, opt => opt.Ignore());
+
+            CreateMap<SmartVoucherCampaignSetImageRequest, CampaignImageFileRequest>(MemberList.Destination)
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ContentId))
+                .ForMember(dest => dest.Type, opt => opt.Ignore())
+                .ForMember(dest => dest.Name, opt => opt.Ignore())
+                .ForMember(dest => dest.Content, opt => opt.Ignore());
+
+            CreateMap<VoucherResponseModel, SmartVoucherResponse>();
             CreateMap<PagedRequestModel, BasePaginationRequestModel>();
+
+            #endregion
         }
 
         private static DateTime ToDateTime(long input)

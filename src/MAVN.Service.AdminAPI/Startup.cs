@@ -31,6 +31,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Converters;
 
 namespace MAVN.Service.AdminAPI
 {
@@ -76,6 +77,8 @@ namespace MAVN.Service.AdminAPI
                 {
                     options.SerializerSettings.ContractResolver =
                         new Newtonsoft.Json.Serialization.DefaultContractResolver();
+
+                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
                 })
                 .AddFluentValidation(opt =>
                 {
