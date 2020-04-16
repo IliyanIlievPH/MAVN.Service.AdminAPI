@@ -244,7 +244,9 @@ namespace MAVN.Service.AdminAPI.Controllers
                 }
                 else
                 {
-                    var newMobileContent = new MobileContentResponse {MobileLanguage = content.Localization};
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
+                    var newMobileContent = new MobileContentResponse {MobileLanguage = mobileLanguage };
 
                     FillMobileContent(newMobileContent);
 
@@ -306,11 +308,13 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             foreach (var mobileContent in model.MobileContents)
             {
+                Enum.TryParse<Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
                 if (!string.IsNullOrEmpty(mobileContent.Title))
                 {
                     mobileContents.Add(new BurnRuleContentCreateRequest
                     {
-                        Localization = mobileContent.MobileLanguage,
+                        Localization = mobileLanguage,
                         RuleContentType = RuleContentType.Title,
                         Value = mobileContent.Title
                     });
@@ -318,7 +322,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
                 mobileContents.Add(new BurnRuleContentCreateRequest
                 {
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     RuleContentType = RuleContentType.Description,
                     Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
                 });
@@ -326,7 +330,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 // create content for adding image
                 mobileContents.Add(new BurnRuleContentCreateRequest
                 {
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     RuleContentType = RuleContentType.UrlForPicture,
                     Value = null
                 });
@@ -354,9 +358,12 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 if (content.RuleContentType == RuleContentType.UrlForPicture)
                 {
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
                     createImageContents.Add(new ImageContentCreatedResponse
                     {
-                        MobileLanguage = content.Localization, RuleContentId = content.Id
+                        MobileLanguage = mobileLanguage,
+                        RuleContentId = content.Id
                     });
                 }
             }
@@ -433,13 +440,15 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             foreach (var mobileContent in model.MobileContents)
             {
+                Enum.TryParse<Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
                 if (!string.IsNullOrEmpty(mobileContent.Title))
                 {
                     mobileContents.Add(new BurnRuleContentEditRequest
                     {
                         Id = mobileContent.TitleId,
                         RuleContentType = RuleContentType.Title,
-                        Localization = mobileContent.MobileLanguage,
+                        Localization = mobileLanguage,
                         Value = mobileContent.Title
                     });
                 }
@@ -448,7 +457,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     Id = mobileContent.DescriptionId,
                     RuleContentType = RuleContentType.Description,
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
                 });
 
@@ -456,7 +465,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     Id = mobileContent.ImageId,
                     RuleContentType = RuleContentType.UrlForPicture,
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     Value = mobileContent.ImageBlobUrl
                 });
             }

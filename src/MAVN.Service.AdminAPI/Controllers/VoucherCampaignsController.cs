@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Falcon.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
+using Lykke.Service.Campaign.Client.Models.Enums;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
+using MAVN.Service.AdminAPI.Models.ActionRules;
 using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns;
 using MAVN.Service.SmartVouchers.Client;
+using MAVN.Service.SmartVouchers.Client.Models.Enums;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
 using MAVN.Service.SmartVouchers.Client.Models.Responses.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PublishedAndActiveCampaignsVouchersCountResponse = MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns.PublishedAndActiveCampaignsVouchersCountResponse;
 
@@ -27,15 +34,18 @@ namespace MAVN.Service.AdminAPI.Controllers
     {
         private readonly ISmartVouchersClient _smartVouchersClient;
         private readonly IExtRequestContext _requestContext;
+        private readonly IImageService _imageService;
         private readonly IMapper _mapper;
 
         public VoucherCampaignsController(
             ISmartVouchersClient smartVouchersClient,
             IExtRequestContext requestContext,
+            IImageService imageService,
             IMapper mapper)
         {
             _smartVouchersClient = smartVouchersClient;
             _requestContext = requestContext;
+            _imageService = imageService;
             _mapper = mapper;
         }
 
@@ -88,6 +98,54 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             var result = _mapper.Map<SmartVoucherCampaignDetailsResponse>(campaign);
 
+            // dictionary by Localization
+            var mobileContentsDictionary = new Dictionary<string, MobileContentResponse>();
+
+            foreach (var content in campaign.LocalizedContents)
+            {
+                if (mobileContentsDictionary.TryGetValue(content.Localization.ToString(), out var existingMobileContent))
+                {
+                    FillMobileContent(existingMobileContent);
+                }
+                else
+                {
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
+                    var newMobileContent = new MobileContentResponse { MobileLanguage = mobileLanguage };
+
+                    FillMobileContent(newMobileContent);
+
+                    mobileContentsDictionary.TryAdd(content.Localization.ToString(), newMobileContent);
+                }
+
+                void FillMobileContent(MobileContentResponse mobileContent)
+                {
+                    switch (content.ContentType)
+                    {
+                        case VoucherCampaignContentType.Name:
+                            mobileContent.Title = content.Value;
+                            mobileContent.TitleId = content.Id;
+                            break;
+                        case VoucherCampaignContentType.Description:
+                            mobileContent.Description = content.Value;
+                            mobileContent.DescriptionId = content.Id;
+                            break;
+                        case VoucherCampaignContentType.ImageUrl:
+                            mobileContent.ImageId = content.Id;
+                            mobileContent.ImageBlobUrl = content.Value;
+                            mobileContent.Image = new ImageResponse
+                            {
+                                Id = content.Image?.Id,
+                                RuleContentId = content.Id.ToString(),
+                                ImageBlobUrl = content.Image?.BlobUrl
+                            };
+                            break;
+                    }
+                }
+            }
+
+            result.MobileContents = mobileContentsDictionary.ToList().OrderBy(x => x.Key).Select(x => x.Value).ToList();
+
             return result;
         }
 
@@ -99,13 +157,76 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">Created campaign id.</response>
         [HttpPost]
+        [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public Task<Guid> CreateAsync([FromBody] SmartVoucherCampaignCreateRequest request)
+        public async Task<SmartVoucherCampaignCreatedResponse> CreateAsync([FromBody] SmartVoucherCampaignCreateRequest model)
         {
-            var campaign = _mapper.Map<VoucherCampaignCreateModel>(request);
+            var campaign = _mapper.Map<VoucherCampaignCreateModel>(model);
             campaign.CreatedBy = _requestContext.UserId;
 
-            return _smartVouchersClient.CampaignsApi.CreateAsync(campaign);
+            var mobileContents = new List<VoucherCampaignContentCreateModel>();
+
+            foreach (var mobileContent in model.MobileContents)
+            {
+                Enum.TryParse<SmartVouchers.Client.Models.Enums.Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
+                if (!string.IsNullOrEmpty(mobileContent.Title))
+                {
+                    mobileContents.Add(new VoucherCampaignContentCreateModel
+                    {
+                        Localization = mobileLanguage,
+                        ContentType = VoucherCampaignContentType.Name,
+                        Value = mobileContent.Title
+                    });
+                }
+
+                mobileContents.Add(new VoucherCampaignContentCreateModel
+                {
+                    Localization = mobileLanguage,
+                    ContentType = VoucherCampaignContentType.Description,
+                    Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
+                });
+
+                // create content for adding image
+                mobileContents.Add(new VoucherCampaignContentCreateModel
+                {
+                    Localization = mobileLanguage,
+                    ContentType = VoucherCampaignContentType.ImageUrl,
+                    Value = "#"
+                });
+            }
+
+            campaign.LocalizedContents = mobileContents;
+
+            Guid campaignId;
+
+            try
+            {
+                campaignId = await _smartVouchersClient.CampaignsApi.CreateAsync(campaign);
+            }
+            catch (ClientApiException exception)
+            {
+                throw new ValidationApiException(exception.ErrorResponse);
+            }
+
+            var createdCampaign = await _smartVouchersClient.CampaignsApi.GetByIdAsync(campaignId);
+            var createImageContents = new List<ImageContentCreatedResponse>();
+
+            foreach (var content in createdCampaign.LocalizedContents)
+            {
+                if (content.ContentType == VoucherCampaignContentType.ImageUrl)
+                {
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
+                    createImageContents.Add(new ImageContentCreatedResponse
+                    {
+                        MobileLanguage = mobileLanguage,
+                        RuleContentId = content.Id
+                    });
+                }
+            }
+
+            return new SmartVoucherCampaignCreatedResponse { Id = campaignId, CreatedImageContents = createImageContents };
         }
 
         /// <summary>
@@ -115,14 +236,62 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="204"></response>
         [HttpPut]
+        [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
         [ProducesResponseType(typeof(UpdateVoucherCampaignErrorCodes), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.NoContent)]
-        public async Task UpdateAsync([FromBody] SmartVoucherCampaignEditRequest request)
+        public async Task UpdateAsync([FromBody] SmartVoucherCampaignEditRequest model)
         {
-            var result = await _smartVouchersClient.CampaignsApi.UpdateAsync(_mapper.Map<VoucherCampaignEditModel>(request));
+            var campaign = _mapper.Map<VoucherCampaignEditModel>(model);
 
-            if (result != UpdateVoucherCampaignErrorCodes.None)
-                throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(result.ToString()));
+            var mobileContents = new List<VoucherCampaignContentEditModel>();
+
+            foreach (var mobileContent in model.MobileContents)
+            {
+                Enum.TryParse<SmartVouchers.Client.Models.Enums.Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
+                if (!string.IsNullOrEmpty(mobileContent.Title))
+                {
+                    mobileContents.Add(new VoucherCampaignContentEditModel
+                    {
+                        Id = mobileContent.TitleId,
+                        ContentType = VoucherCampaignContentType.Name,
+                        Localization = mobileLanguage,
+                        Value = mobileContent.Title
+                    });
+                }
+
+                mobileContents.Add(new VoucherCampaignContentEditModel
+                {
+                    Id = mobileContent.DescriptionId,
+                    ContentType = VoucherCampaignContentType.Description,
+                    Localization = mobileLanguage,
+                    Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
+                });
+
+                mobileContents.Add(new VoucherCampaignContentEditModel
+                {
+                    Id = mobileContent.ImageId,
+                    ContentType = VoucherCampaignContentType.ImageUrl,
+                    Localization = mobileLanguage,
+                    Value = mobileContent.ImageBlobUrl
+                });
+            }
+
+            campaign.LocalizedContents = mobileContents;
+
+            UpdateVoucherCampaignErrorCodes response;
+
+            try
+            {
+                response = await _smartVouchersClient.CampaignsApi.UpdateAsync(campaign);
+            }
+            catch (ClientApiException exception)
+            {
+                throw new ValidationApiException(exception.ErrorResponse);
+            }
+
+            if (response != UpdateVoucherCampaignErrorCodes.None)
+                throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(response.ToString()));
         }
 
         /// <summary>
@@ -147,18 +316,38 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </summary>
         /// <returns>
         /// </returns>
+        /// <param name="model">The image content fields.</param>
+        /// <param name="formFile">The file.</param>
         /// <response code="204">Image set successfully.</response>
         /// <response code="400">Bad request.</response>
         [HttpPost("image")]
+        [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task SetImage([FromBody] SmartVoucherCampaignSetImageRequest request)
+        public async Task SetImage([FromQuery] SmartVoucherCampaignSetImageRequest model, [Required] IFormFile formFile)
         {
-            var imageModel = _mapper.Map<CampaignImageFileRequest>(request);
+            var imageContent = _imageService.HandleFile(formFile, model.ContentId);
 
-            var error = await _smartVouchersClient.CampaignsApi.SetImage(imageModel);
+            var imageModel = _mapper.Map<SmartVoucherCampaignSetImageRequest, CampaignImageFileRequest>(model,
+                opt => opt.AfterMap((src, dest) =>
+                {
+                    dest.Type = formFile.ContentType;
+                    dest.Name = formFile.FileName;
+                    dest.Content = imageContent;
+                }));
 
-            if(error != SaveImageErrorCodes.None)
+            SaveImageErrorCodes error;
+
+            try
+            {
+                error = await _smartVouchersClient.CampaignsApi.SetImage(imageModel);
+            }
+            catch (ClientApiException exception)
+            {
+                throw new ValidationApiException(exception.ErrorResponse);
+            }
+
+            if (error != SaveImageErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(error.ToString()));
         }
 

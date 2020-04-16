@@ -1,5 +1,4 @@
 ﻿using System;
-using Lykke.Service.Campaign.Client.Models.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -14,7 +13,7 @@ namespace MAVN.Service.AdminAPI.Models.ActionRules
         /// Represents the mobile language of the created image
         /// </summary>
         [JsonConverter(typeof(StringEnumConverter))]
-        public Localization MobileLanguage { get; set; }
+        public MobileLocalization MobileLanguage { get; set; }
 
         /// <summary>
         /// Represents the rule content id of the created image
