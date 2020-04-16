@@ -22,7 +22,7 @@ namespace MAVN.Service.AdminAPI.Validators.SmartVouchers.Campaigns
                 .WithMessage("Name should be specified with length between 3 and 50 characters");
 
             RuleFor(o => o.Description)
-                .Must(x => string.IsNullOrEmpty(x) || x.Length >= 3 && x.Length <= 1000)
+                .Must(x => string.IsNullOrEmpty(x) || (x.Length >= 3 && x.Length <= 1000))
                 .WithMessage("Description should be specified with length between 3 and 1000 characters");
 
             RuleFor(o => o.PartnerId)
