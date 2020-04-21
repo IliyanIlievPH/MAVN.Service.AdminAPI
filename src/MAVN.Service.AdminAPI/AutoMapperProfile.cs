@@ -247,13 +247,16 @@ namespace MAVN.Service.AdminAPI
 
             CreateMap<PartnerListDetailsModel, PartnerRowResponse>(MemberList.Destination);
 
-            CreateMap<PartnerDetailsModel, PartnerDetailsResponse>()
-                .ForMember(dest => dest.ClientSecret, opt => opt.Ignore());
+            CreateMap<PartnerDetailsModel, PartnerDetailsResponse>();
 
             CreateMap<PartnerCreateRequest, PartnerCreateModel>()
+                .ForMember(dest => dest.ClientId, opt => opt.Ignore())
+                .ForMember(dest => dest.ClientSecret, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
 
-            CreateMap<PartnerUpdateRequest, PartnerUpdateModel>();
+            CreateMap<PartnerUpdateRequest, PartnerUpdateModel>()
+                .ForMember(dest => dest.ClientId, opt => opt.Ignore())
+                .ForMember(dest => dest.ClientSecret, opt => opt.Ignore());
 
             CreateMap<LocationCreateRequest, LocationCreateModel>()
                 .ForMember(dest=>dest.ContactPerson, opt=>opt.MapFrom(src=>

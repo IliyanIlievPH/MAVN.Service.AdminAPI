@@ -30,10 +30,6 @@ namespace MAVN.Service.AdminAPI.Validators.Partners
             RuleFor(p => p.Description)
                 .Length(3, 1000)
                 .WithMessage("Description should be between 3 and 1000 chars");
-
-            RuleFor(o => o.ClientId)
-                .NotEmpty()
-                .WithMessage("ClientId required");
         }
     }
 }

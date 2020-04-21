@@ -21,18 +21,6 @@ namespace MAVN.Service.AdminAPI.Validators.Partners
             //RuleFor(p => p.Locations)
             //    .Must(p => p != null && p.Count > 0)
             //    .WithMessage("The Partner should have at least one location.");
-
-            RuleFor(p => p.ClientId)
-                .NotEmpty()
-                .MinimumLength(6)
-                .MaximumLength(64)
-                .WithMessage("The Client Id should be present and within range of 6 to 64 characters long.");
-
-            RuleFor(p => p.ClientSecret)
-                .NotEmpty()
-                .MinimumLength(6)
-                .MaximumLength(64)
-                .WithMessage("The Client Secret should be present and within range of 6 to 64 characters long.");
         }
     }
 }
