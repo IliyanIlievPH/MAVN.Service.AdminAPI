@@ -99,6 +99,9 @@ namespace MAVN.Service.AdminAPI.Controllers
             var requestMapped = _mapper.Map<PartnerCreateRequest, PartnerCreateModel>(request,
                 opt => opt.AfterMap((src, dest) => { dest.CreatedBy = Guid.Parse(_requestContext.UserId); }));
 
+            requestMapped.ClientId = await _partnerManagementClient.Auth.GenerateClientId();
+            requestMapped.ClientSecret = await _partnerManagementClient.Auth.GenerateClientSecret();
+            
             PartnerCreateResponse response;
 
             try
