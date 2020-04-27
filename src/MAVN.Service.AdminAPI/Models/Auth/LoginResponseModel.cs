@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using MAVN.Service.AdminAPI.Models.Admins;
+using MAVN.Service.AdminAPI.Domain.Models;
 
 namespace MAVN.Service.AdminAPI.Models.Auth
 {

@@ -31,7 +31,6 @@
     <PackageReference Include="Falcon.Service.Campaign.Client" Version="8.1.0" />
     <PackageReference Include="Falcon.Service.CustomerProfile.Client" Version="7.7.0" />
     <PackageReference Include="Falcon.Service.DashboardStatistics.Client" Version="1.1.1" />
-    <PackageReference Include="Falcon.Service.PartnerManagement.Client" Version="3.0.0" />
     <PackageReference Include="Falcon.Service.PaymentTransfers.Client" Version="3.0.0" />
     <PackageReference Include="Falcon.Service.PrivateBlockchainFacade.Client" Version="2.9.0" />
     <PackageReference Include="Falcon.Service.QuorumExplorer.Client" Version="3.0.0" />
@@ -59,7 +58,6 @@
     <ProjectReference Include="..\MAVN.Service.AdminAPI.Domain\MAVN.Service.AdminAPI.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Validators\Admin" />
     <Folder Include="Validators\Locations\" />
   </ItemGroup>
   <ItemGroup>

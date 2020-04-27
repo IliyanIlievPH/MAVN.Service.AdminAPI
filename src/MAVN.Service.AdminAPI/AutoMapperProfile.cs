@@ -7,8 +7,8 @@ using Lykke.Service.Campaign.Client.Models.BurnRule.Requests;
 using Lykke.Service.Campaign.Client.Models.BurnRule.Responses;
 using Lykke.Service.Campaign.Client.Models.Files.Requests;
 using Lykke.Service.CrossChainWalletLinker.Client.Models;
-using Lykke.Service.PartnerManagement.Client.Models.Location;
-using Lykke.Service.PartnerManagement.Client.Models.Partner;
+using MAVN.Service.PartnerManagement.Client.Models.Location;
+using MAVN.Service.PartnerManagement.Client.Models.Partner;
 using Lykke.Service.PaymentTransfers.Client.Models.Requests;
 using Lykke.Service.QuorumExplorer.Client.Models;
 using Lykke.Service.Referral.Client.Models.Responses;
@@ -16,7 +16,6 @@ using Lykke.Service.Reporting.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Models;
 using MAVN.Service.AdminAPI.Models.ActionRules;
-using MAVN.Service.AdminAPI.Models.Admins;
 using MAVN.Service.AdminAPI.Models.Auth;
 using MAVN.Service.AdminAPI.Models.Blockchain;
 using MAVN.Service.AdminAPI.Models.BonusTypes;
@@ -52,35 +51,25 @@ namespace MAVN.Service.AdminAPI
     {
         public AutoMapperProfile()
         {
-            // Admin
-            CreateMap<Lykke.Service.AdminManagement.Client.Models.AdminUser, Admin>()
+            #region Admin
+
+            CreateMap<MAVN.Service.AdminManagement.Client.Models.AdminUser, AdminModel>()
                 .ForMember(x => x.Id, x => x.MapFrom(y => y.AdminUserId))
                 .ForMember(x => x.Registered, x => x.MapFrom(y => y.RegisteredAt));
-            CreateMap<Admin, Lykke.Service.AdminManagement.Client.Models.AdminUser>()
+            CreateMap<AdminModel, MAVN.Service.AdminManagement.Client.Models.AdminUser>()
                 .ForMember(x => x.AdminUserId, x => x.MapFrom(y => y.Id))
                 .ForMember(x => x.RegisteredAt, x => x.MapFrom(y => y.Registered));
-
-            CreateMap<Admin, AdminModel>();
-            CreateMap<AdminModel, Admin>();
             
-            CreateMap<Lykke.Service.AdminManagement.Client.Models.AdminPermission, Permission>();
-            CreateMap<Permission, Lykke.Service.AdminManagement.Client.Models.AdminPermission>();
+            CreateMap<AdminLocalization, MAVN.Service.AdminManagement.Client.Models.Enums.Localization>();
             
-            CreateMap<AdminPermission, Permission>();
-            CreateMap<Permission, AdminPermission>();
-            
-            CreateMap<PermissionType, AdminPermissionType>();
-            CreateMap<AdminPermissionType, PermissionType>();
-            
-            CreateMap<Lykke.Service.AdminManagement.Client.Models.AdminPermission, AdminPermission>();
-            CreateMap<AdminPermission, Lykke.Service.AdminManagement.Client.Models.AdminPermission>();
-
-            CreateMap<AdminPermissionLevel, PermissionLevel>();
-            CreateMap<PermissionLevel, AdminPermissionLevel>();
+            CreateMap<MAVN.Service.AdminManagement.Client.Models.AdminPermission, Permission>();
+            CreateMap<Permission, MAVN.Service.AdminManagement.Client.Models.AdminPermission>();
             
             // Auth
             CreateMap<LoginModel,
-                Lykke.Service.AdminManagement.Client.Models.AuthenticateRequestModel>(MemberList.Destination);
+                MAVN.Service.AdminManagement.Client.Models.AuthenticateRequestModel>(MemberList.Destination);
+
+            #endregion
 
             // Bonus Types
             CreateMap<Lykke.Service.Campaign.Client.Models.BonusType.BonusTypeModel,
@@ -260,7 +249,7 @@ namespace MAVN.Service.AdminAPI
 
             CreateMap<LocationCreateRequest, LocationCreateModel>()
                 .ForMember(dest=>dest.ContactPerson, opt=>opt.MapFrom(src=>
-                    new Lykke.Service.PartnerManagement.Client.Models.ContactPersonModel
+                    new MAVN.Service.PartnerManagement.Client.Models.ContactPersonModel
                     {
                          Email = src.Email,
                          FirstName = src.FirstName,
@@ -270,7 +259,7 @@ namespace MAVN.Service.AdminAPI
 
             CreateMap<LocationEditRequest, LocationUpdateModel>()
                 .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src =>
-                    new Lykke.Service.PartnerManagement.Client.Models.ContactPersonModel
+                    new MAVN.Service.PartnerManagement.Client.Models.ContactPersonModel
                     {
                         Email = src.Email,
                         FirstName = src.FirstName,

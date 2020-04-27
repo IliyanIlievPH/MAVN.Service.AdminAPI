@@ -1,10 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Solution items", "0. Solution items", "{7664A776-FBC4-4DB1-BE35-29E9664E24B4}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
@@ -67,7 +68,7 @@ Global
 		{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29} = {EE7F3159-E06C-497F-96D4-DB2A6B03A6AB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		RESX_ConfirmAddLanguageFile = True
 		SolutionGuid = {EB6C0EF4-AA6A-444D-8603-3669F73A58BC}
+		RESX_ConfirmAddLanguageFile = True
 	EndGlobalSection
 EndGlobal
