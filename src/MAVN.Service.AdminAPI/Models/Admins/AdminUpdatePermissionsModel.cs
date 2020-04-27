@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using MAVN.Service.AdminAPI.Domain.Models;
 
 namespace MAVN.Service.AdminAPI.Models.Admins
 {
@@ -18,6 +19,6 @@ namespace MAVN.Service.AdminAPI.Models.Admins
         /// <summary>
         /// A list of permissions for admin.
         /// </summary>
-        public List<AdminPermission> Permissions { set; get; }
+        public List<Permission> Permissions { set; get; }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MAVN.Service.AdminAPI.Domain.Models;
 using MAVN.Service.AdminAPI.Models.Common;
 
 namespace MAVN.Service.AdminAPI.Models.Admins

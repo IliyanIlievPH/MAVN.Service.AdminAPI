@@ -2,7 +2,7 @@
 using Falcon.Common.Middleware.Authentication;
 using JetBrains.Annotations;
 using Lykke.Job.TokensStatistics.Client;
-using Lykke.Service.AdminManagement.Client;
+using MAVN.Service.AdminManagement.Client;
 using Lykke.Service.AgentManagement.Client;
 using Lykke.Service.BonusCustomerProfile.Client;
 using Lykke.Service.Campaign.Client;
@@ -14,7 +14,7 @@ using Lykke.Service.CustomerManagement.Client;
 using Lykke.Service.CustomerProfile.Client;
 using Lykke.Service.DashboardStatistics.Client;
 using Lykke.Service.OperationsHistory.Client;
-using Lykke.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client;
 using Lykke.Service.PaymentTransfers.Client;
 using Lykke.Service.PrivateBlockchainFacade.Client;
 using Lykke.Service.QuorumExplorer.Client;

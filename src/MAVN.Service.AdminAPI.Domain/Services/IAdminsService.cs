@@ -7,14 +7,16 @@ namespace MAVN.Service.AdminAPI.Domain.Services
 {
     public interface IAdminsService
     {
-        Task<(AdminServiceCreateResponseError, Admin, string)> AuthenticateAsync(string email, string password);
+        Task<(AdminServiceCreateResponseError, AdminModel, string)> AuthenticateAsync(string email, string password);
 
         Task<AdminChangePasswordErrorCodes> ChangePasswordAsync(
             string email,
             string currentPassword,
             string newPassword);
 
-        Task<(AdminServiceCreateResponseError, Admin)> RegisterAsync(
+        Task<(AdminServiceCreateResponseError, AdminModel)> RegisterPartnerAdminAsync(AdminRegisterModel model);
+
+        Task<(AdminServiceCreateResponseError, AdminModel)> RegisterAsync(
             string email,
             string password,
             string phoneNumber,
@@ -24,7 +26,7 @@ namespace MAVN.Service.AdminAPI.Domain.Services
             string department,
             string jobTitle);
 
-        Task<(AdminServiceResponseError, Admin)> UpdateAdminAsync(
+        Task<(AdminServiceResponseError, AdminModel)> UpdateAdminAsync(
             string adminId,
             string phoneNumber,
             string firstName,
@@ -34,18 +36,18 @@ namespace MAVN.Service.AdminAPI.Domain.Services
             string jobTitle,
             bool isActive);
         
-        Task<(AdminServiceResponseError, Admin)> UpdateAdminPermissionsAsync(string adminId, List<Permission> permissions);
+        Task<(AdminServiceResponseError, AdminModel)> UpdateAdminPermissionsAsync(string adminId, List<Permission> permissions);
         
-        Task<(int, int, List<Admin>)> GetAsync(
+        Task<(int, int, List<AdminModel>)> GetAsync(
             int pageSize,
             int pageNumber,
             string searchValue,
             bool? active);
 
-        Task<(AdminServiceResponseError, Admin)> GetAsync(string adminId);
+        Task<(AdminServiceResponseError, AdminModel)> GetAsync(string adminId);
 
         List<PermissionType> GetAllPermissions();
 
-        Task<(AdminResetPasswordErrorCodes, Admin)> ResetPasswordAsync(string adminId);
+        Task<(AdminResetPasswordErrorCodes, AdminModel)> ResetPasswordAsync(string adminId);
     }
 }

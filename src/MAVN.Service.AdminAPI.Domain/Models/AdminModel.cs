@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace MAVN.Service.AdminAPI.Models.Admins
+namespace MAVN.Service.AdminAPI.Domain.Models
 {
     /// <summary>
     /// Represents an admin
@@ -24,6 +24,9 @@ namespace MAVN.Service.AdminAPI.Models.Admins
         /// The admin email address.
         /// </summary>
         public string Email { get; set; }
+
+        /// <summary>Email Verified flag.</summary>
+        public string IsEmailVerified { get; set; }
 
         /// <summary>
         /// The admin first name.
@@ -59,10 +62,10 @@ namespace MAVN.Service.AdminAPI.Models.Admins
         /// Job Title
         /// </summary>
         public string JobTitle { get; set; }
-        
+
         /// <summary>
         /// Permissions
         /// </summary>
-        public List<AdminPermission> Permissions { set; get; }
+        public List<Permission> Permissions { set; get; }
     }
 }

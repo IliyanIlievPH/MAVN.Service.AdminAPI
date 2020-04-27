@@ -18,8 +18,8 @@ using Lykke.Service.Campaign.Client.Models.EarnRuleContent;
 using Lykke.Service.Campaign.Client.Models.Enums;
 using Lykke.Service.Campaign.Client.Models.Files.Requests;
 using Lykke.Service.CurrencyConvertor.Client;
-using Lykke.Service.PartnerManagement.Client;
-using Lykke.Service.PartnerManagement.Client.Models;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure;
@@ -103,7 +103,10 @@ namespace MAVN.Service.AdminAPI.Controllers
                 var vertical = camp.Conditions.FirstOrDefault(c => !c.IsHiddenType)?.Vertical;
 
                 if (vertical != null)
-                    campaignVerticals.Add(camp.Id, vertical.Value);
+                {
+                    Enum.TryParse<Vertical>(vertical.Value.ToString(), out var parsedVertical);
+                    campaignVerticals.Add(camp.Id, parsedVertical);
+                }
 
                 if (!camp.UsePartnerCurrencyRate)
                     continue;

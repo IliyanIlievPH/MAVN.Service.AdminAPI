@@ -19,9 +19,9 @@ using Lykke.Service.Campaign.Client.Models.BurnRuleContent;
 using Lykke.Service.Campaign.Client.Models.Enums;
 using Lykke.Service.Campaign.Client.Models.Files.Requests;
 using Lykke.Service.CurrencyConvertor.Client;
-using Lykke.Service.PartnerManagement.Client;
-using Lykke.Service.PartnerManagement.Client.Models;
-using Lykke.Service.PartnerManagement.Client.Models.Partner;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Models;
+using MAVN.Service.PartnerManagement.Client.Models.Partner;
 using Lykke.Service.Vouchers.Client;
 using Lykke.Service.Vouchers.Client.Models;
 using Lykke.Service.Vouchers.Client.Models.Vouchers;
@@ -225,7 +225,9 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             var result = _mapper.Map<BurnRuleModel>(burnRuleResponse);
 
-            if (burnRuleResponse.Vertical == Vertical.Retail)
+            if (burnRuleResponse.Vertical.HasValue &&
+                Enum.TryParse<Vertical>(burnRuleResponse.Vertical.Value.ToString(), out var parsedVertical) &&
+                parsedVertical == Vertical.Retail)
             {
                 var spendRuleVouchers = await _vouchersClient.Reports.GetSpendRuleVouchersAsync(Guid.Parse(id));
 
