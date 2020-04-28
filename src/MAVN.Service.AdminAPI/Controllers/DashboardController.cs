@@ -7,6 +7,7 @@ using Lykke.Service.DashboardStatistics.Client.Models.Customers;
 using Lykke.Service.DashboardStatistics.Client.Models.Leads;
 using Lykke.Service.DashboardStatistics.Client.Models.Tokens;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Dashboard;
 using Microsoft.AspNetCore.Mvc;
@@ -15,18 +16,23 @@ using CustomersStatisticResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.C
 namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
-    [Permission(PermissionType.Dashboard, PermissionLevel.View)]
     [LykkeAuthorizeWithoutCache]
     [Route("/api/[controller]")]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardStatisticsClient _dashboardStatisticsClient;
         private readonly IMapper _mapper;
+        private readonly IExtRequestContext _requestContext;
 
-        public DashboardController(IDashboardStatisticsClient dashboardStatisticsClient, IMapper mapper)
+        public DashboardController(
+            IDashboardStatisticsClient dashboardStatisticsClient,
+            IMapper mapper,
+            IExtRequestContext requestContext
+        )
         {
             _dashboardStatisticsClient = dashboardStatisticsClient;
             _mapper = mapper;
+            _requestContext = requestContext;
         }
 
         /// <summary>
@@ -37,6 +43,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of leads.</response>
         [HttpGet("leads")]
+        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
         [ProducesResponseType(typeof(LeadsListResponse), (int)HttpStatusCode.OK)]
         public async Task<LeadsListResponse> GetLeadsStatisticsAsync([FromQuery] LeadsListRequest request)
         {
@@ -53,9 +60,28 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of customers.</response>
         [HttpGet("customers")]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(CustomersStatisticResponseModel), (int)HttpStatusCode.OK)]
         public async Task<CustomersStatisticResponseModel> GetCustomerStatisticsAsync([FromQuery] CustomersListRequest request)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.Dashboard);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // TODO: filter data for current _requestContext.UserId
+            }
+
+            #endregion
+
             var result = await _dashboardStatisticsClient.CustomersApi.GetAsync(_mapper.Map<CustomersListRequestModel>(request));
 
             return _mapper.Map<CustomersStatisticResponseModel>(result);
@@ -69,6 +95,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of tokens.</response>
         [HttpGet("tokens")]
+        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
         [ProducesResponseType(typeof(TokensListResponse), (int)HttpStatusCode.OK)]
         public async Task<TokensListResponse> GetTokensStatisticsAsync([FromQuery] TokensListRequest request)
         {

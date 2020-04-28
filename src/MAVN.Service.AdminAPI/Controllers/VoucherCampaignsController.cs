@@ -27,7 +27,14 @@ using PublishedAndActiveCampaignsVouchersCountResponse = MAVN.Service.AdminAPI.M
 namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
-    [Permission(PermissionType.ActionRules, PermissionLevel.View)]
+    [Permission(
+        PermissionType.VoucherManager,
+        new[]
+        {
+            PermissionLevel.View,
+            PermissionLevel.PartnerEdit,
+        }
+    )]
     [LykkeAuthorizeWithoutCache]
     [Route("/api/[controller]")]
     public class VoucherCampaignsController : ControllerBase
@@ -62,13 +69,26 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<PaginatedSmartVoucherCampaignsListResponse> GetSmartVoucherCampaignsListAsync([FromQuery] SmartVoucherCampaignsListRequest request)
         {
-            var result = await _smartVouchersClient.CampaignsApi.GetAsync(new VoucherCampaignsPaginationRequestModel
+            var model = new VoucherCampaignsPaginationRequestModel
             {
                 CampaignName = request.CampaignName,
                 CurrentPage = request.CurrentPage,
                 OnlyActive = request.OnlyActive,
                 PageSize = request.PageSize
-            });
+            };
+
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // TODO: filter data for current _requestContext.UserId
+            }
+
+            #endregion
+
+            var result = await _smartVouchersClient.CampaignsApi.GetAsync(model);
 
             return new PaginatedSmartVoucherCampaignsListResponse
             {
@@ -87,6 +107,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="400">An error occurred.</response>
         [HttpGet("{campaignId}")]
         [ProducesResponseType(typeof(SmartVoucherCampaignDetailsResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<SmartVoucherCampaignDetailsResponse> GetByIdAsync(Guid campaignId)
         {
@@ -95,6 +116,19 @@ namespace MAVN.Service.AdminAPI.Controllers
             if (campaign == null)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode("SmartVoucherCampaignDoesNotExist",
                     "Smart voucher campaign with this id does not exist"));
+
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // filter data for current _requestContext.UserId
+                if (campaign.CreatedBy != _requestContext.UserId)
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
 
             var result = _mapper.Map<SmartVoucherCampaignDetailsResponse>(campaign);
 
@@ -157,7 +191,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">Created campaign id.</response>
         [HttpPost]
-        [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
+        [Permission(
+            PermissionType.VoucherManager,
+            new[]
+            {
+                PermissionLevel.Edit,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         public async Task<SmartVoucherCampaignCreatedResponse> CreateAsync([FromBody] SmartVoucherCampaignCreateRequest model)
         {
@@ -236,11 +277,34 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="204"></response>
         [HttpPut]
-        [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
+        [Permission(
+            PermissionType.VoucherManager,
+            new[]
+            {
+                PermissionLevel.Edit,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(UpdateVoucherCampaignErrorCodes), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.NoContent)]
         public async Task UpdateAsync([FromBody] SmartVoucherCampaignEditRequest model)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                var existingCampaign = await _smartVouchersClient.CampaignsApi.GetByIdAsync(model.Id);
+
+                // filter data for current _requestContext.UserId
+                if (existingCampaign != null &&
+                    existingCampaign.CreatedBy != _requestContext.UserId)
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
+
             var campaign = _mapper.Map<VoucherCampaignEditModel>(model);
 
             var mobileContents = new List<VoucherCampaignContentEditModel>();
@@ -301,10 +365,29 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="204">Delete campaign id.</response>
         [HttpDelete("{campaignId}")]
+        [Permission(
+            PermissionType.VoucherManager,
+            new[]
+            {
+                PermissionLevel.Edit,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task DeleteAsync(Guid campaignId)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // TODO: send _requestContext.UserId
+            }
+
+            #endregion
+
             var result = await _smartVouchersClient.CampaignsApi.DeleteAsync(campaignId);
 
             if (result == false)
@@ -321,11 +404,34 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="204">Image set successfully.</response>
         /// <response code="400">Bad request.</response>
         [HttpPost("image")]
-        [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
+        [Permission(
+            PermissionType.VoucherManager,
+            new[]
+            {
+                PermissionLevel.Edit,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task SetImage([FromQuery] SmartVoucherCampaignSetImageRequest model, [Required] IFormFile formFile)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                var existingCampaign = await _smartVouchersClient.CampaignsApi.GetByIdAsync(model.CampaignId);
+
+                // filter data for current _requestContext.UserId
+                if (existingCampaign != null &&
+                    existingCampaign.CreatedBy != _requestContext.UserId)
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
+
             var imageContent = _imageService.HandleFile(formFile, model.ContentId);
 
             var imageModel = _mapper.Map<SmartVoucherCampaignSetImageRequest, CampaignImageFileRequest>(model,
@@ -361,6 +467,17 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(PublishedAndActiveCampaignsVouchersCountResponse), (int)HttpStatusCode.OK)]
         public async Task<PublishedAndActiveCampaignsVouchersCountResponse> GetPublishedAndActiveCampaignsVouchersCountAsync()
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // TODO: send _requestContext.UserId
+            }
+
+            #endregion
+
             var result = await _smartVouchersClient.CampaignsApi.GetPublishedAndActiveCampaignsVouchersCountAsync();
 
             return new PublishedAndActiveCampaignsVouchersCountResponse

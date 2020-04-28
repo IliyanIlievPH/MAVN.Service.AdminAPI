@@ -18,7 +18,7 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
     public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
     {
         private readonly IReadOnlyList<PermissionType> _permissionTypes;
-        private readonly PermissionLevel _permissionLevel;
+        private readonly IReadOnlyList<PermissionLevel> _permissionLevels;
         private IExtRequestContext _requestContext;
 
         public PermissionAttribute(
@@ -26,7 +26,7 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
             PermissionLevel permissionLevel)
         {
             _permissionTypes = new List<PermissionType> { permissionType };
-            _permissionLevel = permissionLevel;
+            _permissionLevels = new List<PermissionLevel> { permissionLevel };
         }
 
         public PermissionAttribute(
@@ -34,7 +34,23 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
             PermissionLevel permissionLevel)
         {
             _permissionTypes = permissionTypes.ToList();
-            _permissionLevel = permissionLevel;
+            _permissionLevels = new List<PermissionLevel> { permissionLevel };
+        }
+
+        public PermissionAttribute(
+            PermissionType permissionType,
+            PermissionLevel[] permissionLevels)
+        {
+            _permissionTypes = new List<PermissionType> { permissionType };
+            _permissionLevels = permissionLevels.ToList();
+        }
+
+        public PermissionAttribute(
+            PermissionType[] permissionTypes,
+            PermissionLevel[] permissionLevels)
+        {
+            _permissionTypes = permissionTypes.ToList();
+            _permissionLevels = permissionLevels.ToList();
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -43,7 +59,7 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
 
             try
             {
-                var hasPermission = await _requestContext.AdminHasPermissionAsync(_permissionTypes, _permissionLevel);
+                var hasPermission = await _requestContext.AdminHasPermissionAsync(_permissionTypes, _permissionLevels);
 
                 if (!hasPermission)
                 {

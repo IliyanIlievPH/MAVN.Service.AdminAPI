@@ -10,7 +10,7 @@ namespace MAVN.Service.AdminAPI.Infrastructure
         string SessionToken { get; }
         string UserId { get; }
 
-        Task<bool> AdminHasPermissionAsync(IReadOnlyList<PermissionType> types, PermissionLevel level);
+        Task<bool> AdminHasPermissionAsync(IReadOnlyList<PermissionType> types, IReadOnlyList<PermissionLevel> levels);
 
         Task<PermissionLevel?> GetPermissionLevelAsync(PermissionType permissionType);
     }

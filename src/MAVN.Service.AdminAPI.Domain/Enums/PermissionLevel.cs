@@ -4,7 +4,6 @@
     {
         View,
         Edit,
-        PartnerView,
         PartnerEdit,
     }
 }
