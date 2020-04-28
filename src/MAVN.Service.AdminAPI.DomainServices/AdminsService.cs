@@ -144,27 +144,27 @@ namespace MAVN.Service.AdminAPI.DomainServices
                         new AdminPermission
                         {
                             Type = PermissionType.Dashboard.ToString(),
-                            Level = AdminPermissionLevel.View // TODO: set PartnerView
-                        },
-                        new AdminPermission
-                        {
-                            Type = PermissionType.ActionRules.ToString(),
-                            Level = AdminPermissionLevel.View
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                         new AdminPermission
                         {
                             Type = PermissionType.VoucherManager.ToString(),
-                            Level = AdminPermissionLevel.Edit // TODO: set PartnerEdit
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                         new AdminPermission
                         {
                             Type = PermissionType.ProgramPartners.ToString(),
-                            Level = AdminPermissionLevel.Edit // TODO: set PartnerEdit
+                            Level = AdminPermissionLevel.PartnerEdit
+                        },
+                        new AdminPermission
+                        {
+                            Type = PermissionType.Reports.ToString(),
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                         new AdminPermission
                         {
                             Type = PermissionType.AdminUsers.ToString(),
-                            Level = AdminPermissionLevel.View // TODO: set PartnerEdit
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                     }
                 });
