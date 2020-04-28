@@ -83,6 +83,8 @@ namespace MAVN.Service.AdminAPI.DomainServices
                     return (AdminServiceCreateResponseError.AdminNotActive, null, null);
                 case AdminManagementError.LoginNotFound:
                     return (AdminServiceCreateResponseError.LoginNotFound, null, null);
+                case AdminManagementError.AdminEmailIsNotVerified:
+                    return (AdminServiceCreateResponseError.AdminEmailIsNotVerified, null, null);
                 case AdminManagementError.PasswordMismatch:
                     return (AdminServiceCreateResponseError.PasswordMismatch, null, null);
                 case AdminManagementError.InvalidEmailOrPasswordFormat:
@@ -142,27 +144,27 @@ namespace MAVN.Service.AdminAPI.DomainServices
                         new AdminPermission
                         {
                             Type = PermissionType.Dashboard.ToString(),
-                            Level = AdminPermissionLevel.View // TODO: set PartnerView
-                        },
-                        new AdminPermission
-                        {
-                            Type = PermissionType.ActionRules.ToString(),
-                            Level = AdminPermissionLevel.View
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                         new AdminPermission
                         {
                             Type = PermissionType.VoucherManager.ToString(),
-                            Level = AdminPermissionLevel.Edit // TODO: set PartnerEdit
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                         new AdminPermission
                         {
                             Type = PermissionType.ProgramPartners.ToString(),
-                            Level = AdminPermissionLevel.Edit // TODO: set PartnerEdit
+                            Level = AdminPermissionLevel.PartnerEdit
+                        },
+                        new AdminPermission
+                        {
+                            Type = PermissionType.Reports.ToString(),
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                         new AdminPermission
                         {
                             Type = PermissionType.AdminUsers.ToString(),
-                            Level = AdminPermissionLevel.View // TODO: set PartnerEdit
+                            Level = AdminPermissionLevel.PartnerEdit
                         },
                     }
                 });

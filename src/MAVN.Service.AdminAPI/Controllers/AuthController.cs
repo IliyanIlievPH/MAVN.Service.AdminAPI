@@ -76,6 +76,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                 case AdminServiceCreateResponseError.LoginNotFound:
                 case AdminServiceCreateResponseError.PasswordMismatch:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.InvalidCredentials);
+                case AdminServiceCreateResponseError.AdminEmailIsNotVerified:
+                    throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminEmailIsNotVerified);
                 case AdminServiceCreateResponseError.InvalidEmailOrPasswordFormat:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.InvalidEmailOrPasswordFormat);
                 default:
