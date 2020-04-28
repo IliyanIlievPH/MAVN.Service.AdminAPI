@@ -83,6 +83,8 @@ namespace MAVN.Service.AdminAPI.DomainServices
                     return (AdminServiceCreateResponseError.AdminNotActive, null, null);
                 case AdminManagementError.LoginNotFound:
                     return (AdminServiceCreateResponseError.LoginNotFound, null, null);
+                case AdminManagementError.AdminEmailIsNotVerified:
+                    return (AdminServiceCreateResponseError.AdminEmailIsNotVerified, null, null);
                 case AdminManagementError.PasswordMismatch:
                     return (AdminServiceCreateResponseError.PasswordMismatch, null, null);
                 case AdminManagementError.InvalidEmailOrPasswordFormat:
