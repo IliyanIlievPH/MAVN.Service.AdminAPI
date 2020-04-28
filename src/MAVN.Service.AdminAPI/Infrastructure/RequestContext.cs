@@ -38,7 +38,7 @@ namespace MAVN.Service.AdminAPI.Infrastructure
 
         public string UserId => GetUserId();
 
-        public async Task<bool> AdminHasPermissionAsync(IReadOnlyList<PermissionType> types, PermissionLevel level)
+        public async Task<bool> AdminHasPermissionAsync(IReadOnlyList<PermissionType> types, IReadOnlyList<PermissionLevel> levels)
         {
             var adminId = GetUserId();
 
@@ -47,19 +47,20 @@ namespace MAVN.Service.AdminAPI.Infrastructure
 
             await InitAdminPermissionsAsync(adminId);
 
-            if (level == PermissionLevel.View || level == PermissionLevel.PartnerView)
-                return types.Any(t => _permissionsDict.ContainsKey(t));
+            bool hasPermission = false;
 
             foreach (var type in types)
             {
-                if (!_permissionsDict.TryGetValue(type, out var permissionLevel))
+                if (!_permissionsDict.TryGetValue(type, out var foundLevel))
                     continue;
 
-                if (permissionLevel == PermissionLevel.Edit || permissionLevel == PermissionLevel.PartnerEdit)
+                hasPermission = levels.Contains(foundLevel);
+
+                if (hasPermission)
                     return true;
             }
 
-            return false;
+            return hasPermission;
         }
 
         public async Task<PermissionLevel?> GetPermissionLevelAsync(PermissionType permissionType)

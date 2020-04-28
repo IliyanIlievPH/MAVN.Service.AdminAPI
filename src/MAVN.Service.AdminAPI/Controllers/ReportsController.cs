@@ -8,6 +8,7 @@ using Falcon.Common.Middleware.Authentication;
 using Lykke.Service.Reporting.Client;
 using Lykke.Service.Reporting.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Reports;
@@ -17,17 +18,28 @@ namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
     [LykkeAuthorizeWithoutCache]
-    [Permission(PermissionType.Reports, PermissionLevel.View)]
+    [Permission(
+        PermissionType.Reports,
+        new[]
+        {
+            PermissionLevel.View,
+            PermissionLevel.PartnerEdit,
+        }
+    )]
     [Route("/api/[controller]")]
     public class ReportsController : ControllerBase
     {
         private readonly IReportClient _reportClient;
+        private readonly IExtRequestContext _requestContext;
         private readonly IMapper _mapper;
 
-        public ReportsController(IReportClient reportClient,
+        public ReportsController(
+            IReportClient reportClient,
+            IExtRequestContext requestContext,
             IMapper mapper)
         {
             _reportClient = reportClient;
+            _requestContext = requestContext;
             _mapper = mapper;
         }
 
@@ -35,6 +47,17 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(ReportListModel), (int)HttpStatusCode.OK)]
         public async Task<ReportListModel> GetTransactionReportAsync([FromBody] ReportRequestModel request)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // TODO: send _requestContext.UserId
+            }
+
+            #endregion
+
             var toDate = request.To.Date.AddDays(1).AddMilliseconds(-1);
             var fromDate = request.From.Date;
 
@@ -57,6 +80,17 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(FileResult), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required]  DateTime to)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // TODO: send _requestContext.UserId
+            }
+
+            #endregion
+
             var toDate = to.Date.AddDays(1).AddMilliseconds(-1);
             var fromDate = from.Date;
 

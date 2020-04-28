@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using SuggestedValueMapping = MAVN.Service.AdminAPI.Models.Admins.SuggestedValueMapping;
 using SuggestedValueType = MAVN.Service.AdminAPI.Models.Admins.SuggestedValueType;
 using Microsoft.AspNetCore.Authorization;
+using MAVN.Service.AdminAPI.Infrastructure;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -28,6 +29,7 @@ namespace MAVN.Service.AdminAPI.Controllers
     public class AdminsController : ControllerBase
     {
         private readonly ICredentialsGeneratorService _credentialsGeneratorService;
+        private readonly IExtRequestContext _requestContext;
         private readonly IAdminsService _adminsService;
         private readonly IAdminManagementServiceClient _adminManagementServiceClient;
         private readonly IMapper _mapper;
@@ -35,6 +37,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public AdminsController(
             IAdminsService adminsService,
             ICredentialsGeneratorService credentialsGeneratorService,
+            IExtRequestContext requestContext,
             IMapper mapper,
             IAdminManagementServiceClient adminManagementServiceClient)
         {
@@ -42,6 +45,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             _mapper = mapper;
             _adminManagementServiceClient = adminManagementServiceClient;
             _credentialsGeneratorService = credentialsGeneratorService;
+            _requestContext = requestContext;
         }
 
         /// <summary>
@@ -121,12 +125,32 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <returns>Result of the operation.</returns>
         /// <response code="400">An error occurred while updating admins.</response>
         [HttpPut]
-        [Permission(PermissionType.AdminUsers, PermissionLevel.Edit)]
+        [Permission(
+            PermissionType.AdminUsers,
+            new[]
+            {
+                PermissionLevel.Edit,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [LykkeAuthorizeWithoutCache]
         [ProducesResponseType(typeof(AdminModel), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<AdminModel> UpdateAdminAsync([FromBody] AdminUpdateModel model)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.AdminUsers);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // filter data for current _requestContext.UserId
+                if (model.Id != Guid.Parse(_requestContext.UserId))
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
+
             var (error, admin) = await _adminsService.UpdateAdminAsync(
                 model.Id.ToString(),
                 model.PhoneNumber,
@@ -247,12 +271,32 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">An admin user.</response>
         /// <response code="400">An error occurred while getting admin.</response>
         [HttpGet("query")]
-        [Permission(PermissionType.AdminUsers, PermissionLevel.View)]
+        [Permission(
+            PermissionType.AdminUsers,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [LykkeAuthorizeWithoutCache]
         [ProducesResponseType(typeof(AdminModel), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<AdminModel> GetAdminByIdAsync([FromQuery][Required] Guid adminUserId)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.AdminUsers);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // filter data for current _requestContext.UserId
+                if (adminUserId != Guid.Parse(_requestContext.UserId))
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
+
             var (error, admin) = await _adminsService.GetAsync(adminUserId.ToString());
 
             switch (error)
@@ -297,12 +341,32 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">An admin user.</response>
         /// <response code="400">An error occurred while getting admin.</response>
         [HttpPost("resetPassword")]
+        [Permission(
+            PermissionType.AdminUsers,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
+        [LykkeAuthorizeWithoutCache]
         [ProducesResponseType(typeof(AdminModel), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [Permission(PermissionType.AdminUsers, PermissionLevel.Edit)]
-        [LykkeAuthorizeWithoutCache]
         public async Task<AdminModel> ResetPasswordAsync([FromBody]AdminResetPasswordModel model)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.AdminUsers);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // filter data for current _requestContext.UserId
+                if (model.AdminId != _requestContext.UserId)
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
+
             var (error, admin) = await _adminsService.ResetPasswordAsync(model.AdminId);
 
             switch (error)

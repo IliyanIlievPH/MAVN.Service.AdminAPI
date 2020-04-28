@@ -20,7 +20,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
-    [Permission(new [] { PermissionType.ProgramPartners, PermissionType.ActionRules }, PermissionLevel.PartnerView)]
+    [Permission(
+        new[] {
+            PermissionType.ProgramPartners,
+            PermissionType.ActionRules
+        },
+        new[]
+        {
+            PermissionLevel.View,
+            PermissionLevel.PartnerEdit,
+        }
+    )]
     [LykkeAuthorizeWithoutCache]
     [Route("/api/[controller]")]
     public class PartnersController : ControllerBase
@@ -55,8 +65,21 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<PartnersListResponse> GetAllPartnersAsync([FromQuery] PartnerListRequest request)
         {
+            var requestModel = _mapper.Map<PartnerListRequestModel>(request);
+
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.ProgramPartners);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // TODO: filter data for current _requestContext.UserId
+            }
+
+            #endregion
+
             var result =
-                await _partnerManagementClient.Partners.GetAsync(_mapper.Map<PartnerListRequestModel>(request));
+                await _partnerManagementClient.Partners.GetAsync(requestModel);
 
             return new PartnersListResponse
             {
@@ -82,6 +105,19 @@ namespace MAVN.Service.AdminAPI.Controllers
         {
             var response = await _partnerManagementClient.Partners.GetByIdAsync(id);
 
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.ProgramPartners);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                // filter data for current _requestContext.UserId
+                if (response.CreatedBy != Guid.Parse(_requestContext.UserId))
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
+
             return _mapper.Map<PartnerDetailsResponse>(response);
         }
 
@@ -91,7 +127,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="204">The partner successfully added..</response>
         /// <response code="400">An error occurred while adding partner.</response>
         [HttpPost]
-        [Permission(PermissionType.ProgramPartners, PermissionLevel.PartnerEdit)]
+        [Permission(
+            PermissionType.ProgramPartners,
+            new[]
+            {
+                PermissionLevel.Edit,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task AddAsync([FromBody] PartnerCreateRequest request)
@@ -122,11 +165,34 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">Partner successfully update.</response>
         /// <response code="400">An error occurred while updating partner.</response>
         [HttpPut]
-        [Permission(PermissionType.ProgramPartners, PermissionLevel.PartnerEdit)]
+        [Permission(
+            PermissionType.ProgramPartners,
+            new[]
+            {
+                PermissionLevel.Edit,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task UpdatePartnerAsync([FromBody] PartnerUpdateRequest request)
         {
+            #region Filter
+
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.ProgramPartners);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                var existingPartner = await _partnerManagementClient.Partners.GetByIdAsync(request.Id);
+
+                // filter data for current _requestContext.UserId
+                if (existingPartner != null && 
+                    existingPartner.CreatedBy != Guid.Parse(_requestContext.UserId))
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+            }
+
+            #endregion
+
             var requestModel = _mapper.Map<PartnerUpdateModel>(request);
 
             PartnerUpdateResponse response;

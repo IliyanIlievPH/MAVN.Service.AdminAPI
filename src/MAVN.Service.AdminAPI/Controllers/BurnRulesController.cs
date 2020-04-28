@@ -44,7 +44,7 @@ namespace MAVN.Service.AdminAPI.Controllers
     [ApiController]
     [LykkeAuthorizeWithoutCache]
     [Route("/api/[controller]")]
-    [Permission(PermissionType.ActionRules, PermissionLevel.PartnerView)]
+    [Permission(PermissionType.ActionRules, PermissionLevel.View)]
     public class BurnRulesController : ControllerBase
     {
         private readonly IExtRequestContext _requestContext;

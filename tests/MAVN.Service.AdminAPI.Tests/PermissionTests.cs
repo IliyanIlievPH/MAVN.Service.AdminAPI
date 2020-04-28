@@ -13,7 +13,6 @@ namespace MAVN.Service.AdminAPI.Tests
         {
             nameof(PermissionLevel.View),
             nameof(PermissionLevel.Edit),
-            nameof(PermissionLevel.PartnerView),
             nameof(PermissionLevel.PartnerEdit),
         };
 
