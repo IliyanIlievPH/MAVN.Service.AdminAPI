@@ -54,7 +54,17 @@ namespace MAVN.Service.AdminAPI.Infrastructure
                 if (!_permissionsDict.TryGetValue(type, out var foundLevel))
                     continue;
 
-                hasPermission = levels.Contains(foundLevel);
+                switch (foundLevel)
+                {
+                    case PermissionLevel.Edit:
+                        hasPermission = levels.Any(_ => _ == PermissionLevel.View || _ == PermissionLevel.Edit);
+                        break;
+                    case PermissionLevel.View:
+                    case PermissionLevel.PartnerEdit:
+                    default:
+                        hasPermission = levels.Contains(foundLevel);
+                        break;
+                }                
 
                 if (hasPermission)
                     return true;
