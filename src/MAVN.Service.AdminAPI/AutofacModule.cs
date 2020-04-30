@@ -11,7 +11,7 @@ using Lykke.Service.CrossChainTransfers.Client;
 using Lykke.Service.CrossChainWalletLinker.Client;
 using Lykke.Service.CurrencyConvertor.Client;
 using Lykke.Service.CustomerManagement.Client;
-using Lykke.Service.CustomerProfile.Client;
+using MAVN.Service.CustomerProfile.Client;
 using Lykke.Service.DashboardStatistics.Client;
 using Lykke.Service.OperationsHistory.Client;
 using MAVN.Service.PartnerManagement.Client;
@@ -29,6 +29,7 @@ using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.DomainServices;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Settings;
+using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.SmartVouchers.Client;
 using RequestContext = MAVN.Service.AdminAPI.Infrastructure.RequestContext;
 
@@ -88,6 +89,7 @@ namespace MAVN.Service.AdminAPI
             builder.RegisterReportClient(_appSettings.ReportServiceClient, null);
             builder.RegisterVouchersClient(_appSettings.VouchersServiceClient);
             builder.RegisterSmartVouchersClient(_appSettings.SmartVouchersServiceClient, null);
+            builder.RegisterPaymentManagementClient(_appSettings.PaymentManagementServiceClient, null);
         }
     }
 }
