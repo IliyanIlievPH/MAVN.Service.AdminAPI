@@ -53,7 +53,12 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
             {
-                // TODO: send _requestContext.UserId
+                // TODO: send _requestContext.UserId and get only Voucher operations
+                return new ReportListModel
+                {
+                    Items = new List<ReportItemModel>(),
+                    PagedResponse = new PagedResponseModel(request.CurrentPage, 0)
+                };
             }
 
             #endregion
@@ -80,13 +85,19 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(FileResult), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required]  DateTime to)
         {
+            var fileName = $"transactions_from_{from:dd-MM-yyyy}_to_{to:dd-MM-yyyy}.csv";
+
             #region Filter
 
             var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
 
             if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
             {
-                // TODO: send _requestContext.UserId
+                // TODO: send _requestContext.UserId and get only Voucher operations
+                return new FileContentResult(new byte[0], "text/csv")
+                {
+                    FileDownloadName = fileName
+                };
             }
 
             #endregion
@@ -95,8 +106,6 @@ namespace MAVN.Service.AdminAPI.Controllers
             var fromDate = from.Date;
 
             var clientResult = await _reportClient.Api.FetchReportCsvAsync(fromDate, toDate);
-
-            var fileName = $"transactions_from_{@from:dd-MM-yyyy}_to_{to:dd-MM-yyyy}.csv";
 
             return clientResult.ToCsvFile(fileName);
         }

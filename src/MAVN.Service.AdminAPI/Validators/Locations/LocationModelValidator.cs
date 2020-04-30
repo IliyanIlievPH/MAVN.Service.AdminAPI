@@ -50,8 +50,9 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
             RuleFor(o => o.Phone)
                 .NotEmpty()
                 .WithMessage("Phone number required.")
+                .MinimumLength(3)
                 .MaximumLength(50)
-                .WithMessage("Phone number shouldn't be longer than 50 characters.")
+                .WithMessage("Phone number should be within 3 and 50 characters long.")
                 .Must(o => o != null && _phoneNumberRegex.IsMatch(o))
                 .WithMessage("Phone number contains illegal characters.");
 

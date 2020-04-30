@@ -55,12 +55,19 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A global currency rate.</response>
         [HttpGet("globalCurrencyRate")]
-        [Permission(new PermissionType[]
-        { 
-            PermissionType.ActionRules,
-            PermissionType.ProgramPartners,
-            PermissionType.Settings
-        }, PermissionLevel.View)]
+        [Permission(
+            new []
+            {
+                PermissionType.ActionRules,
+                PermissionType.ProgramPartners,
+                PermissionType.Settings
+            },
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(GlobalCurrencyRateModel), (int)HttpStatusCode.OK)]
         public async Task<GlobalCurrencyRateModel> GetGlobalCurrencyRateAsync()
         {

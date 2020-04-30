@@ -73,7 +73,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
             {
-                // TODO: filter data for current _requestContext.UserId
+                requestModel.CreatedBy = Guid.Parse(_requestContext.UserId);
             }
 
             #endregion

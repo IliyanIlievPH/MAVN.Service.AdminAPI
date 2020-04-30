@@ -95,7 +95,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of tokens.</response>
         [HttpGet("tokens")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(TokensListResponse), (int)HttpStatusCode.OK)]
         public async Task<TokensListResponse> GetTokensStatisticsAsync([FromQuery] TokensListRequest request)
         {
