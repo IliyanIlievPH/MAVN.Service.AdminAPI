@@ -6,7 +6,7 @@ using AutoMapper;
 using Falcon.Common.Middleware.Authentication;
 using Lykke.Job.TokensStatistics.Client;
 using Lykke.Job.TokensStatistics.Client.Models.Requests;
-using Lykke.Service.CustomerProfile.Client;
+using MAVN.Service.CustomerProfile.Client;
 using Lykke.Service.OperationsHistory.Client;
 using Lykke.Service.PrivateBlockchainFacade.Client;
 using Lykke.Service.Referral.Client;

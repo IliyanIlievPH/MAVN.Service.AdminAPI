@@ -9,7 +9,7 @@ using Lykke.Service.CrossChainTransfers.Client;
 using Lykke.Service.CrossChainWalletLinker.Client;
 using Lykke.Service.CurrencyConvertor.Client;
 using Lykke.Service.CustomerManagement.Client;
-using Lykke.Service.CustomerProfile.Client;
+using MAVN.Service.CustomerProfile.Client;
 using Lykke.Service.DashboardStatistics.Client;
 using Lykke.Service.OperationsHistory.Client;
 using MAVN.Service.PartnerManagement.Client;
@@ -25,6 +25,7 @@ using Lykke.Service.WalletManagement.Client;
 using MAVN.Service.AdminAPI.Settings.Clients;
 using MAVN.Service.AdminAPI.Settings.Service;
 using MAVN.Service.AdminAPI.Settings.Slack;
+using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.SmartVouchers.Client;
 
 namespace MAVN.Service.AdminAPI.Settings
@@ -85,5 +86,7 @@ namespace MAVN.Service.AdminAPI.Settings
         public VouchersServiceClientSettings VouchersServiceClient { get; set; }
 
         public SmartVouchersServiceClientSettings SmartVouchersServiceClient { get; set; }
+
+        public PaymentManagementServiceClientSettings PaymentManagementServiceClient { get; set; }
     }
 }

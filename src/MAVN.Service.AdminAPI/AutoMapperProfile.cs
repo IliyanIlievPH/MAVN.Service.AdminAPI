@@ -28,6 +28,7 @@ using MAVN.Service.AdminAPI.Models.Locations.Requests;
 using MAVN.Service.AdminAPI.Models.Locations.Responses;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
+using MAVN.Service.AdminAPI.Models.PaymentProviderDetails;
 using MAVN.Service.AdminAPI.Models.Payments;
 using MAVN.Service.AdminAPI.Models.Reports;
 using MAVN.Service.AdminAPI.Models.Settings;
@@ -168,13 +169,14 @@ namespace MAVN.Service.AdminAPI
             #endregion
 
             // Customers
-            CreateMap<Lykke.Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerModel>(MemberList.Destination)
+            CreateMap<MAVN.Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerModel>(MemberList.Destination)
                 .ForMember(c => c.RegisteredDate, opt => opt.MapFrom(src => src.Registered))
                 .ForMember(dest => dest.ReferralCode, opt => opt.Ignore())
                 .ForMember(dest => dest.CustomerStatus, opt => opt.Ignore())
                 .ForMember(dest => dest.CustomerAgentStatus, opt => opt.Ignore());
 
-            CreateMap<Lykke.Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerDetailsModel>(MemberList.Destination)
+            CreateMap<MAVN
+                    .Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerDetailsModel>(MemberList.Destination)
                 .ForMember(c => c.RegisteredDate, opt => opt.MapFrom(src => src.Registered))
                 .ForMember(dest => dest.ReferralCode, opt => opt.Ignore())
                 .ForMember(dest => dest.CustomerStatus, opt => opt.Ignore())
@@ -320,6 +322,11 @@ namespace MAVN.Service.AdminAPI
             CreateMap<PagedRequestModel, BasePaginationRequestModel>();
 
             #endregion
+
+            CreateMap<CustomerProfile.Client.Models.Responses.PaymentProviderDetails, PaymentProviderDetails>();
+            CreateMap<PaymentManagement.Client.Models.Responses.AvailablePaymentProvidersRequirementsResponse, AvailablePaymentProvidersRequirementsResponse>();
+            CreateMap<PaymentManagement.Client.Models.Responses.PaymentProviderProperties, PaymentProviderProperties>();
+            CreateMap<PaymentManagement.Client.Models.Responses.PaymentProviderProperty, PaymentProviderProperty>();
         }
 
         private static DateTime ToDateTime(long input)
