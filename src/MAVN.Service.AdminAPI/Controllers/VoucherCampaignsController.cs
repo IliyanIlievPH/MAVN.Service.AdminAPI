@@ -69,7 +69,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<PaginatedSmartVoucherCampaignsListResponse> GetSmartVoucherCampaignsListAsync([FromQuery] SmartVoucherCampaignsListRequest request)
         {
-            var model = new VoucherCampaignsPaginationRequestModel
+            var requestModel = new VoucherCampaignsPaginationRequestModel
             {
                 CampaignName = request.CampaignName,
                 CurrentPage = request.CurrentPage,
@@ -83,12 +83,12 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
             {
-                // TODO: filter data for current _requestContext.UserId
+                requestModel.CreatedBy = Guid.Parse(_requestContext.UserId);
             }
 
             #endregion
 
-            var result = await _smartVouchersClient.CampaignsApi.GetAsync(model);
+            var result = await _smartVouchersClient.CampaignsApi.GetAsync(requestModel);
 
             return new PaginatedSmartVoucherCampaignsListResponse
             {

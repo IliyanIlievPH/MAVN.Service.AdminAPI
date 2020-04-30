@@ -63,7 +63,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of customers.</response>
         [HttpGet("customers")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(CustomersStatisticsModel), (int)HttpStatusCode.OK)]
         public async Task<CustomersStatisticsModel> GetByCustomersAsync()
         {
@@ -99,7 +106,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of tokens.</response>
         [HttpGet("tokens-current")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(TokensStatisticsModel), (int)HttpStatusCode.OK)]
         public async Task<TokensStatisticsModel> GetByTokensCurrentAsync()
         {
@@ -146,6 +160,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A total supply of SPs.</response>
         [HttpGet("total-supply")]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(TokenSupplyModel), (int)HttpStatusCode.OK)]
         public async Task<TokenSupplyModel> GetTotalSupplyAsync()
         {
