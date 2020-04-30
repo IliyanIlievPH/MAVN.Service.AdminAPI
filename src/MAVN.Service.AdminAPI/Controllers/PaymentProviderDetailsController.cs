@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -13,8 +14,11 @@ using MAVN.Service.AdminAPI.Models.PaymentProviderDetails;
 using MAVN.Service.CustomerProfile.Client.Models.Enums;
 using MAVN.Service.CustomerProfile.Client.Models.Requests;
 using MAVN.Service.PaymentManagement.Client;
+using MAVN.Service.PaymentManagement.Client.Models.Requests;
+using MAVN.Service.PaymentManagement.Client.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
+using AvailablePaymentProvidersRequirementsResponse = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.AvailablePaymentProvidersRequirementsResponse;
 using CreatePaymentProviderDetailsRequest = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.CreatePaymentProviderDetailsRequest;
 using EditPaymentProviderDetailsRequest = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.EditPaymentProviderDetailsRequest;
 
@@ -52,6 +56,32 @@ namespace MAVN.Service.AdminAPI.Controllers
             var result = _mapper.Map<AvailablePaymentProvidersRequirementsResponse>(paymentProvidersRequirements);
 
             return result;
+        }
+
+        /// <summary>
+        /// Get the required properties for the available payment providers
+        /// </summary>
+        [HttpGet("integration/check")]
+        [ProducesResponseType(typeof(CheckPaymentIntegrationResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<CheckPaymentIntegrationResponse> CheckPaymentIntegrationAsync([FromQuery] CheckPaymentIntegrationRequest request)
+        {
+            var checkResult = await _paymentManagementClient.Api.CheckPaymentIntegrationAsync(new PaymentIntegrationCheckRequest
+            {
+                PartnerId = request.PartnerId
+            });
+
+            switch (checkResult)
+            {
+                case CheckPaymentIntegrationErrorCode.None:
+                    return new CheckPaymentIntegrationResponse { IsConfiguredCorrectly = true };
+                case CheckPaymentIntegrationErrorCode.Fail:
+                case CheckPaymentIntegrationErrorCode.PartnerConfigurationNotFound:
+                case CheckPaymentIntegrationErrorCode.PartnerConfigurationPropertyIsMissing:
+                    return new CheckPaymentIntegrationResponse { IsConfiguredCorrectly = false, Error = checkResult.ToString() };
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>

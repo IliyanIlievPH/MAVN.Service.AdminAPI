@@ -234,6 +234,7 @@ namespace MAVN.Service.AdminAPI
 
             //Partners
             CreateMap<PartnerListRequest, PartnerListRequestModel>()
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.Vertical, opt => opt.MapFrom(src => src.BusinessVertical));
 
             CreateMap<PartnerListDetailsModel, PartnerRowResponse>(MemberList.Destination);
