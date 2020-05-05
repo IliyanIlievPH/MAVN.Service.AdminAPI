@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1062
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Solution items", "0. Solution items", "{7664A776-FBC4-4DB1-BE35-29E9664E24B4}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,8 +19,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MAVN.Service.AdminAPI.DomainServices", "src\MAVN.Service.AdminAPI.DomainServices\MAVN.Service.AdminAPI.DomainServices.csproj", "{2D5F52EC-2A27-4045-81ED-72355E2A6325}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Repositories", "2. Repositories", "{BF745453-B940-470E-81BC-43FB67703D4E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MAVN.Service.AdminAPI.AzureRepositories", "src\MAVN.Service.AdminAPI.AzureRepositories\MAVN.Service.AdminAPI.AzureRepositories.csproj", "{4BE49E02-AAAD-460B-8D00-57F412A3D181}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Tests", "3. Tests", "{8F9036B1-5106-4C69-B2D2-B78EE52687A0}"
 EndProject
@@ -44,10 +42,6 @@ Global
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -63,12 +57,11 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F5B2F6B8-A8CC-4612-8F1D-C063EB8C8955} = {CC2067D7-1971-47BB-B491-5649EA3C18B2}
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325} = {CC2067D7-1971-47BB-B491-5649EA3C18B2}
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181} = {BF745453-B940-470E-81BC-43FB67703D4E}
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B} = {8F9036B1-5106-4C69-B2D2-B78EE52687A0}
 		{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29} = {EE7F3159-E06C-497F-96D4-DB2A6B03A6AB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {EB6C0EF4-AA6A-444D-8603-3669F73A58BC}
 		RESX_ConfirmAddLanguageFile = True
+		SolutionGuid = {EB6C0EF4-AA6A-444D-8603-3669F73A58BC}
 	EndGlobalSection
 EndGlobal

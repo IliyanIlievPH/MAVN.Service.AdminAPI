@@ -14,6 +14,9 @@ namespace MAVN.Service.AdminAPI.Models.PaymentProviderDetails
         /// <summary>Property description</summary>
         public string Description { get; set; }
 
+        /// <summary>Json key</summary>
+        public string JsonKey { get; set; }
+
         /// <summary>IsOptional property flag</summary>
         public bool IsOptional { get; set; }
 
