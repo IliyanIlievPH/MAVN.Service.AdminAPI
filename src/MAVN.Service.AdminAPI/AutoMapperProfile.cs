@@ -12,7 +12,7 @@ using MAVN.Service.PartnerManagement.Client.Models.Partner;
 using Lykke.Service.PaymentTransfers.Client.Models.Requests;
 using Lykke.Service.QuorumExplorer.Client.Models;
 using Lykke.Service.Referral.Client.Models.Responses;
-using Lykke.Service.Reporting.Client.Models;
+using MAVN.Service.Reporting.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Models;
 using MAVN.Service.AdminAPI.Models.ActionRules;

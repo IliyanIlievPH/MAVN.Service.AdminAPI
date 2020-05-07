@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Falcon.Common.Middleware.Authentication;
-using Lykke.Service.Reporting.Client;
-using Lykke.Service.Reporting.Client.Models;
+using MAVN.Service.Reporting.Client;
+using MAVN.Service.Reporting.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Reports;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Models.Partner;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MAVN.Service.AdminAPI.Controllers
@@ -30,15 +33,18 @@ namespace MAVN.Service.AdminAPI.Controllers
     public class ReportsController : ControllerBase
     {
         private readonly IReportClient _reportClient;
+        private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IExtRequestContext _requestContext;
         private readonly IMapper _mapper;
 
         public ReportsController(
             IReportClient reportClient,
+            IPartnerManagementClient partnerManagementClient,
             IExtRequestContext requestContext,
             IMapper mapper)
         {
             _reportClient = reportClient;
+            _partnerManagementClient = partnerManagementClient;
             _requestContext = requestContext;
             _mapper = mapper;
         }
@@ -47,18 +53,26 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(ReportListModel), (int)HttpStatusCode.OK)]
         public async Task<ReportListModel> GetTransactionReportAsync([FromBody] ReportRequestModel request)
         {
+            string[] partnersIds = null;
             #region Filter
 
             var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
-
             if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
             {
-                // TODO: send _requestContext.UserId and get only Voucher operations
-                return new ReportListModel
+                var partnersResponse =
+                    await _partnerManagementClient.Partners.GetAsync(
+                        new PartnerListRequestModel {CreatedBy = Guid.Parse(_requestContext.UserId), PageSize = 100, CurrentPage = 1});
+
+                if (partnersResponse.PartnersDetails.Count == 0)
                 {
-                    Items = new List<ReportItemModel>(),
-                    PagedResponse = new PagedResponseModel(request.CurrentPage, 0)
-                };
+                    return new ReportListModel
+                    {
+                        Items = new List<ReportItemModel>(),
+                        PagedResponse = new PagedResponseModel(request.CurrentPage, 0)
+                    };
+                }
+
+                partnersIds = partnersResponse.PartnersDetails.Select(x => x.Id.ToString()).ToArray();
             }
 
             #endregion
@@ -72,7 +86,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 PageSize = request.PageSize,
                 From = fromDate,
                 To = toDate
-            });
+            }, partnersIds);
 
             return new ReportListModel
             {
@@ -86,18 +100,26 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required]  DateTime to)
         {
             var fileName = $"transactions_from_{from:dd-MM-yyyy}_to_{to:dd-MM-yyyy}.csv";
-
+            string[] partnersIds = null;
             #region Filter
 
             var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.VoucherManager);
 
             if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
             {
-                // TODO: send _requestContext.UserId and get only Voucher operations
-                return new FileContentResult(new byte[0], "text/csv")
+                var partnersResponse =
+                    await _partnerManagementClient.Partners.GetAsync(
+                        new PartnerListRequestModel { CreatedBy = Guid.Parse(_requestContext.UserId), PageSize = 100, CurrentPage = 1 });
+
+                if (partnersResponse.PartnersDetails.Count == 0)
                 {
-                    FileDownloadName = fileName
-                };
+                    return new FileContentResult(new byte[0], "text/csv")
+                    {
+                        FileDownloadName = fileName
+                    };
+                }
+
+                partnersIds = partnersResponse.PartnersDetails.Select(x => x.Id.ToString()).ToArray();
             }
 
             #endregion
@@ -105,7 +127,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             var toDate = to.Date.AddDays(1).AddMilliseconds(-1);
             var fromDate = from.Date;
 
-            var clientResult = await _reportClient.Api.FetchReportCsvAsync(fromDate, toDate);
+            var clientResult = await _reportClient.Api.FetchReportCsvAsync(fromDate, toDate, partnersIds);
 
             return clientResult.ToCsvFile(fileName);
         }

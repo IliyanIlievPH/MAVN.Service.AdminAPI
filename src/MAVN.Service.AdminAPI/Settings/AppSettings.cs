@@ -17,7 +17,7 @@ using Lykke.Service.PaymentTransfers.Client;
 using Lykke.Service.PrivateBlockchainFacade.Client;
 using Lykke.Service.QuorumExplorer.Client;
 using Lykke.Service.Referral.Client;
-using Lykke.Service.Reporting.Client;
+using MAVN.Service.Reporting.Client;
 using Lykke.Service.Sessions.Client;
 using Lykke.Service.Tiers.Client;
 using Lykke.Service.Vouchers.Client;
