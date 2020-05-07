@@ -12,7 +12,7 @@
     <PackageReference Include="Falcon.Service.Reporting" Version="2.0.0" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="2.4.2" />
     <PackageReference Include="MAVN.Service.AdminManagement.Client" Version="1.2.3" />
-    <PackageReference Include="MAVN.Service.PartnerManagement.Client" Version="1.0.4" />
+    <PackageReference Include="MAVN.Service.PartnerManagement.Client" Version="1.1.0" />
     <PackageReference Include="MAVN.Service.PaymentManagement.Client" Version="1.13.0" />
     <PackageReference Include="MAVN.Service.SmartVouchers.Client" Version="1.10.0" />
     <PackageReference Include="Refit" Version="4.6.107" />
