@@ -16,6 +16,7 @@ using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
 using Microsoft.AspNetCore.Mvc;
+using PartnerCreateResponse = MAVN.Service.AdminAPI.Models.Partners.Responses.PartnerCreateResponse;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -124,7 +125,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <summary>
         /// Adds new partner.
         /// </summary>
-        /// <response code="204">The partner successfully added..</response>
+        /// <response code="200">The partner successfully added..</response>
         /// <response code="400">An error occurred while adding partner.</response>
         [HttpPost]
         [Permission(
@@ -135,9 +136,9 @@ namespace MAVN.Service.AdminAPI.Controllers
                 PermissionLevel.PartnerEdit,
             }
         )]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(PartnerCreateResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task AddAsync([FromBody] PartnerCreateRequest request)
+        public async Task<PartnerCreateResponse> AddAsync([FromBody] PartnerCreateRequest request)
         {
             var requestMapped = _mapper.Map<PartnerCreateRequest, PartnerCreateModel>(request,
                 opt => opt.AfterMap((src, dest) => { dest.CreatedBy = Guid.Parse(_requestContext.UserId); }));
@@ -145,7 +146,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             requestMapped.ClientId = await _partnerManagementClient.Auth.GenerateClientId();
             requestMapped.ClientSecret = await _partnerManagementClient.Auth.GenerateClientSecret();
             
-            PartnerCreateResponse response;
+            PartnerManagement.Client.Models.Partner.PartnerCreateResponse response;
 
             try
             {
@@ -157,6 +158,11 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+
+            return  new PartnerCreateResponse
+            {
+                PartnerId = response.Id.ToString()
+            };
         }
 
         /// <summary>
