@@ -47,5 +47,15 @@ namespace MAVN.Service.AdminAPI.Models.Locations
         /// Accounting integration code
         /// </summary>
         public string AccountingIntegrationCode { get; set; }
+
+        /// <summary>
+        /// Longitude of the location
+        /// </summary>
+        public double? Longitude { get; set; }
+
+        /// <summary>
+        /// Latitude of the location
+        /// </summary>
+        public double? Latitude { get; set; }
     }
 }
