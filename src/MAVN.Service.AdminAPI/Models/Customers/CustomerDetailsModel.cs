@@ -13,10 +13,5 @@ namespace MAVN.Service.AdminAPI.Models.Customers
         /// Represents wallet status
         /// </summary>
         public CustomerWalletActivityStatus WalletStatus { get; set; }
-        
-        /// <summary>
-        /// Represents agent status
-        /// </summary>
-        public CustomerAgentStatus AgentStatus { get; set; }
     }
 }

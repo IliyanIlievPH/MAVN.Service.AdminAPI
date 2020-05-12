@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using Falcon.Numerics;
+using MAVN.Numerics;
 
 namespace MAVN.Service.AdminAPI.Models.EarnRules
 {

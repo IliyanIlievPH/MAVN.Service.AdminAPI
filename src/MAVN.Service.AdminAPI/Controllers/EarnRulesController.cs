@@ -6,18 +6,18 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common.Log;
-using Falcon.Common.Middleware.Authentication;
-using Falcon.Numerics;
+using MAVN.Common.Middleware.Authentication;
+using MAVN.Numerics;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Common.Log;
-using Lykke.Service.Campaign.Client;
-using Lykke.Service.Campaign.Client.Models;
-using Lykke.Service.Campaign.Client.Models.Campaign.Responses;
-using Lykke.Service.Campaign.Client.Models.EarnRuleContent;
-using Lykke.Service.Campaign.Client.Models.Enums;
-using Lykke.Service.Campaign.Client.Models.Files.Requests;
-using Lykke.Service.CurrencyConvertor.Client;
+using MAVN.Service.Campaign.Client;
+using MAVN.Service.Campaign.Client.Models;
+using MAVN.Service.Campaign.Client.Models.Campaign.Responses;
+using MAVN.Service.Campaign.Client.Models.EarnRuleContent;
+using MAVN.Service.Campaign.Client.Models.Enums;
+using MAVN.Service.Campaign.Client.Models.Files.Requests;
+using MAVN.Service.CurrencyConvertor.Client;
 using MAVN.Service.PartnerManagement.Client;
 using MAVN.Service.PartnerManagement.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
@@ -31,7 +31,7 @@ using MAVN.Service.AdminAPI.Models.EarnRules;
 using MAVN.Service.AdminAPI.Models.Partners;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RewardType = Lykke.Service.Campaign.Client.Models.Enums.RewardType;
+using RewardType = MAVN.Service.Campaign.Client.Models.Enums.RewardType;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -85,7 +85,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<EarnRuleListResponse> GetEarnRuleListAsync([FromQuery] EarnRuleListRequest model)
         {
             var response = await _campaignsClient.Campaigns.GetAsync(
-                new Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignsPaginationRequestModel
+                new MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignsPaginationRequestModel
                 {
                     PageSize = model.PageSize,
                     CurrentPage = model.CurrentPage,
@@ -175,7 +175,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             // order conditions to have optional after first condition
             if (campaign.Conditions.Count > 0)
             {
-                var orderedConditions = new List<Lykke.Service.Campaign.Client.Models.Condition.ConditionModel>();
+                var orderedConditions = new List<MAVN.Service.Campaign.Client.Models.Condition.ConditionModel>();
                 var specialCondition = campaign.Conditions.FirstOrDefault(x => x.Type.Equals(ReferToRealEstateBonusType));
 
                 if (specialCondition != null)
@@ -256,7 +256,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<EarnRuleCreatedResponse> CreateEarnRuleAsync([FromBody] EarnRuleCreateModel model)
         {
             var request = _mapper.Map<EarnRuleCreateModel,
-                Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignCreateModel>(model,
+                MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignCreateModel>(model,
                 opt => opt.AfterMap((src, dest) => { dest.CreatedBy = _requestContext.UserId; }));
 
             var mobileContents = new List<EarnRuleContentCreateRequest>();
@@ -293,7 +293,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             request.Contents = mobileContents;
 
-            Lykke.Service.Campaign.Client.Models.Campaign.Responses.CampaignCreateResponseModel response;
+            MAVN.Service.Campaign.Client.Models.Campaign.Responses.CampaignCreateResponseModel response;
 
             try
             {
@@ -388,7 +388,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task UpdateEarnRuleAsync([FromBody] EarnRuleUpdateModel model)
         {
             var request =
-                _mapper.Map<EarnRuleUpdateModel, Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignEditModel>(model);
+                _mapper.Map<EarnRuleUpdateModel, MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignEditModel>(model);
 
             var mobileContents = new List<EarnRuleContentEditRequest>();
 
@@ -426,7 +426,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             request.Contents = mobileContents;
 
-            Lykke.Service.Campaign.Client.Models.Campaign.Responses.CampaignDetailResponseModel response;
+            MAVN.Service.Campaign.Client.Models.Campaign.Responses.CampaignDetailResponseModel response;
 
             try
             {

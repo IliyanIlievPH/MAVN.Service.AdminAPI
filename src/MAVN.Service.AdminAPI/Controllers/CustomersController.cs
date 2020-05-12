@@ -6,21 +6,19 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common;
-using Falcon.Common.Middleware.Authentication;
+using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Exceptions;
-using Lykke.Service.AgentManagement.Client;
-using Lykke.Service.AgentManagement.Client.Models.Agents;
-using Lykke.Service.Campaign.Client;
-using Lykke.Service.CrossChainWalletLinker.Client;
-using Lykke.Service.CrossChainWalletLinker.Client.Models;
-using Lykke.Service.CustomerManagement.Client;
-using Lykke.Service.CustomerManagement.Client.Enums;
-using Lykke.Service.CustomerManagement.Client.Models.Requests;
-using Lykke.Service.OperationsHistory.Client;
-using Lykke.Service.PrivateBlockchainFacade.Client;
-using Lykke.Service.WalletManagement.Client;
-using Lykke.Service.WalletManagement.Client.Enums;
-using Lykke.Service.WalletManagement.Client.Models.Requests;
+using MAVN.Service.Campaign.Client;
+using MAVN.Service.CrossChainWalletLinker.Client;
+using MAVN.Service.CrossChainWalletLinker.Client.Models;
+using MAVN.Service.CustomerManagement.Client;
+using MAVN.Service.CustomerManagement.Client.Enums;
+using MAVN.Service.CustomerManagement.Client.Models.Requests;
+using MAVN.Service.OperationsHistory.Client;
+using MAVN.Service.PrivateBlockchainFacade.Client;
+using MAVN.Service.WalletManagement.Client;
+using MAVN.Service.WalletManagement.Client.Enums;
+using MAVN.Service.WalletManagement.Client.Models.Requests;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure.Constants;
@@ -48,7 +46,6 @@ namespace MAVN.Service.AdminAPI.Controllers
         private const int BatchCustomersCount = 100;
 
         private readonly ICustomerProfileClient _customerProfileClient;
-        private readonly IAgentManagementClient _agentManagementClient;
         private readonly IOperationsHistoryClient _operationsHistoryClient;
         private readonly IReferralService _referralService;
         private readonly IPrivateBlockchainFacadeClient _pbfClient;
@@ -63,7 +60,6 @@ namespace MAVN.Service.AdminAPI.Controllers
 
         public CustomersController(
             ICustomerProfileClient customerProfileClient,
-            IAgentManagementClient agentManagementClient,
             IOperationsHistoryClient operationsHistoryClient,
             IReferralService referralService,
             IPrivateBlockchainFacadeClient pbfClient,
@@ -77,7 +73,6 @@ namespace MAVN.Service.AdminAPI.Controllers
             IMapper mapper)
         {
             _customerProfileClient = customerProfileClient;
-            _agentManagementClient = agentManagementClient;
             _operationsHistoryClient = operationsHistoryClient;
             _referralService = referralService;
             _pbfClient = pbfClient;
@@ -166,7 +161,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<CustomerOperationsHistoryResponse> GetOperationsHistoryByIdAsync([FromQuery] CustomerOperationsHistoryRequest model)
         {
             var customerOperationsResponse = await _operationsHistoryClient.OperationsHistoryApi.GetByCustomerIdAsync(model.CustomerId,
-                new Lykke.Service.OperationsHistory.Client.Models.Requests.PaginationModel
+                new MAVN.Service.OperationsHistory.Client.Models.Requests.PaginationModel
                 {
                     CurrentPage = model.CurrentPage,
                     PageSize = model.PageSize
@@ -195,13 +190,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                     _historyConverter.FromPartnersPayments(customerOperationsResponse.PartnersPayments)));
             operations.AddRange(
                 _mapper.Map<List<CustomerOperationModel>>(
-                    _historyConverter.FromPaymentTransfers(customerOperationsResponse.PaymentTransfers)));
-            operations.AddRange(
-                _mapper.Map<List<CustomerOperationModel>>(
                     _historyConverter.FromRefundedPartnersPayments(model.CustomerId, customerOperationsResponse.RefundedPartnersPayments)));
-            operations.AddRange(
-                _mapper.Map<List<CustomerOperationModel>>(
-                    _historyConverter.FromRefundedPaymentTransfers(model.CustomerId, customerOperationsResponse.RefundedPaymentTransfers)));
             operations.AddRange(
                 _mapper.Map<List<CustomerOperationModel>>(
                     _historyConverter.FromBonusCashIns(customerOperationsResponse.BonusCashIns)));
@@ -272,8 +261,6 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             var customer = _mapper.Map<CustomerDetailsModel>(customerProfileResponseTask.Profile);
 
-            var agentStatusTask =
-                await _agentManagementClient.Agents.GetByCustomerIdAsync(customerIdGuid);
 
             if (customerProfileResponseTask.Profile.IsEmailVerified &&
                 (_settingsService.IsPhoneVerificationDisabled() || customerProfileResponseTask.Profile.IsPhoneVerified))
@@ -298,31 +285,6 @@ namespace MAVN.Service.AdminAPI.Controllers
                     _mapper.Map<Models.Customers.Enums.CustomerWalletActivityStatus>(walletStatusTask.Result.Status);
                 customer.CustomerStatus =
                     _mapper.Map<CustomerActivityStatus>(customerStatusTask.Result.Status);
-            }
-
-            if (agentStatusTask == null)
-            {
-                customer.AgentStatus = CustomerAgentStatus.NotAgent;
-            }
-            else
-            {
-                switch (agentStatusTask.Status)
-                {
-                    case AgentStatus.None:
-                        customer.AgentStatus = CustomerAgentStatus.NotAgent;
-                        break;
-                    case AgentStatus.NotAgent:
-                        customer.AgentStatus = CustomerAgentStatus.NotAgent;
-                        break;
-                    case AgentStatus.Rejected:
-                        customer.AgentStatus = CustomerAgentStatus.Rejected;
-                        break;
-                    case AgentStatus.ApprovedAgent:
-                        customer.AgentStatus = CustomerAgentStatus.ApprovedAgent;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
             }
 
             customer.ReferralCode = await _referralService.GetOrCreateReferralCodeAsync(customer.CustomerId);
@@ -596,23 +558,12 @@ namespace MAVN.Service.AdminAPI.Controllers
                 CustomerIds = stringIds.ToArray()
             });
 
-            var agentStatuses = await _agentManagementClient.Agents.GetByCustomerIdsAsync(validGuids.ToArray());
 
             foreach (var customer in customers)
             {
                 if (result.CustomersBlockStatuses.ContainsKey(customer.CustomerId))
                 {
                     customer.CustomerStatus = _mapper.Map<CustomerActivityStatus>(result.CustomersBlockStatuses[customer.CustomerId]);
-                }
-
-                if (Guid.TryParse(customer.CustomerId, out var customerGuid))
-                {
-                    var agent = agentStatuses.FirstOrDefault(s => s.CustomerId == customerGuid);
-
-                    if (agent != null)
-                    {
-                        customer.CustomerAgentStatus = _mapper.Map<CustomerAgentStatus>(agent.Status);
-                    }
                 }
             }
         }

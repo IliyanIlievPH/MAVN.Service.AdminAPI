@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Lykke.Service.Referral.Client;
-using Lykke.Service.Referral.Client.Enums;
-using Lykke.Service.Referral.Client.Models.Requests;
+using MAVN.Service.Referral.Client;
+using MAVN.Service.Referral.Client.Enums;
+using MAVN.Service.Referral.Client.Models.Requests;
 using MAVN.Service.AdminAPI.Domain.Services;
 
 namespace MAVN.Service.AdminAPI.DomainServices

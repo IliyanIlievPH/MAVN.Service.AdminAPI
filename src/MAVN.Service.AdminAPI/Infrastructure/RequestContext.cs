@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Falcon.Common.Middleware.Authentication;
+using MAVN.Common.Middleware.Authentication;
 using MAVN.Service.AdminManagement.Client;
 using MAVN.Service.AdminManagement.Client.Models.Requests;
-using Lykke.Service.Sessions.Client;
+using MAVN.Service.Sessions.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
