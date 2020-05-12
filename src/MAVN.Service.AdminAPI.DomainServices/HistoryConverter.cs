@@ -49,7 +49,6 @@ namespace MAVN.Service.AdminAPI.DomainServices
             });
         }
 
-
         public IEnumerable<CustomerOperation> FromPartnersPayments(IEnumerable<PartnersPaymentResponse> source)
         {
             return source.Select(item => new CustomerOperation

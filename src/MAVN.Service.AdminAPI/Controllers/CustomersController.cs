@@ -260,8 +260,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.CustomerNotFound);
 
             var customer = _mapper.Map<CustomerDetailsModel>(customerProfileResponseTask.Profile);
-
-
+            
             if (customerProfileResponseTask.Profile.IsEmailVerified &&
                 (_settingsService.IsPhoneVerificationDisabled() || customerProfileResponseTask.Profile.IsPhoneVerified))
             {
@@ -557,7 +556,6 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 CustomerIds = stringIds.ToArray()
             });
-
 
             foreach (var customer in customers)
             {
