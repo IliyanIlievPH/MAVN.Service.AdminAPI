@@ -1,11 +1,11 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Falcon.Common.Middleware.Authentication;
-using Lykke.Service.DashboardStatistics.Client;
-using Lykke.Service.DashboardStatistics.Client.Models.Customers;
-using Lykke.Service.DashboardStatistics.Client.Models.Leads;
-using Lykke.Service.DashboardStatistics.Client.Models.Tokens;
+using MAVN.Common.Middleware.Authentication;
+using MAVN.Service.DashboardStatistics.Client;
+using MAVN.Service.DashboardStatistics.Client.Models.Customers;
+using MAVN.Service.DashboardStatistics.Client.Models.Leads;
+using MAVN.Service.DashboardStatistics.Client.Models.Tokens;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;

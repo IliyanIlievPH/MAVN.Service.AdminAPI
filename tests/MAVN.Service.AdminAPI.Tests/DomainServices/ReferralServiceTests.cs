@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Lykke.Service.Referral.Client;
-using Lykke.Service.Referral.Client.Enums;
-using Lykke.Service.Referral.Client.Models.Requests;
-using Lykke.Service.Referral.Client.Models.Responses;
+using MAVN.Service.Referral.Client;
+using MAVN.Service.Referral.Client.Enums;
+using MAVN.Service.Referral.Client.Models.Requests;
+using MAVN.Service.Referral.Client.Models.Responses;
 using MAVN.Service.AdminAPI.DomainServices;
 using Moq;
 using Xunit;

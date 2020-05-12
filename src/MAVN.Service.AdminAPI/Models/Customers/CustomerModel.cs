@@ -60,10 +60,5 @@ namespace MAVN.Service.AdminAPI.Models.Customers
         /// Represents customer's status 
         /// </summary>
         public CustomerActivityStatus CustomerStatus { get; set; }
-
-        /// <summary>
-        /// Represents customer's status 
-        /// </summary>
-        public CustomerAgentStatus CustomerAgentStatus { get; set; }
     }
 }

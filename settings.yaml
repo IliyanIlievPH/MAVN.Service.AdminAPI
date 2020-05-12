@@ -68,10 +68,6 @@ PrivateBlockchainFacadeClient:
   ServiceUrl:
     settings-key: PrivateBlockchainFacadeServiceUrl
 
-PaymentTransfersServiceClient:
-  ServiceUrl:
-    settings-key: PaymentTransfersServiceUrl
-
 DashboardStatisticsServiceClient:
   ServiceUrl:
     settings-key: DashboardStatisticsServiceUrl
@@ -87,10 +83,6 @@ QuorumExplorerServiceClient:
 TiersServiceClient:
   ServiceUrl:
     settings-key: TiersServiceUrl
-
-AgentManagementServiceClient:
-  ServiceUrl:
-    settings-key: AgentManagementServiceUrl
 
 CurrencyConverterServiceClient:
   ServiceUrl:

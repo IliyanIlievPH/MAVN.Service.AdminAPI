@@ -2,16 +2,14 @@
 using System.Linq;
 using AutoMapper;
 using JetBrains.Annotations;
-using Lykke.Service.AgentManagement.Client.Models.Requirements;
-using Lykke.Service.Campaign.Client.Models.BurnRule.Requests;
-using Lykke.Service.Campaign.Client.Models.BurnRule.Responses;
-using Lykke.Service.Campaign.Client.Models.Files.Requests;
-using Lykke.Service.CrossChainWalletLinker.Client.Models;
+using MAVN.Service.Campaign.Client.Models.BurnRule.Requests;
+using MAVN.Service.Campaign.Client.Models.BurnRule.Responses;
+using MAVN.Service.Campaign.Client.Models.Files.Requests;
+using MAVN.Service.CrossChainWalletLinker.Client.Models;
 using MAVN.Service.PartnerManagement.Client.Models.Location;
 using MAVN.Service.PartnerManagement.Client.Models.Partner;
-using Lykke.Service.PaymentTransfers.Client.Models.Requests;
-using Lykke.Service.QuorumExplorer.Client.Models;
-using Lykke.Service.Referral.Client.Models.Responses;
+using MAVN.Service.QuorumExplorer.Client.Models;
+using MAVN.Service.Referral.Client.Models.Responses;
 using MAVN.Service.Reporting.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Models;
@@ -39,10 +37,10 @@ using MAVN.Service.AdminAPI.Models.Tiers;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
 using MAVN.Service.SmartVouchers.Client.Models.Responses;
 using BurnRuleCreateRequest = MAVN.Service.AdminAPI.Models.BurnRules.BurnRuleCreateRequest;
-using CustomerActivityStatus = Lykke.Service.CustomerManagement.Client.Enums.CustomerActivityStatus;
+using CustomerActivityStatus = MAVN.Service.CustomerManagement.Client.Enums.CustomerActivityStatus;
 using CustomersStatisticResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomersStatisticResponse;
 using CustomerStatisticsByDayResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomerStatisticsByDayResponse;
-using CustomerWalletActivityStatus = Lykke.Service.WalletManagement.Client.Enums.CustomerWalletActivityStatus;
+using CustomerWalletActivityStatus = MAVN.Service.WalletManagement.Client.Enums.CustomerWalletActivityStatus;
 using PublicAddressStatus = MAVN.Service.AdminAPI.Models.Customers.Enums.PublicAddressStatus;
 
 namespace MAVN.Service.AdminAPI
@@ -73,40 +71,40 @@ namespace MAVN.Service.AdminAPI
             #endregion
 
             // Bonus Types
-            CreateMap<Lykke.Service.Campaign.Client.Models.BonusType.BonusTypeModel,
+            CreateMap<MAVN.Service.Campaign.Client.Models.BonusType.BonusTypeModel,
                 BonusTypeModel>(MemberList.Destination);
 
             #region Earn rules
 
             CreateMap<EarnRuleCreateModel,
-                    Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignCreateModel>(MemberList
+                    MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignCreateModel>(MemberList
                     .Destination)
                 .ForMember(dest => dest.Contents, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.ToDate,
                     opt => opt.MapFrom(src => src.ToDate.HasValue ? src.ToDate.Value.Date.AddDays(1).AddMilliseconds(-1) : src.ToDate));
 
-            CreateMap<Lykke.Service.Campaign.Client.Models.Campaign.Responses.CampaignDetailResponseModel,
+            CreateMap<MAVN.Service.Campaign.Client.Models.Campaign.Responses.CampaignDetailResponseModel,
                     EarnRuleModel>(MemberList.Destination)
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.CampaignStatus))
                 .ForMember(dest => dest.Asset, opt => opt.Ignore())
                 .ForMember(dest => dest.MobileContents, opt => opt.Ignore());
 
             CreateMap<EarnRuleUpdateModel,
-                Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignEditModel>(MemberList.Destination)
+                    MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignEditModel>(MemberList.Destination)
                 .ForMember(dest => dest.Contents, opt => opt.Ignore())
                 .ForMember(dest => dest.ToDate,
                     opt => opt.MapFrom(src => src.ToDate.HasValue ? src.ToDate.Value.Date.AddDays(1).AddMilliseconds(-1) : src.ToDate));
 
-            CreateMap<ConditionBaseModel, Lykke.Service.Campaign.Client.Models.Condition.ConditionBaseModel>(MemberList.Destination)
+            CreateMap<ConditionBaseModel, MAVN.Service.Campaign.Client.Models.Condition.ConditionBaseModel>(MemberList.Destination)
                 .ForMember(dest => dest.PartnerIds,
                     opt => opt.MapFrom(src => src.PartnerId.HasValue ? new[] {src.PartnerId.Value} : null))
                 .IncludeAllDerived();
 
             CreateMap<ConditionCreateModel,
-                Lykke.Service.Campaign.Client.Models.Condition.ConditionCreateModel>(MemberList.Destination);
+                MAVN.Service.Campaign.Client.Models.Condition.ConditionCreateModel>(MemberList.Destination);
 
-            CreateMap<Lykke.Service.Campaign.Client.Models.Condition.ConditionModel,
+            CreateMap<MAVN.Service.Campaign.Client.Models.Condition.ConditionModel,
                     ConditionModel>(MemberList.Destination)
                 .ForMember(c => c.DisplayName, opt => opt.MapFrom(src => src.TypeDisplayName))
                 .ForMember(dest => dest.PartnerId,
@@ -114,9 +112,9 @@ namespace MAVN.Service.AdminAPI
                         src.PartnerIds != null && src.PartnerIds.Length > 0 ? (Guid?) src.PartnerIds.First() : null));
 
             CreateMap<ConditionUpdateModel,
-                Lykke.Service.Campaign.Client.Models.Condition.ConditionEditModel>(MemberList.Destination);
+                MAVN.Service.Campaign.Client.Models.Condition.ConditionEditModel>(MemberList.Destination);
 
-            CreateMap<Lykke.Service.Campaign.Client.Models.Campaign.Responses.CampaignResponse,
+            CreateMap<MAVN.Service.Campaign.Client.Models.Campaign.Responses.CampaignResponse,
                     EarnRuleRowModel>(MemberList.Destination)
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.CampaignStatus))
                 .ForMember(dest => dest.Asset, opt => opt.Ignore())
@@ -129,7 +127,7 @@ namespace MAVN.Service.AdminAPI
             CreateMap<BurnRuleListRequest, BurnRulePaginationRequest>(MemberList.Destination)
                 .ForMember(dest => dest.PartnerId, opt => opt.Ignore());
 
-            CreateMap<BurnRuleCreateRequest, Lykke.Service.Campaign.Client.Models.BurnRule.Requests.BurnRuleCreateRequest>(
+            CreateMap<BurnRuleCreateRequest, MAVN.Service.Campaign.Client.Models.BurnRule.Requests.BurnRuleCreateRequest>(
                     MemberList.Destination)
                 .ForMember(dest => dest.Description,
                     opt => opt.MapFrom(src => string.IsNullOrEmpty(src.Description) ? null : src.Description))
@@ -169,32 +167,28 @@ namespace MAVN.Service.AdminAPI
             #endregion
 
             // Customers
-            CreateMap<MAVN.Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerModel>(MemberList.Destination)
+            CreateMap<MAVN.Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerModel>(MemberList
+                    .Destination)
                 .ForMember(c => c.RegisteredDate, opt => opt.MapFrom(src => src.Registered))
                 .ForMember(dest => dest.ReferralCode, opt => opt.Ignore())
-                .ForMember(dest => dest.CustomerStatus, opt => opt.Ignore())
-                .ForMember(dest => dest.CustomerAgentStatus, opt => opt.Ignore());
+                .ForMember(dest => dest.CustomerStatus, opt => opt.Ignore());
 
             CreateMap<MAVN
-                    .Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerDetailsModel>(MemberList.Destination)
+                    .Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerDetailsModel>(
+                    MemberList.Destination)
                 .ForMember(c => c.RegisteredDate, opt => opt.MapFrom(src => src.Registered))
                 .ForMember(dest => dest.ReferralCode, opt => opt.Ignore())
                 .ForMember(dest => dest.CustomerStatus, opt => opt.Ignore())
-                .ForMember(dest => dest.AgentStatus, opt => opt.Ignore())
-                .ForMember(dest => dest.WalletStatus, opt => opt.Ignore())
-                .ForMember(dest => dest.CustomerAgentStatus, opt => opt.Ignore());
-            
-            // Payments
-            CreateMap<PaymentListRequest, PaginatedRequest>(MemberList.Destination);
+                .ForMember(dest => dest.WalletStatus, opt => opt.Ignore());
 
             CreateMap<CustomerActivityStatus, Models.Customers.Enums.CustomerActivityStatus>();
             CreateMap<CustomerWalletActivityStatus, Models.Customers.Enums.CustomerWalletActivityStatus>();
 
             // Wallets
-            CreateMap<Lykke.Service.PrivateBlockchainFacade.Client.Models.CustomerWalletAddressResponseModel, CustomerPrivateWalletAddressResponse>();
+            CreateMap<MAVN.Service.PrivateBlockchainFacade.Client.Models.CustomerWalletAddressResponseModel, CustomerPrivateWalletAddressResponse>();
 
             CreateMap<PublicAddressResponseModel, CustomerPublicWalletAddressResponse>();
-            CreateMap<Lykke.Service.CrossChainWalletLinker.Client.Models.PublicAddressStatus, PublicAddressStatus>();
+            CreateMap<MAVN.Service.CrossChainWalletLinker.Client.Models.PublicAddressStatus, PublicAddressStatus>();
 
             //Leads
             CreateMap<LeadStatisticsResponse, LeadStatisticModel>();
@@ -218,19 +212,19 @@ namespace MAVN.Service.AdminAPI
             CreateMap<CustomerOperation, CustomerOperationModel>();
 
             //Dashboard
-            CreateMap<Lykke.Service.DashboardStatistics.Client.Models.Leads.LeadsListResponseModel, LeadsListResponse>();
-            CreateMap<Lykke.Service.DashboardStatistics.Client.Models.Leads.LeadsStatisticsForDayReportModel, LeadsStatisticsForDayReportModel>();
-            CreateMap<Lykke.Service.DashboardStatistics.Client.Models.Leads.LeadsStatisticsModel, LeadsStatistics>();
+            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsListResponseModel, LeadsListResponse>();
+            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsStatisticsForDayReportModel, LeadsStatisticsForDayReportModel>();
+            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsStatisticsModel, LeadsStatistics>();
 
-            CreateMap<Lykke.Service.DashboardStatistics.Client.Models.Tokens.TokensListResponseModel, TokensListResponse>();
-            CreateMap<Lykke.Service.DashboardStatistics.Client.Models.Tokens.TokensStatisticsModel, TokensStatistics>();
+            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Tokens.TokensListResponseModel, TokensListResponse>();
+            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Tokens.TokensStatisticsModel, TokensStatistics>();
 
-            CreateMap<Lykke.Service.DashboardStatistics.Client.Models.Customers.CustomersStatisticResponse, CustomersStatisticResponseModel>();
-            CreateMap<Lykke.Service.DashboardStatistics.Client.Models.Customers.CustomerStatisticsByDayResponse, CustomerStatisticsByDayResponseModel>();
+            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Customers.CustomersStatisticResponse, CustomersStatisticResponseModel>();
+            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Customers.CustomerStatisticsByDayResponse, CustomerStatisticsByDayResponseModel>();
 
-            CreateMap<TokensListRequest, Lykke.Service.DashboardStatistics.Client.Models.Tokens.TokensListRequestModel>();
-            CreateMap<CustomersListRequest, Lykke.Service.DashboardStatistics.Client.Models.Customers.CustomersListRequestModel>();
-            CreateMap<LeadsListRequest, Lykke.Service.DashboardStatistics.Client.Models.Leads.LeadsListRequestModel>();
+            CreateMap<TokensListRequest, MAVN.Service.DashboardStatistics.Client.Models.Tokens.TokensListRequestModel>();
+            CreateMap<CustomersListRequest, MAVN.Service.DashboardStatistics.Client.Models.Customers.CustomersListRequestModel>();
+            CreateMap<LeadsListRequest, MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsListRequestModel>();
 
             //Partners
             CreateMap<PartnerListRequest, PartnerListRequestModel>()
@@ -280,17 +274,11 @@ namespace MAVN.Service.AdminAPI
             CreateMap<TransactionReport, ReportItemModel>(MemberList.Destination);
             
             // Tiers
-            CreateMap<Lykke.Service.Tiers.Client.Models.Reports.TierCustomersCountModel,
+            CreateMap<MAVN.Service.Tiers.Client.Models.Reports.TierCustomersCountModel,
                 TierModel>(MemberList.Destination);
 
-            //Settings
-            CreateMap<TokensRequirementModel, AgentRequirementResponse>()
-                .ForMember(dest => dest.TokensAmount, opt => opt.MapFrom(src => src.RequiredNumberOfTokens));
-            CreateMap<AgentRequirementUpdateRequest, UpdateTokensRequirementModel>()
-                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.TokensAmount));
-
-            CreateMap< Lykke.Service.CurrencyConvertor.Client.Models.Responses.GlobalCurrencyRateModel, GlobalCurrencyRateModel>();
-            CreateMap<GlobalCurrencyRateModel, Lykke.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>();
+            CreateMap<MAVN.Service.CurrencyConvertor.Client.Models.Responses.GlobalCurrencyRateModel, GlobalCurrencyRateModel>();
+            CreateMap<GlobalCurrencyRateModel, MAVN.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>();
 
             #region Voucher Campaign
 

@@ -7,24 +7,24 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common.Log;
-using Falcon.Common.Middleware.Authentication;
+using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Common.Log;
-using Lykke.Service.Campaign.Client;
-using Lykke.Service.Campaign.Client.Models;
-using Lykke.Service.Campaign.Client.Models.BurnRule.Requests;
-using Lykke.Service.Campaign.Client.Models.BurnRule.Responses;
-using Lykke.Service.Campaign.Client.Models.BurnRuleContent;
-using Lykke.Service.Campaign.Client.Models.Enums;
-using Lykke.Service.Campaign.Client.Models.Files.Requests;
-using Lykke.Service.CurrencyConvertor.Client;
+using MAVN.Service.Campaign.Client;
+using MAVN.Service.Campaign.Client.Models;
+using MAVN.Service.Campaign.Client.Models.BurnRule.Requests;
+using MAVN.Service.Campaign.Client.Models.BurnRule.Responses;
+using MAVN.Service.Campaign.Client.Models.BurnRuleContent;
+using MAVN.Service.Campaign.Client.Models.Enums;
+using MAVN.Service.Campaign.Client.Models.Files.Requests;
+using MAVN.Service.CurrencyConvertor.Client;
 using MAVN.Service.PartnerManagement.Client;
 using MAVN.Service.PartnerManagement.Client.Models;
 using MAVN.Service.PartnerManagement.Client.Models.Partner;
-using Lykke.Service.Vouchers.Client;
-using Lykke.Service.Vouchers.Client.Models;
-using Lykke.Service.Vouchers.Client.Models.Vouchers;
+using MAVN.Service.Vouchers.Client;
+using MAVN.Service.Vouchers.Client.Models;
+using MAVN.Service.Vouchers.Client.Models.Vouchers;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure;
@@ -302,7 +302,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<BurnRuleCreatedResponse> CreateBurnRuleAsync([FromBody] BurnRuleCreateRequest model)
         {
             var request =
-                _mapper.Map<BurnRuleCreateRequest, Lykke.Service.Campaign.Client.Models.BurnRule.Requests.BurnRuleCreateRequest>(
+                _mapper.Map<BurnRuleCreateRequest, MAVN.Service.Campaign.Client.Models.BurnRule.Requests.BurnRuleCreateRequest>(
                     model,
                     opt => opt.AfterMap((src, dest) => { dest.CreatedBy = _requestContext.UserId; }));
 

@@ -1,4 +1,4 @@
-﻿using Lykke.Service.Campaign.Client.Models.Enums;
+﻿using MAVN.Service.Campaign.Client.Models.Enums;
 using MAVN.Service.AdminAPI.Interfaces.ActionRules;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;

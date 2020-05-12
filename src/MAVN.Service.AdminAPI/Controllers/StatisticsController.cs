@@ -3,13 +3,13 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Falcon.Common.Middleware.Authentication;
-using Lykke.Job.TokensStatistics.Client;
-using Lykke.Job.TokensStatistics.Client.Models.Requests;
+using MAVN.Common.Middleware.Authentication;
+using MAVN.Job.TokensStatistics.Client;
+using MAVN.Job.TokensStatistics.Client.Models.Requests;
 using MAVN.Service.CustomerProfile.Client;
-using Lykke.Service.OperationsHistory.Client;
-using Lykke.Service.PrivateBlockchainFacade.Client;
-using Lykke.Service.Referral.Client;
+using MAVN.Service.OperationsHistory.Client;
+using MAVN.Service.PrivateBlockchainFacade.Client;
+using MAVN.Service.Referral.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Infrastructure.Extensions;
@@ -129,25 +129,6 @@ namespace MAVN.Service.AdminAPI.Controllers
                 BurnedCount = totalTokens.TotalBurn,
                 TotalCount = totalTokens.TotalCustomersWalletBalance
             };
-
-            return model;
-        }
-
-        /// <summary>
-        /// Returns a statistics of Real Estate Leads.
-        /// </summary>
-        /// <returns>
-        /// A statistics of leads.
-        /// </returns>
-        /// <response code="200">A statistics of leads.</response>
-        [HttpGet("leads")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
-        [ProducesResponseType(typeof(LeadStatisticModel), (int)HttpStatusCode.OK)]
-        public async Task<LeadStatisticModel> GetByLeadsAsync()
-        {
-            var leadStatistic = await _referralClient.ReferralLeadApi.GetLeadStatisticAsync();
-
-            var model = _mapper.Map<LeadStatisticModel>(leadStatistic);
 
             return model;
         }

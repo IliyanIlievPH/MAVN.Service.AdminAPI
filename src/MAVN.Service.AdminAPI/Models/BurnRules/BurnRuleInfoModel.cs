@@ -1,5 +1,5 @@
 ﻿using System;
-using Falcon.Numerics;
+using MAVN.Numerics;
 using MAVN.Service.AdminAPI.Models.Partners;
 
 namespace MAVN.Service.AdminAPI.Models.BurnRules
