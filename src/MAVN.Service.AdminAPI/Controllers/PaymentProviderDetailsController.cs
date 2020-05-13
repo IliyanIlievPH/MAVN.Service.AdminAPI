@@ -18,25 +18,43 @@ using Microsoft.AspNetCore.Mvc;
 using AvailablePaymentProvidersRequirementsResponse = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.AvailablePaymentProvidersRequirementsResponse;
 using CreatePaymentProviderDetailsRequest = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.CreatePaymentProviderDetailsRequest;
 using EditPaymentProviderDetailsRequest = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.EditPaymentProviderDetailsRequest;
+using MAVN.Service.AdminAPI.Infrastructure;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Models.Partner;
+using System.Linq;
+using MAVN.Service.AdminAPI.Models.Common;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
-    [Permission(PermissionType.ActionRules, PermissionLevel.View)]
+    [Permission(
+        PermissionType.ProgramPartners,
+        new[]
+        {
+            PermissionLevel.View,
+            PermissionLevel.PartnerEdit,
+        }
+    )]
     [LykkeAuthorizeWithoutCache]
     [Route("/api/[controller]")]
     public class PaymentProviderDetailsController : ControllerBase
     {
+        private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IPaymentManagementClient _paymentManagementClient;
+        private readonly IExtRequestContext _requestContext;
         private readonly ICustomerProfileClient _customerProfileClient;
         private readonly IMapper _mapper;
 
         public PaymentProviderDetailsController(
+            IPartnerManagementClient partnerManagementClient,
             IPaymentManagementClient paymentManagementClient,
+            IExtRequestContext requestContext,
             ICustomerProfileClient customerProfileClient,
             IMapper mapper)
         {
+            _partnerManagementClient = partnerManagementClient;
             _paymentManagementClient = paymentManagementClient;
+            _requestContext = requestContext;
             _customerProfileClient = customerProfileClient;
             _mapper = mapper;
         }
@@ -88,6 +106,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(PaymentProviderDetailsResponse), (int)HttpStatusCode.OK)]
         public async Task<PaymentProviderDetailsResponse> GetPaymentProviderDetailsByPartnerIdAsync([FromQuery] Guid partnerId)
         {
+            await VerifyPermissionForPartnerAdmin(partnerId);
+
             var details = await _customerProfileClient.PaymentProviderDetails.GetListByPartnerIdAsync(partnerId);
 
             var result = new PaymentProviderDetailsResponse
@@ -106,6 +126,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task CreatePaymentProviderDetailsAsync([FromBody] CreatePaymentProviderDetailsRequest request)
         {
+            await VerifyPermissionForPartnerAdmin(request.PartnerId);
+
             var error = await _customerProfileClient.PaymentProviderDetails.CreateAsync(new CustomerProfile.Client.Models.Requests.CreatePaymentProviderDetailsRequest
             {
                 PartnerId = request.PartnerId,
@@ -125,6 +147,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task EditPaymentProviderDetailsAsync([FromBody] EditPaymentProviderDetailsRequest request)
         {
+            await VerifyPermissionForPartnerAdmin(request.PartnerId);
+
             var error = await _customerProfileClient.PaymentProviderDetails.UpdateAsync(new CustomerProfile.Client.Models.Requests.EditPaymentProviderDetailsRequest
             {
                 PartnerId = request.PartnerId,
@@ -137,6 +161,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(error.ToString()));
         }
 
+        /* TODO: implement when will be 2 or more payment providers
         /// <summary>
         /// Update payment provider details
         /// </summary>
@@ -149,6 +174,27 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (error != PaymentProviderDetailsErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(error.ToString()));
+        }
+        */
+
+        private async Task VerifyPermissionForPartnerAdmin(Guid partnerId)
+        {
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.ProgramPartners);
+
+            if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
+            {
+                var partners = await _partnerManagementClient.Partners.GetAsync(new PartnerListRequestModel
+                {
+                    CreatedBy = Guid.Parse(_requestContext.UserId),
+                    CurrentPage = 1,
+                    PageSize = Constants.MaxPageSize
+                }); ;
+
+                if (!partners.PartnersDetails.Any(_ => _.Id.Equals(partnerId)))
+                {
+                    throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
+                }
+            }
         }
     }
 }
