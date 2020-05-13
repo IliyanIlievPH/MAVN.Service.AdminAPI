@@ -62,8 +62,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">A collection of partners.</response>
         /// <response code="400">An error occurred while getting partners.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IReadOnlyList<PartnersListResponse>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(IReadOnlyList<PartnersListResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<PartnersListResponse> GetAllPartnersAsync([FromQuery] PartnerListRequest request)
         {
             var requestModel = _mapper.Map<PartnerListRequestModel>(request);
@@ -85,8 +85,31 @@ namespace MAVN.Service.AdminAPI.Controllers
             return new PartnersListResponse
             {
                 PagedResponse =
-                    new PagedResponseModel {TotalCount = result.TotalSize, CurrentPage = result.CurrentPage},
+                    new PagedResponseModel { TotalCount = result.TotalSize, CurrentPage = result.CurrentPage },
                 Partners = _mapper.Map<IEnumerable<PartnerRowResponse>>(result.PartnersDetails)
+            };
+        }
+
+        /// <summary>
+        /// Check if partner has ability to do something
+        /// </summary>
+        /// <param name="request">.</param>
+        /// <response code="200">Check ability response.</response>
+        [HttpGet("ability/check")]
+        [ProducesResponseType(typeof(CheckAbilityResponse), (int)HttpStatusCode.OK)]
+        public async Task<CheckAbilityResponse> CheckPartnerAbilityAsync([FromQuery] CheckPartnerAbilityRequest request)
+        {
+            var result = await _partnerManagementClient.Partners.CheckAbilityAsync(
+                new CheckAbilityRequest
+                {
+                    PartnerId = request.PartnerId,
+                    PartnerAbility = (PartnerAbility?)request.PartnerAbility
+                });
+
+            return new CheckAbilityResponse
+            {
+                HasAbility = result.HasAbility,
+                InabilityReason = result.InabilityReason,
             };
         }
 
@@ -137,7 +160,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
         )]
         [ProducesResponseType(typeof(PartnerCreateResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<PartnerCreateResponse> AddAsync([FromBody] PartnerCreateRequest request)
         {
             var requestMapped = _mapper.Map<PartnerCreateRequest, PartnerCreateModel>(request,
@@ -145,7 +168,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             requestMapped.ClientId = await _partnerManagementClient.Auth.GenerateClientId();
             requestMapped.ClientSecret = await _partnerManagementClient.Auth.GenerateClientSecret();
-            
+
             PartnerManagement.Client.Models.Partner.PartnerCreateResponse response;
 
             try
@@ -159,7 +182,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
 
-            return  new PartnerCreateResponse
+            return new PartnerCreateResponse
             {
                 PartnerId = response.Id.ToString()
             };
@@ -179,8 +202,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                 PermissionLevel.PartnerEdit,
             }
         )]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task UpdatePartnerAsync([FromBody] PartnerUpdateRequest request)
         {
             #region Filter
@@ -192,7 +215,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 var existingPartner = await _partnerManagementClient.Partners.GetByIdAsync(request.Id);
 
                 // filter data for current _requestContext.UserId
-                if (existingPartner != null && 
+                if (existingPartner != null &&
                     existingPartner.CreatedBy != Guid.Parse(_requestContext.UserId))
                     throw LykkeApiErrorException.Forbidden(new LykkeApiErrorCode(nameof(HttpStatusCode.Forbidden)));
             }
@@ -221,8 +244,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">The partner successfully generated client secret.</response>
         /// <response code="400">An error occurred while generating client secret.</response>
         [HttpPost("generateClientSecret")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<string> GenerateClientSecretAsync()
         {
             return await _partnerManagementClient.Auth.GenerateClientSecret();
@@ -234,8 +257,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">The partner successfully generated client id.</response>
         /// <response code="400">An error occurred while generating client id.</response>
         [HttpPost("generateClientId")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<string> GenerateClientIdAsync()
         {
             return await _partnerManagementClient.Auth.GenerateClientId();
