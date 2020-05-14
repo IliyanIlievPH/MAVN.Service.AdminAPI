@@ -23,6 +23,8 @@ using MAVN.Service.PartnerManagement.Client;
 using MAVN.Service.PartnerManagement.Client.Models.Partner;
 using System.Linq;
 using MAVN.Service.AdminAPI.Models.Common;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -110,12 +112,54 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             var details = await _customerProfileClient.PaymentProviderDetails.GetListByPartnerIdAsync(partnerId);
 
+            await FilterSecretData(details);
+
             var result = new PaymentProviderDetailsResponse
             {
                 PaymentProviderDetails = _mapper.Map<IReadOnlyList<PaymentProviderDetails>>(details)
             };
 
             return result;
+        }
+
+        /// <summary>
+        /// Filter secret data for SuperAdmin
+        /// </summary>
+        private async Task FilterSecretData(IReadOnlyList<CustomerProfile.Client.Models.Responses.PaymentProviderDetails> details)
+        {
+            var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.ProgramPartners);
+
+            if (permissionLevel.HasValue && (permissionLevel.Value == PermissionLevel.View || permissionLevel.Value == PermissionLevel.Edit))
+            {
+                var paymentProvidersRequirements = await _paymentManagementClient.Api.GetAvailablePaymentProvidersRequirementsAsync();
+
+                foreach (var detail in details)
+                {
+                    var currentProviderRequirements = paymentProvidersRequirements.ProvidersRequirements.FirstOrDefault(_ => _.PaymentProvider == detail.PaymentIntegrationProvider);
+
+                    if (currentProviderRequirements == null)
+                        continue;
+
+                    var secretProperties = currentProviderRequirements.Properties.Where(_ => _.IsSecret).Select(_ => _.JsonKey);
+
+                    if (secretProperties.Count() > 0)
+                    {
+                        var jobj = (JObject)JsonConvert.DeserializeObject(detail.PaymentIntegrationProperties);
+
+                        foreach (var secretProperty in secretProperties)
+                        {
+                            var secretPropertyValue = jobj[secretProperty]?.ToString();
+
+                            if (!string.IsNullOrWhiteSpace(secretPropertyValue))
+                            {
+                                jobj[secretProperty] = new string('*', secretPropertyValue.Length);
+                            }
+                        }
+
+                        detail.PaymentIntegrationProperties = JsonConvert.SerializeObject(jobj);
+                    }
+                }
+            }
         }
 
         /// <summary>
