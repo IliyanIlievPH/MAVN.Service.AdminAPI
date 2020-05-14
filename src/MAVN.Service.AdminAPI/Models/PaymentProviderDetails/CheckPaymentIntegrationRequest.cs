@@ -15,5 +15,11 @@ namespace MAVN.Service.AdminAPI.Models.PaymentProviderDetails
         /// </summary>
         [Required]
         public Guid PartnerId { get; set; }
+
+        /// <summary>Payment integration properties</summary>
+        public string PaymentIntegrationProperties { get; set; }
+
+        /// <summary>Payment integration provider</summary>
+        public string PaymentIntegrationProvider { get; set; }
     }
 }

@@ -78,14 +78,16 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <summary>
         /// Get the required properties for the available payment providers
         /// </summary>
-        [HttpGet("integration/check")]
+        [HttpPost("integration/check")]
         [ProducesResponseType(typeof(CheckPaymentIntegrationResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<CheckPaymentIntegrationResponse> CheckPaymentIntegrationAsync([FromQuery] CheckPaymentIntegrationRequest request)
+        public async Task<CheckPaymentIntegrationResponse> CheckPaymentIntegrationAsync([FromBody] CheckPaymentIntegrationRequest request)
         {
             var checkResult = await _paymentManagementClient.Api.CheckPaymentIntegrationAsync(new PaymentIntegrationCheckRequest
             {
-                PartnerId = request.PartnerId
+                PartnerId = request.PartnerId,
+                PaymentIntegrationProvider = request.PaymentIntegrationProvider,
+                PaymentIntegrationProperties = request.PaymentIntegrationProperties,
             });
 
             switch (checkResult)
@@ -95,6 +97,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 case CheckPaymentIntegrationErrorCode.Fail:
                 case CheckPaymentIntegrationErrorCode.PartnerConfigurationNotFound:
                 case CheckPaymentIntegrationErrorCode.PartnerConfigurationPropertyIsMissing:
+                case CheckPaymentIntegrationErrorCode.PaymentIntegrationProviderIsMissing:
                     return new CheckPaymentIntegrationResponse { IsConfiguredCorrectly = false, Error = checkResult.ToString() };
                 default:
                     throw new ArgumentOutOfRangeException();
