@@ -1,4 +1,6 @@
-﻿namespace MAVN.Service.AdminAPI.Models.Partners.Responses
+﻿using MAVN.Service.AdminAPI.Models.Customers.Enums;
+
+namespace MAVN.Service.AdminAPI.Models.Partners.Responses
 {
     /// <summary>
     /// Response model for partner ability check
@@ -12,6 +14,6 @@
         /// <summary>
         /// The reason for the inability
         /// </summary>
-        public string InabilityReason { get; set; }
+        public PartnerInabilityErrorCodes ErrorCode { get; set; }
     }
 }
