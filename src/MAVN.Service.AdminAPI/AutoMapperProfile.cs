@@ -27,7 +27,6 @@ using MAVN.Service.AdminAPI.Models.Locations.Responses;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
 using MAVN.Service.AdminAPI.Models.PaymentProviderDetails;
-using MAVN.Service.AdminAPI.Models.Payments;
 using MAVN.Service.AdminAPI.Models.Reports;
 using MAVN.Service.AdminAPI.Models.Settings;
 using MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns;
@@ -269,6 +268,9 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.ContactPerson.LastName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.ContactPerson.Email))
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.ContactPerson.PhoneNumber));
+
+            CreateMap<CheckPartnerAbilityRequest, CheckAbilityRequest>();
+            CreateMap<CheckAbilityResponse, CheckPartnerAbilityResponse>();
 
             // Reports
             CreateMap<TransactionReport, ReportItemModel>(MemberList.Destination);

@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
-using MAVN.Service.PartnerManagement.Client;
-using MAVN.Service.PartnerManagement.Client.Enums;
-using MAVN.Service.PartnerManagement.Client.Models.Partner;
+using MAVN.Common.Middleware.Authentication;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Enums;
+using MAVN.Service.PartnerManagement.Client.Models.Partner;
 using Microsoft.AspNetCore.Mvc;
 using PartnerCreateResponse = MAVN.Service.AdminAPI.Models.Partners.Responses.PartnerCreateResponse;
 
@@ -96,21 +96,13 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <param name="request">.</param>
         /// <response code="200">Check ability response.</response>
         [HttpGet("ability/check")]
-        [ProducesResponseType(typeof(CheckAbilityResponse), (int)HttpStatusCode.OK)]
-        public async Task<CheckAbilityResponse> CheckPartnerAbilityAsync([FromQuery] CheckPartnerAbilityRequest request)
+        [ProducesResponseType(typeof(CheckPartnerAbilityResponse), (int)HttpStatusCode.OK)]
+        public async Task<CheckPartnerAbilityResponse> CheckPartnerAbilityAsync([FromQuery] CheckPartnerAbilityRequest request)
         {
-            var result = await _partnerManagementClient.Partners.CheckAbilityAsync(
-                new CheckAbilityRequest
-                {
-                    PartnerId = request.PartnerId,
-                    PartnerAbility = (PartnerAbility?)request.PartnerAbility
-                });
+            var requestModel = _mapper.Map<CheckAbilityRequest>(request);
+            var result = await _partnerManagementClient.Partners.CheckAbilityAsync(requestModel);
 
-            return new CheckAbilityResponse
-            {
-                HasAbility = result.HasAbility,
-                InabilityReason = result.InabilityReason,
-            };
+            return _mapper.Map<CheckPartnerAbilityResponse>(result);
         }
 
         /// <summary>
