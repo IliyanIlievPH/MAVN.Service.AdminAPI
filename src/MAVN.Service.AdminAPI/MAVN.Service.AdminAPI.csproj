@@ -41,6 +41,7 @@
     <PackageReference Include="MAVN.Service.PrivateBlockchainFacade.Client" Version="1.1.0" />
     <PackageReference Include="MAVN.Service.QuorumExplorer.Client" Version="1.1.1" />
     <PackageReference Include="MAVN.Service.Referral.Client" Version="2.0.0" />
+    <PackageReference Include="MAVN.Service.Reporting.Client" Version="1.3.0" />
     <PackageReference Include="MAVN.Service.Tiers.Client" Version="1.1.1" />
     <PackageReference Include="MAVN.Service.Vouchers.Client" Version="1.1.0" />
     <PackageReference Include="MAVN.Service.WalletManagement.Client" Version="1.1.1" />

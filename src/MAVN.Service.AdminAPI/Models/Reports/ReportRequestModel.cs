@@ -36,5 +36,15 @@ namespace MAVN.Service.AdminAPI.Models.Reports
         /// </summary>
         [Range(1, int.MaxValue)]
         public int CurrentPage { get; set; }
+
+        /// <summary>
+        /// TransactionType
+        /// </summary>
+        public string TransactionType { get; set; }
+
+        /// <summary>
+        /// Status
+        /// </summary>
+        public string Status { get; set; }
     }
 }

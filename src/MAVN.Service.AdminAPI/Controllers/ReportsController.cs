@@ -53,7 +53,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(ReportListModel), (int)HttpStatusCode.OK)]
         public async Task<ReportListModel> GetTransactionReportAsync([FromBody] ReportRequestModel request)
         {
-            var filter =  await FilterByPartnerAsync(request.PartnerId);
+            var filter = await FilterByPartnerAsync(request.PartnerId);
 
             if (filter.IsEmptyResult)
             {
@@ -64,16 +64,16 @@ namespace MAVN.Service.AdminAPI.Controllers
                 };
             }
 
-            var toDate = request.To.Date.AddDays(1).AddMilliseconds(-1);
-            var fromDate = request.From.Date;
-
-            var clientResult = await _reportClient.Api.FetchReportAsync(new TransactionReportByTimeRequest()
+            var requestModel = new TransactionReportByTimeRequest()
             {
                 CurrentPage = request.CurrentPage,
                 PageSize = request.PageSize,
-                From = fromDate,
-                To = toDate
-            }, filter.PartnerIds);
+                From = request.From.Date,
+                To = request.To.Date.AddDays(1).AddMilliseconds(-1),
+                TransactionType = request.TransactionType,
+                Status = request.Status,
+            };
+            var clientResult = await _reportClient.Api.FetchReportAsync(requestModel, filter.PartnerIds);
 
             return new ReportListModel
             {
@@ -84,10 +84,9 @@ namespace MAVN.Service.AdminAPI.Controllers
 
         [HttpGet("exportToCsv")]
         [ProducesResponseType(typeof(FileResult), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required] DateTime to, [FromQuery] Guid partnerId)
+        public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required] DateTime to, [FromQuery] Guid partnerId, [FromQuery] string transactionType, [FromQuery] string status)
         {
             var fileName = $"transactions_from_{from:dd-MM-yyyy}_to_{to:dd-MM-yyyy}.csv";
-
             var filter = await FilterByPartnerAsync(partnerId);
 
             if (filter.IsEmptyResult)
@@ -98,10 +97,14 @@ namespace MAVN.Service.AdminAPI.Controllers
                 };
             }
 
-            var toDate = to.Date.AddDays(1).AddMilliseconds(-1);
-            var fromDate = from.Date;
-
-            var clientResult = await _reportClient.Api.FetchReportCsvAsync(fromDate, toDate, filter.PartnerIds);
+            var requestModel = new TransactionReportByTimeRequest()
+            {
+                From = from.Date,
+                To = to.Date.AddDays(1).AddMilliseconds(-1),
+                TransactionType = transactionType,
+                Status = status,
+            };
+            var clientResult = await _reportClient.Api.FetchReportCsvAsync(requestModel, filter.PartnerIds);
 
             return clientResult.ToCsvFile(fileName);
         }
@@ -111,7 +114,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             #region Filter
 
             var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.Reports);
-            
+
             if (permissionLevel.HasValue && permissionLevel.Value == PermissionLevel.PartnerEdit)
             {
                 var partnersResponse =
