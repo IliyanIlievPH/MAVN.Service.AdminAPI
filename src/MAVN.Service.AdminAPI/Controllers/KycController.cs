@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using MAVN.Common.Middleware.Authentication;
 using MAVN.Service.AdminAPI.Models.Kyc.Requests;
 using MAVN.Service.AdminAPI.Models.Kyc.Responses;
 using MAVN.Service.Kyc.Client;
@@ -14,6 +15,7 @@ using KycStatusChangeResponse = MAVN.Service.AdminAPI.Models.Kyc.Responses.KycSt
 namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
+    [LykkeAuthorizeWithoutCache]
     [Route("api/[controller]")]
     public class KycController : ControllerBase
     {
