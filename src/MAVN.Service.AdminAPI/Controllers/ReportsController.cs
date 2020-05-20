@@ -66,6 +66,8 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             var requestModel = new TransactionReportByTimeRequest()
             {
+                CurrentPage = request.CurrentPage,
+                PageSize = request.PageSize,
                 From = request.From.Date,
                 To = request.To.Date.AddDays(1).AddMilliseconds(-1),
                 TransactionType = request.TransactionType,
