@@ -34,7 +34,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(KycInformationResponse), (int)HttpStatusCode.OK)]
         public async Task<KycInformationResponse> GetCurrentByPartnerIdAsync([FromQuery]Guid partnerId)
         {
-            var result = await _kycClient.Api.GetCurrentByPartnerIdAsync(partnerId);
+            var result = await _kycClient.KycApi.GetCurrentByPartnerIdAsync(partnerId);
 
             return _mapper.Map<KycInformationResponse>(result);
         }
@@ -47,7 +47,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(KycStatusChangeResponse), (int)HttpStatusCode.OK)]
         public async Task<IReadOnlyList<KycStatusChangeResponse>> GetKycStatusChangeHistoryByPartnerIdAsync([FromQuery]Guid partnerId)
         {
-            var result = await _kycClient.Api.GetKycStatusChangeHistoryByPartnerIdAsync(partnerId);
+            var result = await _kycClient.KycApi.GetKycStatusChangeHistoryByPartnerIdAsync(partnerId);
 
             return _mapper.Map<IReadOnlyList<KycStatusChangeResponse>>(result);
         }
@@ -61,7 +61,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<KycInformationUpdateResponse> UpdateKycInfoAsync([FromBody]KycInformationUpdateRequest request)
         {
             var model = _mapper.Map<KycUpdateRequest>(request);
-            var result = await _kycClient.Api.UpdateKycInfoAsync(model);
+            var result = await _kycClient.KycApi.UpdateKycInfoAsync(model);
 
             return _mapper.Map<KycInformationUpdateResponse>(result);
         }
