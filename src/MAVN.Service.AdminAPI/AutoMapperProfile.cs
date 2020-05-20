@@ -22,6 +22,8 @@ using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Customers;
 using MAVN.Service.AdminAPI.Models.Dashboard;
 using MAVN.Service.AdminAPI.Models.EarnRules;
+using MAVN.Service.AdminAPI.Models.Kyc.Requests;
+using MAVN.Service.AdminAPI.Models.Kyc.Responses;
 using MAVN.Service.AdminAPI.Models.Locations.Requests;
 using MAVN.Service.AdminAPI.Models.Locations.Responses;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
@@ -33,6 +35,8 @@ using MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns;
 using MAVN.Service.AdminAPI.Models.SmartVouchers.Vouchers;
 using MAVN.Service.AdminAPI.Models.Statistics;
 using MAVN.Service.AdminAPI.Models.Tiers;
+using MAVN.Service.Kyc.Client.Models.Requests;
+using MAVN.Service.Kyc.Client.Models.Responses;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
 using MAVN.Service.SmartVouchers.Client.Models.Responses;
 using BurnRuleCreateRequest = MAVN.Service.AdminAPI.Models.BurnRules.BurnRuleCreateRequest;
@@ -40,6 +44,8 @@ using CustomerActivityStatus = MAVN.Service.CustomerManagement.Client.Enums.Cust
 using CustomersStatisticResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomersStatisticResponse;
 using CustomerStatisticsByDayResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomerStatisticsByDayResponse;
 using CustomerWalletActivityStatus = MAVN.Service.WalletManagement.Client.Enums.CustomerWalletActivityStatus;
+using KycInformationResponse = MAVN.Service.AdminAPI.Models.Kyc.Responses.KycInformationResponse;
+using KycStatusChangeResponse = MAVN.Service.AdminAPI.Models.Kyc.Responses.KycStatusChangeResponse;
 using PublicAddressStatus = MAVN.Service.AdminAPI.Models.Customers.Enums.PublicAddressStatus;
 
 namespace MAVN.Service.AdminAPI
@@ -57,12 +63,12 @@ namespace MAVN.Service.AdminAPI
             CreateMap<AdminModel, MAVN.Service.AdminManagement.Client.Models.AdminUser>()
                 .ForMember(x => x.AdminUserId, x => x.MapFrom(y => y.Id))
                 .ForMember(x => x.RegisteredAt, x => x.MapFrom(y => y.Registered));
-            
+
             CreateMap<AdminLocalization, MAVN.Service.AdminManagement.Client.Models.Enums.Localization>();
-            
+
             CreateMap<MAVN.Service.AdminManagement.Client.Models.AdminPermission, Permission>();
             CreateMap<Permission, MAVN.Service.AdminManagement.Client.Models.AdminPermission>();
-            
+
             // Auth
             CreateMap<LoginModel,
                 MAVN.Service.AdminManagement.Client.Models.AuthenticateRequestModel>(MemberList.Destination);
@@ -97,7 +103,7 @@ namespace MAVN.Service.AdminAPI
 
             CreateMap<ConditionBaseModel, MAVN.Service.Campaign.Client.Models.Condition.ConditionBaseModel>(MemberList.Destination)
                 .ForMember(dest => dest.PartnerIds,
-                    opt => opt.MapFrom(src => src.PartnerId.HasValue ? new[] {src.PartnerId.Value} : null))
+                    opt => opt.MapFrom(src => src.PartnerId.HasValue ? new[] { src.PartnerId.Value } : null))
                 .IncludeAllDerived();
 
             CreateMap<ConditionCreateModel,
@@ -108,7 +114,7 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(c => c.DisplayName, opt => opt.MapFrom(src => src.TypeDisplayName))
                 .ForMember(dest => dest.PartnerId,
                     opt => opt.MapFrom(src =>
-                        src.PartnerIds != null && src.PartnerIds.Length > 0 ? (Guid?) src.PartnerIds.First() : null));
+                        src.PartnerIds != null && src.PartnerIds.Length > 0 ? (Guid?)src.PartnerIds.First() : null));
 
             CreateMap<ConditionUpdateModel,
                 MAVN.Service.Campaign.Client.Models.Condition.ConditionEditModel>(MemberList.Destination);
@@ -244,14 +250,14 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(dest => dest.ClientSecret, opt => opt.Ignore());
 
             CreateMap<LocationCreateRequest, LocationCreateModel>()
-                .ForMember(dest=>dest.ContactPerson, opt=>opt.MapFrom(src=>
-                    new MAVN.Service.PartnerManagement.Client.Models.ContactPersonModel
-                    {
-                         Email = src.Email,
-                         FirstName = src.FirstName,
-                         LastName = src.LastName,
-                         PhoneNumber = src.Phone
-                    } ));
+                .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src =>
+                        new MAVN.Service.PartnerManagement.Client.Models.ContactPersonModel
+                        {
+                            Email = src.Email,
+                            FirstName = src.FirstName,
+                            LastName = src.LastName,
+                            PhoneNumber = src.Phone
+                        }));
 
             CreateMap<LocationEditRequest, LocationUpdateModel>()
                 .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src =>
@@ -274,7 +280,7 @@ namespace MAVN.Service.AdminAPI
 
             // Reports
             CreateMap<TransactionReport, ReportItemModel>(MemberList.Destination);
-            
+
             // Tiers
             CreateMap<MAVN.Service.Tiers.Client.Models.Reports.TierCustomersCountModel,
                 TierModel>(MemberList.Destination);
@@ -318,6 +324,12 @@ namespace MAVN.Service.AdminAPI
             CreateMap<PaymentManagement.Client.Models.Responses.AvailablePaymentProvidersRequirementsResponse, AvailablePaymentProvidersRequirementsResponse>();
             CreateMap<PaymentManagement.Client.Models.Responses.PaymentProviderProperties, PaymentProviderProperties>();
             CreateMap<PaymentManagement.Client.Models.Responses.PaymentProviderProperty, PaymentProviderProperty>();
+
+            // KYC
+            CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycInformationResponse, KycInformationResponse>();
+            CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycStatusChangeResponse, KycStatusChangeResponse>();
+            CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycUpdateResponse, KycInformationUpdateResponse>();
+            CreateMap<KycInformationUpdateRequest, MAVN.Service.Kyc.Client.Models.Requests.KycUpdateRequest>();
         }
 
         private static DateTime ToDateTime(long input)
