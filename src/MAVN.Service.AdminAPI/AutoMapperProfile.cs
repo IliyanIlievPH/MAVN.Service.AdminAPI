@@ -37,8 +37,10 @@ using MAVN.Service.AdminAPI.Models.Statistics;
 using MAVN.Service.AdminAPI.Models.Tiers;
 using MAVN.Service.Kyc.Client.Models.Requests;
 using MAVN.Service.Kyc.Client.Models.Responses;
+using MAVN.Service.PaymentManagement.Client.Models.Responses;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
 using MAVN.Service.SmartVouchers.Client.Models.Responses;
+using AvailablePaymentProvidersRequirementsResponse = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.AvailablePaymentProvidersRequirementsResponse;
 using BurnRuleCreateRequest = MAVN.Service.AdminAPI.Models.BurnRules.BurnRuleCreateRequest;
 using CustomerActivityStatus = MAVN.Service.CustomerManagement.Client.Enums.CustomerActivityStatus;
 using CustomersStatisticResponseModel = MAVN.Service.AdminAPI.Models.Dashboard.CustomersStatisticResponse;
@@ -46,6 +48,9 @@ using CustomerStatisticsByDayResponseModel = MAVN.Service.AdminAPI.Models.Dashbo
 using CustomerWalletActivityStatus = MAVN.Service.WalletManagement.Client.Enums.CustomerWalletActivityStatus;
 using KycInformationResponse = MAVN.Service.AdminAPI.Models.Kyc.Responses.KycInformationResponse;
 using KycStatusChangeResponse = MAVN.Service.AdminAPI.Models.Kyc.Responses.KycStatusChangeResponse;
+using PaymentIntegrationSupportedCurrencies = MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns.PaymentIntegrationSupportedCurrencies;
+using PaymentProviderProperties = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.PaymentProviderProperties;
+using PaymentProviderProperty = MAVN.Service.AdminAPI.Models.PaymentProviderDetails.PaymentProviderProperty;
 using PublicAddressStatus = MAVN.Service.AdminAPI.Models.Customers.Enums.PublicAddressStatus;
 
 namespace MAVN.Service.AdminAPI
@@ -172,6 +177,7 @@ namespace MAVN.Service.AdminAPI
             #endregion
 
             // Customers
+
             CreateMap<MAVN.Service.CustomerProfile.Client.Models.Responses.CustomerProfile, CustomerModel>(MemberList
                     .Destination)
                 .ForMember(c => c.RegisteredDate, opt => opt.MapFrom(src => src.Registered))
@@ -324,6 +330,8 @@ namespace MAVN.Service.AdminAPI
             CreateMap<PaymentManagement.Client.Models.Responses.AvailablePaymentProvidersRequirementsResponse, AvailablePaymentProvidersRequirementsResponse>();
             CreateMap<PaymentManagement.Client.Models.Responses.PaymentProviderProperties, PaymentProviderProperties>();
             CreateMap<PaymentManagement.Client.Models.Responses.PaymentProviderProperty, PaymentProviderProperty>();
+            CreateMap<PaymentIntegrationsSupportedCurrenciesResponse, SupportedCurrenciesResponse>();
+            CreateMap<PaymentManagement.Client.Models.Responses.PaymentIntegrationSupportedCurrencies, PaymentIntegrationSupportedCurrencies>();
 
             // KYC
             CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycInformationResponse, KycInformationResponse>();
