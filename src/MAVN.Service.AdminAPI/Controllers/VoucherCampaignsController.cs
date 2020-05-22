@@ -503,7 +503,6 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(SupportedCurrenciesResponse), (int)HttpStatusCode.OK)]
         public async Task<SupportedCurrenciesResponse> GetSupportedCurrenciesAsync([FromQuery] GetSupportedCurrenciesRequest request)
         {
-
             var result = await _paymentManagementClient.Api.GetPaymentIntegrationsSupportedCurrenciesAsync(new PaymentIntegrationsSupportedCurrenciesRequest
             {
                 PartnerId = request.PartnerId,
