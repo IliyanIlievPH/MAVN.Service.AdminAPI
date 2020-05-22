@@ -16,6 +16,8 @@ using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.ActionRules;
 using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns;
+using MAVN.Service.PaymentManagement.Client;
+using MAVN.Service.PaymentManagement.Client.Models.Requests;
 using MAVN.Service.SmartVouchers.Client;
 using MAVN.Service.SmartVouchers.Client.Models.Enums;
 using MAVN.Service.SmartVouchers.Client.Models.Requests;
@@ -42,17 +44,20 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ISmartVouchersClient _smartVouchersClient;
         private readonly IExtRequestContext _requestContext;
         private readonly IImageService _imageService;
+        private readonly IPaymentManagementClient _paymentManagementClient;
         private readonly IMapper _mapper;
 
         public VoucherCampaignsController(
             ISmartVouchersClient smartVouchersClient,
             IExtRequestContext requestContext,
             IImageService imageService,
+            IPaymentManagementClient paymentManagementClient,
             IMapper mapper)
         {
             _smartVouchersClient = smartVouchersClient;
             _requestContext = requestContext;
             _imageService = imageService;
+            _paymentManagementClient = paymentManagementClient;
             _mapper = mapper;
         }
 
@@ -486,6 +491,27 @@ namespace MAVN.Service.AdminAPI.Controllers
                 PublishedCampaignsVouchersTotalCount = result.PublishedCampaignsVouchersTotalCount
             };
 
+        }
+
+        /// <summary>
+        /// Get available currencies for a partner
+        /// </summary>
+        /// <returns>
+        /// </returns>
+        /// <response code="200">Supported currencies</response>
+        [HttpGet("currencies")]
+        [ProducesResponseType(typeof(SupportedCurrenciesResponse), (int)HttpStatusCode.OK)]
+        public async Task<SupportedCurrenciesResponse> GetSupportedCurrenciesAsync([FromQuery] GetSupportedCurrenciesRequest request)
+        {
+            var result = await _paymentManagementClient.Api.GetPaymentIntegrationsSupportedCurrenciesAsync(new PaymentIntegrationsSupportedCurrenciesRequest
+            {
+                PartnerId = request.PartnerId,
+            });
+
+            return new SupportedCurrenciesResponse
+            {
+                ProvidersSupportedCurrencies = result.ProvidersSupportedCurrencies.SelectMany(x => x.SupportedCurrencies).Distinct().ToList()
+            };
         }
     }
 }
