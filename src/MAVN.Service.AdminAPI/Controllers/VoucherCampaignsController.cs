@@ -508,7 +508,10 @@ namespace MAVN.Service.AdminAPI.Controllers
                 PartnerId = request.PartnerId,
             });
 
-            return _mapper.Map<SupportedCurrenciesResponse>(result);
+            return new SupportedCurrenciesResponse
+            {
+                ProvidersSupportedCurrencies = result.ProvidersSupportedCurrencies.SelectMany(x => x.SupportedCurrencies).Distinct().ToList()
+            };
         }
     }
 }

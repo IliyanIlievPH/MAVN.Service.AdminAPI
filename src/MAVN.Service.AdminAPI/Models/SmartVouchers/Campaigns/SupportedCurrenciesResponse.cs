@@ -7,7 +7,7 @@ namespace MAVN.Service.AdminAPI.Models.SmartVouchers.Campaigns
     /// </summary>
     public class SupportedCurrenciesResponse
     {
-        /// <summary>Supported currencies for payment providers</summary>
-        public List<PaymentIntegrationSupportedCurrencies> ProvidersSupportedCurrencies { get; set; }
+        /// <summary>Supported currencies</summary>
+        public List<string> ProvidersSupportedCurrencies { get; set; }
     }
 }
