@@ -57,5 +57,8 @@ namespace MAVN.Service.AdminAPI.Models.Reports
 
         /// <summary>Location integration code</summary>
         public string LocationIntegrationCode { get; set; }
+
+        /// <summary>Currency</summary>
+        public string Currency { get; set; }
     }
 }
