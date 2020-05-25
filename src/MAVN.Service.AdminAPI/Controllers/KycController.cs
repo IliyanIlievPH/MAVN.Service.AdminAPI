@@ -4,9 +4,13 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using MAVN.Common.Middleware.Authentication;
+using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Infrastructure;
+using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Kyc.Requests;
 using MAVN.Service.AdminAPI.Models.Kyc.Responses;
 using MAVN.Service.Kyc.Client;
+using MAVN.Service.Kyc.Client.Models.Enums;
 using MAVN.Service.Kyc.Client.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 using KycInformationResponse = MAVN.Service.AdminAPI.Models.Kyc.Responses.KycInformationResponse;
@@ -16,16 +20,22 @@ namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
     [LykkeAuthorizeWithoutCache]
+    [Permission(PermissionType.ProgramPartners, PermissionLevel.Edit)]
     [Route("api/[controller]")]
     public class KycController : ControllerBase
     {
         private readonly IKycClient _kycClient;
+        private readonly IExtRequestContext _requestContext;
         private readonly IMapper _mapper;
 
-        public KycController(IKycClient kycClient, IMapper mapper)
+        public KycController(
+            IKycClient kycClient,
+            IMapper mapper,
+            IExtRequestContext requestContext)
         {
             _kycClient = kycClient;
             _mapper = mapper;
+            _requestContext = requestContext;
         }
 
         /// <summary>
@@ -62,7 +72,13 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(KycInformationUpdateResponse), (int)HttpStatusCode.OK)]
         public async Task<KycInformationUpdateResponse> UpdateKycInfoAsync([FromBody]KycInformationUpdateRequest request)
         {
-            var model = _mapper.Map<KycUpdateRequest>(request);
+            var model = new KycUpdateRequest()
+            {
+                PartnerId = request.PartnerId,
+                Comment = request.Comment,
+                KycStatus = (KycStatus)request.KycStatus,
+                AdminUserId = Guid.Parse(_requestContext.UserId)
+            };
             var result = await _kycClient.KycApi.UpdateKycInfoAsync(model);
 
             return _mapper.Map<KycInformationUpdateResponse>(result);
