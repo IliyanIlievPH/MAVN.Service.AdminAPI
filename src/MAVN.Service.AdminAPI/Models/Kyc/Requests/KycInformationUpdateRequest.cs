@@ -11,10 +11,6 @@ namespace MAVN.Service.AdminAPI.Models.Kyc.Requests
         [Required]
         public Guid PartnerId { get; set; }
 
-        /// <summary>Id of the admin user</summary>
-        [Required]
-        public Guid AdminUserId { get; set; }
-
         /// <summary>Comment</summary>
         public string Comment { get; set; }
 
