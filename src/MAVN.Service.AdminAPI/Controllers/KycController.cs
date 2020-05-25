@@ -74,12 +74,13 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(KycInformationUpdateResponse), (int)HttpStatusCode.OK)]
         public async Task<KycInformationUpdateResponse> UpdateKycInfoAsync([FromBody]KycInformationUpdateRequest request)
         {
+            var adminUserId = Guid.Parse(_requestContext.UserId);
             var model = new KycUpdateRequest()
             {
                 PartnerId = request.PartnerId,
                 Comment = request.Comment,
                 KycStatus = (KycStatus)request.KycStatus,
-                AdminUserId = Guid.Parse(_requestContext.UserId)
+                AdminUserId = adminUserId,
             };
             var result = await _kycClient.KycApi.UpdateKycInfoAsync(model);
 
