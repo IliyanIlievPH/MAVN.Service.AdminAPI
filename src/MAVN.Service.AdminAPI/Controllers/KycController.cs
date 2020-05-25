@@ -20,7 +20,6 @@ namespace MAVN.Service.AdminAPI.Controllers
 {
     [ApiController]
     [LykkeAuthorizeWithoutCache]
-    [Permission(PermissionType.ProgramPartners, PermissionLevel.Edit)]
     [Route("api/[controller]")]
     public class KycController : ControllerBase
     {
@@ -43,6 +42,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </summary>
         /// <param name="partnerId"></param>
         [HttpGet("current")]
+        [Permission(PermissionType.ProgramPartners, PermissionLevel.View)]
         [ProducesResponseType(typeof(KycInformationResponse), (int)HttpStatusCode.OK)]
         public async Task<KycInformationResponse> GetCurrentByPartnerIdAsync([FromQuery]Guid partnerId)
         {
@@ -56,6 +56,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </summary>
         /// <param name="partnerId"></param>
         [HttpGet("history")]
+        [Permission(PermissionType.ProgramPartners, PermissionLevel.Edit)]
         [ProducesResponseType(typeof(KycStatusChangeResponse), (int)HttpStatusCode.OK)]
         public async Task<IReadOnlyList<KycStatusChangeResponse>> GetKycStatusChangeHistoryByPartnerIdAsync([FromQuery]Guid partnerId)
         {
@@ -69,6 +70,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </summary>
         /// <param name="request"></param>
         [HttpPut]
+        [Permission(PermissionType.ProgramPartners, PermissionLevel.Edit)]
         [ProducesResponseType(typeof(KycInformationUpdateResponse), (int)HttpStatusCode.OK)]
         public async Task<KycInformationUpdateResponse> UpdateKycInfoAsync([FromBody]KycInformationUpdateRequest request)
         {
