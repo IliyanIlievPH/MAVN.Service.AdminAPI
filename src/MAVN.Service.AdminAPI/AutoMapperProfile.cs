@@ -331,7 +331,6 @@ namespace MAVN.Service.AdminAPI
             CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycInformationResponse, KycInformationResponse>();
             CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycStatusChangeResponse, KycStatusChangeResponse>();
             CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycUpdateResponse, KycInformationUpdateResponse>();
-            CreateMap<KycInformationUpdateRequest, MAVN.Service.Kyc.Client.Models.Requests.KycUpdateRequest>();
         }
 
         private static DateTime ToDateTime(long input)
