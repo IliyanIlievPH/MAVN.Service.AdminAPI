@@ -57,5 +57,10 @@ namespace MAVN.Service.AdminAPI.Models.Locations
         /// Latitude of the location
         /// </summary>
         public double? Latitude { get; set; }
+
+        /// <summary>
+        /// Country Iso3 code
+        /// </summary>
+        public string CountryIso3Code { get; set; }
     }
 }
