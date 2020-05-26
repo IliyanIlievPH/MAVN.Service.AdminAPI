@@ -275,7 +275,8 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.ContactPerson.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.ContactPerson.LastName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.ContactPerson.Email))
-                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.ContactPerson.PhoneNumber));
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.ContactPerson.PhoneNumber))
+                .ForMember(dest => dest.CountryIso3Code, opt => opt.MapFrom(src => src.CountryIso3Code));
 
             CreateMap<CheckPartnerAbilityRequest, CheckAbilityRequest>();
             CreateMap<CheckAbilityResponse, CheckPartnerAbilityResponse>();
