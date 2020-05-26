@@ -238,7 +238,8 @@ namespace MAVN.Service.AdminAPI
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
                 .ForMember(dest => dest.Vertical, opt => opt.MapFrom(src => src.BusinessVertical));
 
-            CreateMap<PartnerListDetailsModel, PartnerRowResponse>(MemberList.Destination);
+            CreateMap<PartnerListDetailsModel, PartnerRowResponse>(MemberList.Destination)
+                .ForMember(dest => dest.KycStatus, opt => opt.Ignore());
 
             CreateMap<PartnerDetailsModel, PartnerDetailsResponse>();
 
