@@ -100,7 +100,9 @@ namespace MAVN.Service.AdminAPI.Controllers
                 Partners = _mapper.Map<IEnumerable<PartnerRowResponse>>(result.PartnersDetails)
             };
 
-            return await PopulateResponseWithPartnerKycStatus(response);
+            await PopulateResponseWithPartnerKycStatus(response);
+
+            return response;
         }
 
         /// <summary>
@@ -275,26 +277,26 @@ namespace MAVN.Service.AdminAPI.Controllers
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(errorCode.ToString(), message));
         }
 
-        private async Task<PartnersListResponse> PopulateResponseWithPartnerKycStatus(PartnersListResponse response)
+        private async Task PopulateResponseWithPartnerKycStatus(PartnersListResponse response)
         {
             var partnerIds = response.Partners.Select(e => e.Id).ToArray();
             var kycInformationResponses = await _kycClient.KycApi.GetCurrentByPartnerIdsAsync(partnerIds);
 
-            return SetPartnerKycStatus(response, kycInformationResponses);
+            SetPartnerKycStatus(response, kycInformationResponses);
         }
 
-        private PartnersListResponse SetPartnerKycStatus(PartnersListResponse response, IReadOnlyList<KycInformationResponse> kycInformationResponses)
+        private void SetPartnerKycStatus(PartnersListResponse response, IReadOnlyList<KycInformationResponse> kycInformationResponses)
         {
+            var dict = response.Partners.ToDictionary(k => k.Id, v => v);
             foreach (var kycInformation in kycInformationResponses)
             {
-                var partner = response.Partners.FirstOrDefault(e => e.Id == kycInformation.PartnerId);
-                if (partner != null)
+                dict.TryGetValue(kycInformation.PartnerId, out var partnerRowResponse);
+                if (partnerRowResponse != null)
                 {
-                    partner.KycStatus = (KycStatus)kycInformation.KycStatus;
+                    partnerRowResponse.KycStatus = (KycStatus)kycInformation.KycStatus;
                 }
             }
 
-            return response;
         }
     }
 }
