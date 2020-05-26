@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -10,8 +11,11 @@ using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
+using MAVN.Service.AdminAPI.Models.Kyc.Enum;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
+using MAVN.Service.Kyc.Client;
+using MAVN.Service.Kyc.Client.Models.Responses;
 using MAVN.Service.PartnerManagement.Client;
 using MAVN.Service.PartnerManagement.Client.Enums;
 using MAVN.Service.PartnerManagement.Client.Models.Partner;
@@ -38,12 +42,14 @@ namespace MAVN.Service.AdminAPI.Controllers
     {
         private readonly IExtRequestContext _requestContext;
         private readonly IPartnerManagementClient _partnerManagementClient;
+        private readonly IKycClient _kycClient;
         private readonly IMapper _mapper;
 
         public PartnersController(
             IExtRequestContext requestContext,
             IPartnerManagementClient partnerManagementClient,
-            IMapper mapper)
+            IMapper mapper,
+            IKycClient kycClient)
         {
             _requestContext = requestContext ??
                               throw new ArgumentNullException(nameof(requestContext));
@@ -51,6 +57,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                                        throw new ArgumentNullException(nameof(partnerManagementClient));
             _mapper = mapper ??
                       throw new ArgumentNullException(nameof(mapper));
+            _kycClient = kycClient;
         }
 
         /// <summary>
@@ -82,12 +89,20 @@ namespace MAVN.Service.AdminAPI.Controllers
             var result =
                 await _partnerManagementClient.Partners.GetAsync(requestModel);
 
-            return new PartnersListResponse
+            var response = new PartnersListResponse
             {
                 PagedResponse =
-                    new PagedResponseModel { TotalCount = result.TotalSize, CurrentPage = result.CurrentPage },
+                    new PagedResponseModel
+                    {
+                        TotalCount = result.TotalSize,
+                        CurrentPage = result.CurrentPage
+                    },
                 Partners = _mapper.Map<IEnumerable<PartnerRowResponse>>(result.PartnersDetails)
             };
+
+            await PopulateResponseWithPartnerKycStatus(response);
+
+            return response;
         }
 
         /// <summary>
@@ -260,6 +275,28 @@ namespace MAVN.Service.AdminAPI.Controllers
         {
             if (errorCode != PartnerManagementError.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(errorCode.ToString(), message));
+        }
+
+        private async Task PopulateResponseWithPartnerKycStatus(PartnersListResponse response)
+        {
+            var partnerIds = response.Partners.Select(e => e.Id).ToArray();
+            var kycInformationResponses = await _kycClient.KycApi.GetCurrentByPartnerIdsAsync(partnerIds);
+
+            SetPartnerKycStatus(response, kycInformationResponses);
+        }
+
+        private void SetPartnerKycStatus(PartnersListResponse response, IReadOnlyList<KycInformationResponse> kycInformationResponses)
+        {
+            var dict = response.Partners.ToDictionary(k => k.Id, v => v);
+            foreach (var kycInformation in kycInformationResponses)
+            {
+                dict.TryGetValue(kycInformation.PartnerId, out var partnerRowResponse);
+                if (partnerRowResponse != null)
+                {
+                    partnerRowResponse.KycStatus = (KycStatus)kycInformation.KycStatus;
+                }
+            }
+
         }
     }
 }
