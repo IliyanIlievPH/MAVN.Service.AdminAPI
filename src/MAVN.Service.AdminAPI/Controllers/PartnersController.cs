@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -14,6 +15,7 @@ using MAVN.Service.AdminAPI.Models.Kyc.Enum;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
 using MAVN.Service.Kyc.Client;
+using MAVN.Service.Kyc.Client.Models.Responses;
 using MAVN.Service.PartnerManagement.Client;
 using MAVN.Service.PartnerManagement.Client.Enums;
 using MAVN.Service.PartnerManagement.Client.Models.Partner;
@@ -275,10 +277,21 @@ namespace MAVN.Service.AdminAPI.Controllers
 
         private async Task<PartnersListResponse> PopulateResponseWithPartnerKycStatus(PartnersListResponse response)
         {
-            foreach (var partner in response.Partners)
+            var partnerIds = response.Partners.Select(e => e.Id).ToArray();
+            var kycInformationResponses = await _kycClient.KycApi.GetCurrentByPartnerIdsAsync(partnerIds);
+
+            return SetPartnerKycStatus(response, kycInformationResponses);
+        }
+
+        private PartnersListResponse SetPartnerKycStatus(PartnersListResponse response, IReadOnlyList<KycInformationResponse> kycInformationResponses)
+        {
+            foreach (var kycInformation in kycInformationResponses)
             {
-                var kycStatus = await _kycClient.KycApi.GetCurrentByPartnerIdAsync(partner.Id);
-                partner.KycStatus = (KycStatus)kycStatus.KycStatus;
+                var partner = response.Partners.FirstOrDefault(e => e.Id == kycInformation.PartnerId);
+                if (partner != null)
+                {
+                    partner.KycStatus = (KycStatus)kycInformation.KycStatus;
+                }
             }
 
             return response;
