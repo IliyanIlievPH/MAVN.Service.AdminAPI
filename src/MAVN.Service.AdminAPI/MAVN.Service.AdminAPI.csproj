@@ -45,7 +45,7 @@
     <PackageReference Include="MAVN.Service.Tiers.Client" Version="1.1.1" />
     <PackageReference Include="MAVN.Service.Vouchers.Client" Version="1.1.0" />
     <PackageReference Include="MAVN.Service.WalletManagement.Client" Version="1.1.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.13.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
