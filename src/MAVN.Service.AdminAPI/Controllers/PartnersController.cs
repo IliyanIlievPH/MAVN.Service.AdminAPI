@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -269,6 +270,34 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<string> GenerateClientIdAsync()
         {
             return await _partnerManagementClient.Auth.GenerateClientId();
+        }
+
+        /// <summary>
+        /// Regenerate partner linking information
+        /// </summary>
+        /// <response code="204">.</response>
+        /// <response code="400">error</response>
+        [HttpPost("linking/info")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task RegeneratePartnerLinkingInfoAsync([FromBody] RegeneratePartnerLinkingInfoRequest request)
+        {
+            await _partnerManagementClient.Linking.RegeneratePartnerLinkingInfoAsync(request.PartnerId);
+        }
+
+        /// <summary>
+        /// Get partner linking information
+        /// </summary>
+        /// <response code="200">Partner linking info.</response>
+        /// <response code="400">Error</response>
+        [HttpGet("linking/info")]
+        [ProducesResponseType(typeof(PartnerLinkingInfoResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<PartnerLinkingInfoResponse> GetPartnerLinkingInfoAsync([FromQuery] GetPartnerLinkingInfoRequest request)
+        {
+            var result = await _partnerManagementClient.Linking.GetPartnerLinkingInfoAsync(request.PartnerId);
+
+            return _mapper.Map<PartnerLinkingInfoResponse>(result);
         }
 
         private static void ThrowIfError(PartnerManagementError errorCode, string message)
