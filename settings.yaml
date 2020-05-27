@@ -119,7 +119,7 @@ PaymentManagementServiceClient:
 KycServiceClient:
   ServiceUrl:
     settings-key: KycServiceUrl
-    
+
 SlackNotifications:
   AzureQueue:
     ConnectionString:
