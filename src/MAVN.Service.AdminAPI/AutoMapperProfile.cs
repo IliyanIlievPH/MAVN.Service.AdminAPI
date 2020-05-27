@@ -251,6 +251,8 @@ namespace MAVN.Service.AdminAPI
             CreateMap<PartnerUpdateRequest, PartnerUpdateModel>()
                 .ForMember(dest => dest.ClientId, opt => opt.Ignore())
                 .ForMember(dest => dest.ClientSecret, opt => opt.Ignore());
+            CreateMap<PartnerManagement.Client.Models.PartnerLinking.PartnerLinkingInfoResponse,
+                PartnerLinkingInfoResponse>();
 
             CreateMap<LocationCreateRequest, LocationCreateModel>()
                 .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src =>
