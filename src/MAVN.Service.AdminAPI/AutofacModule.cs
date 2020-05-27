@@ -27,6 +27,7 @@ using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.DomainServices;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Settings;
+using MAVN.Service.Kyc.Client;
 using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.SmartVouchers.Client;
 using RequestContext = MAVN.Service.AdminAPI.Infrastructure.RequestContext;
@@ -86,6 +87,7 @@ namespace MAVN.Service.AdminAPI
             builder.RegisterVouchersClient(_appSettings.VouchersServiceClient);
             builder.RegisterSmartVouchersClient(_appSettings.SmartVouchersServiceClient, null);
             builder.RegisterPaymentManagementClient(_appSettings.PaymentManagementServiceClient, null);
+            builder.RegisterKycClient(_appSettings.KycServiceClient, null);
         }
     }
 }
