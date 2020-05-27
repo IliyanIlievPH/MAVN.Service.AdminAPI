@@ -23,6 +23,7 @@ using MAVN.Service.WalletManagement.Client;
 using MAVN.Service.AdminAPI.Settings.Clients;
 using MAVN.Service.AdminAPI.Settings.Service;
 using MAVN.Service.AdminAPI.Settings.Slack;
+using MAVN.Service.Kyc.Client;
 using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.SmartVouchers.Client;
 
@@ -82,5 +83,7 @@ namespace MAVN.Service.AdminAPI.Settings
         public SmartVouchersServiceClientSettings SmartVouchersServiceClient { get; set; }
 
         public PaymentManagementServiceClientSettings PaymentManagementServiceClient { get; set; }
+
+        public KycServiceClientSettings KycServiceClient { get; set; }
     }
 }
