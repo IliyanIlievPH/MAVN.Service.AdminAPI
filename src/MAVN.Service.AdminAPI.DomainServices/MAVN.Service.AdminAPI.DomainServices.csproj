@@ -9,10 +9,10 @@
     <PackageReference Include="MAVN.Service.AdminManagement.Client" Version="1.2.4" />
     <PackageReference Include="MAVN.Service.Credentials.Client" Version="1.1.0" />
     <PackageReference Include="MAVN.Service.OperationsHistory.Client" Version="1.4.2" />
-    <PackageReference Include="MAVN.Service.PartnerManagement.Client" Version="2.6.0" />
+    <PackageReference Include="MAVN.Service.PartnerManagement.Client" Version="2.8.1" />
     <PackageReference Include="MAVN.Service.PaymentManagement.Client" Version="1.18.0" />
     <PackageReference Include="MAVN.Service.Referral.Client" Version="2.0.0" />
-    <PackageReference Include="MAVN.Service.SmartVouchers.Client" Version="2.3.0" />
+    <PackageReference Include="MAVN.Service.SmartVouchers.Client" Version="2.6.0" />
     <PackageReference Include="Refit" Version="4.6.107" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
   </ItemGroup>
