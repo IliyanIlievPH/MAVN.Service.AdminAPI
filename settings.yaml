@@ -19,6 +19,10 @@ AdminApiService:
     settings-key: IsPublicBlockchainFeatureDisabled
     types:
       - Optional
+  IsPhoneVerificationDisabled:
+    settings-key: IsPhoneVerificationDisabled
+    types:
+      - Optional
 
 CampaignServiceClient:
   ServiceUrl:
@@ -64,10 +68,6 @@ PrivateBlockchainFacadeClient:
   ServiceUrl:
     settings-key: PrivateBlockchainFacadeServiceUrl
 
-PaymentTransfersServiceClient:
-  ServiceUrl:
-    settings-key: PaymentTransfersServiceUrl
-
 DashboardStatisticsServiceClient:
   ServiceUrl:
     settings-key: DashboardStatisticsServiceUrl
@@ -83,10 +83,6 @@ QuorumExplorerServiceClient:
 TiersServiceClient:
   ServiceUrl:
     settings-key: TiersServiceUrl
-
-AgentManagementServiceClient:
-  ServiceUrl:
-    settings-key: AgentManagementServiceUrl
 
 CurrencyConverterServiceClient:
   ServiceUrl:
@@ -115,6 +111,14 @@ VouchersServiceClient:
 SmartVouchersServiceClient:
   ServiceUrl:
     settings-key: SmartVouchersServiceUrl
+
+PaymentManagementServiceClient:
+  ServiceUrl:
+    settings-key: PaymentManagementServiceUrl
+
+KycServiceClient:
+  ServiceUrl:
+    settings-key: KycServiceUrl
 
 SlackNotifications:
   AzureQueue:

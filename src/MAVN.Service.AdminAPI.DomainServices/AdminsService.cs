@@ -4,33 +4,43 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common;
-using Lykke.Service.AdminManagement.Client;
-using Lykke.Service.AdminManagement.Client.Models;
-using Lykke.Service.AdminManagement.Client.Models.Enums;
-using Lykke.Service.AdminManagement.Client.Models.Requests;
+using MAVN.Service.AdminManagement.Client;
+using MAVN.Service.AdminManagement.Client.Models;
+using MAVN.Service.AdminManagement.Client.Models.Enums;
+using MAVN.Service.AdminManagement.Client.Models.Requests;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Models;
 using MAVN.Service.AdminAPI.Domain.Services;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Models.Partner;
+using MAVN.Service.PartnerManagement.Client.Models;
+using MAVN.Service.PartnerManagement.Client.Enums;
+using Lykke.Common.ApiLibrary.Exceptions;
+using Lykke.Common.ApiLibrary.Contract;
 
 namespace MAVN.Service.AdminAPI.DomainServices
 {
     public class AdminsService : IAdminsService
     {
+        private const string DefaultStringValue = "-";
         private readonly IAdminManagementServiceClient _adminManagementServiceClient;
         private readonly ICredentialsGeneratorService _credentialsGeneratorService;
+        private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IMapper _mapper;
-        
+
         public AdminsService(
             IAdminManagementServiceClient adminManagementServiceClient,
-            IMapper mapper,
-            ICredentialsGeneratorService credentialsGeneratorService)
+            ICredentialsGeneratorService credentialsGeneratorService,
+            IPartnerManagementClient partnerManagementClient,
+            IMapper mapper)
         {
             _adminManagementServiceClient = adminManagementServiceClient;
             _mapper = mapper;
             _credentialsGeneratorService = credentialsGeneratorService;
+            _partnerManagementClient = partnerManagementClient;
         }
 
-        public async Task<(AdminResetPasswordErrorCodes, Admin)> ResetPasswordAsync(string adminId)
+        public async Task<(AdminResetPasswordErrorCodes, AdminModel)> ResetPasswordAsync(string adminId)
         {
             var result = await _adminManagementServiceClient.AdminsApi.ResetPasswordAsync(
                     new ResetPasswordRequestModel
@@ -42,7 +52,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             switch (result.Error)
             {
                 case ResetPasswordErrorCodes.None:
-                    return (AdminResetPasswordErrorCodes.None, _mapper.Map<Admin>(result.Profile));
+                    return (AdminResetPasswordErrorCodes.None, _mapper.Map<AdminModel>(result.Profile));
                 case ResetPasswordErrorCodes.AdminUserNotFound:
                     return (AdminResetPasswordErrorCodes.AdminUserDoesNotExist, null);
                 default:
@@ -50,7 +60,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             }
         }
 
-        public async Task<(AdminServiceCreateResponseError, Admin, string)> AuthenticateAsync(string email, string password)
+        public async Task<(AdminServiceCreateResponseError, AdminModel, string)> AuthenticateAsync(string email, string password)
         {
             var authenticationResult = await _adminManagementServiceClient.AuthApi.AuthenticateAsync(
                 new AuthenticateRequestModel
@@ -67,12 +77,14 @@ namespace MAVN.Service.AdminAPI.DomainServices
 
                     return (
                         AdminServiceCreateResponseError.None,
-                        _mapper.Map<Admin>(adminUserResponse.Profile),
+                        _mapper.Map<AdminModel>(adminUserResponse.Profile),
                         authenticationResult.Token);
                 case AdminManagementError.AdminNotActive:
                     return (AdminServiceCreateResponseError.AdminNotActive, null, null);
                 case AdminManagementError.LoginNotFound:
                     return (AdminServiceCreateResponseError.LoginNotFound, null, null);
+                case AdminManagementError.AdminEmailIsNotVerified:
+                    return (AdminServiceCreateResponseError.AdminEmailIsNotVerified, null, null);
                 case AdminManagementError.PasswordMismatch:
                     return (AdminServiceCreateResponseError.PasswordMismatch, null, null);
                 case AdminManagementError.InvalidEmailOrPasswordFormat:
@@ -111,7 +123,90 @@ namespace MAVN.Service.AdminAPI.DomainServices
             }
         }
 
-        public async Task<(AdminServiceCreateResponseError, Admin)> RegisterAsync(
+        public async Task<(AdminServiceCreateResponseError, AdminModel)> RegisterPartnerAdminAsync(AdminRegisterModel model)
+        {
+            #region Create Admin
+
+            var createAdminResponse = await _adminManagementServiceClient.AdminsApi.RegisterAsync(
+                new RegistrationRequestModel
+                {
+                    Email = model.Email,
+                    Password = model.Password,
+                    Company = model.CompanyName,
+                    Localization = _mapper.Map<Localization>(model.Localization),
+                    Department = DefaultStringValue,
+                    FirstName = DefaultStringValue,
+                    JobTitle = DefaultStringValue,
+                    LastName = DefaultStringValue,
+                    PhoneNumber = DefaultStringValue,
+                    Permissions = new List<AdminPermission>
+                    {
+                        new AdminPermission
+                        {
+                            Type = PermissionType.Dashboard.ToString(),
+                            Level = AdminPermissionLevel.PartnerEdit
+                        },
+                        new AdminPermission
+                        {
+                            Type = PermissionType.VoucherManager.ToString(),
+                            Level = AdminPermissionLevel.PartnerEdit
+                        },
+                        new AdminPermission
+                        {
+                            Type = PermissionType.ProgramPartners.ToString(),
+                            Level = AdminPermissionLevel.PartnerEdit
+                        },
+                        new AdminPermission
+                        {
+                            Type = PermissionType.Reports.ToString(),
+                            Level = AdminPermissionLevel.PartnerEdit
+                        },
+                        new AdminPermission
+                        {
+                            Type = PermissionType.AdminUsers.ToString(),
+                            Level = AdminPermissionLevel.PartnerEdit
+                        },
+                    }
+                });
+
+            if (createAdminResponse.Error != AdminManagementError.None)
+            {
+                switch (createAdminResponse.Error)
+                {
+                    case AdminManagementError.AlreadyRegistered:
+                        return (AdminServiceCreateResponseError.AlreadyRegistered, null);
+                    case AdminManagementError.InvalidEmailOrPasswordFormat:
+                        return (AdminServiceCreateResponseError.InvalidEmailOrPasswordFormat, null);
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(createAdminResponse.Error), createAdminResponse.Error.ToString());
+                }
+            }
+
+            #endregion
+
+            #region Create Partner
+
+            var partnerRequest = new PartnerCreateModel
+            {
+                Name = model.CompanyName,
+                UseGlobalCurrencyRate = true,
+                BusinessVertical = Vertical.Retail,
+                ClientId = await _partnerManagementClient.Auth.GenerateClientId(),
+                ClientSecret = await _partnerManagementClient.Auth.GenerateClientSecret(),
+                CreatedBy = Guid.Parse(createAdminResponse.Admin.AdminUserId)
+            };
+
+            var response = await _partnerManagementClient.Partners.CreateAsync(partnerRequest);
+
+            if (response.ErrorCode != PartnerManagementError.None)
+                throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(response.ErrorCode.ToString(), response.ErrorMessage));
+
+            #endregion
+
+            return (AdminServiceCreateResponseError.None, _mapper.Map<AdminModel>(createAdminResponse.Admin));
+        }
+
+        public async Task<(AdminServiceCreateResponseError, AdminModel)> RegisterAsync(
             string email, string password,
             string phoneNumber, string firstName,
             string lastName, string company,
@@ -130,14 +225,18 @@ namespace MAVN.Service.AdminAPI.DomainServices
                     PhoneNumber = phoneNumber,
                     Permissions = new List<AdminPermission>
                     {
-                        new AdminPermission { Level = AdminPermissionLevel.View, Type = PermissionType.Dashboard.ToString() }
+                        new AdminPermission
+                        {
+                            Level = AdminPermissionLevel.View,
+                            Type = PermissionType.Dashboard.ToString()
+                        }
                     }
                 });
 
             switch (createAdminResponse.Error)
             {
                 case AdminManagementError.None:
-                    return (AdminServiceCreateResponseError.None, _mapper.Map<Admin>(createAdminResponse.Admin));
+                    return (AdminServiceCreateResponseError.None, _mapper.Map<AdminModel>(createAdminResponse.Admin));
                 case AdminManagementError.AlreadyRegistered:
                     return (AdminServiceCreateResponseError.AlreadyRegistered, null);
                 case AdminManagementError.InvalidEmailOrPasswordFormat:
@@ -147,7 +246,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             }
         }
 
-        public async Task<(AdminServiceResponseError, Admin)> GetAsync(string adminId)
+        public async Task<(AdminServiceResponseError, AdminModel)> GetAsync(string adminId)
         {
             var response = await _adminManagementServiceClient.AdminsApi.GetByIdAsync(
                 new GetAdminByIdRequestModel
@@ -158,7 +257,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             switch (response.Error)
             {
                 case AdminUserResponseErrorCodes.None:
-                    return (AdminServiceResponseError.None, _mapper.Map<Admin>(response.Profile));
+                    return (AdminServiceResponseError.None, _mapper.Map<AdminModel>(response.Profile));
                 case AdminUserResponseErrorCodes.AdminUserDoesNotExist:
                     return (AdminServiceResponseError.AdminUserDoesNotExist, null);
                 default:
@@ -166,31 +265,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             }
         }
 
-        /// <summary>
-        /// Simplified method for quick cache access, use only with existing admins.
-        /// </summary>
-        public async Task<bool> AdminHasPermissionAsync(string adminId, IReadOnlyList<PermissionType> types, PermissionLevel level)
-        {
-            if (string.IsNullOrWhiteSpace(adminId))
-            {
-                return false;
-            }
-            
-            var adminPermissions = await GetAdminPermissionsAsync(adminId);
-
-            if (level == PermissionLevel.View)
-            {
-                return adminPermissions.Any(x =>
-                        types.Contains(x.Type) && (x.Level == PermissionLevel.View || x.Level == PermissionLevel.Edit));
-            }
-            else
-            {
-                return adminPermissions.Any(x =>
-                        types.Contains(x.Type) && x.Level == PermissionLevel.Edit);
-            }
-        }
-
-        public async Task<(AdminServiceResponseError, Admin)> UpdateAdminAsync(
+        public async Task<(AdminServiceResponseError, AdminModel)> UpdateAdminAsync(
             string adminId, string phoneNumber,
             string firstName, string lastName,
             string company, string department,
@@ -212,7 +287,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             switch (response.Error)
             {
                 case AdminUserResponseErrorCodes.None:
-                    return (AdminServiceResponseError.None, _mapper.Map<Admin>(response.Profile));
+                    return (AdminServiceResponseError.None, _mapper.Map<AdminModel>(response.Profile));
                 case AdminUserResponseErrorCodes.AdminUserDoesNotExist:
                     return (AdminServiceResponseError.AdminUserDoesNotExist, null);
                 default:
@@ -220,7 +295,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             }
         }
         
-        public async Task<(AdminServiceResponseError, Admin)> UpdateAdminPermissionsAsync(string adminId, List<Permission> permissions)
+        public async Task<(AdminServiceResponseError, AdminModel)> UpdateAdminPermissionsAsync(string adminId, List<Domain.Models.Permission> permissions)
         {
             var response = await _adminManagementServiceClient.AdminsApi.UpdatePermissionsAsync(
                 new UpdatePermissionsRequestModel
@@ -236,7 +311,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             switch (response.Error)
             {
                 case AdminUserResponseErrorCodes.None:
-                    return (AdminServiceResponseError.None, _mapper.Map<Admin>(response.Profile));
+                    return (AdminServiceResponseError.None, _mapper.Map<AdminModel>(response.Profile));
                 case AdminUserResponseErrorCodes.AdminUserDoesNotExist:
                     return (AdminServiceResponseError.AdminUserDoesNotExist, null);
                 default:
@@ -244,7 +319,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             }
         }
 
-        public async Task<(int, int, List<Admin>)> GetAsync(int pageSize, int pageNumber, string searchValue, bool? active)
+        public async Task<(int, int, List<AdminModel>)> GetAsync(int pageSize, int pageNumber, string searchValue, bool? active)
         {
             if (!string.IsNullOrEmpty(searchValue))
             {
@@ -262,8 +337,8 @@ namespace MAVN.Service.AdminAPI.DomainServices
                     response?.Profile == null ? 0 : 1,
                     1,
                     response?.Profile == null
-                        ? new List<Admin>()
-                        : new List<Admin> { _mapper.Map<Admin>(response.Profile) });
+                        ? new List<AdminModel>()
+                        : new List<AdminModel> { _mapper.Map<AdminModel>(response.Profile) });
             }
 
             var result = await _adminManagementServiceClient.AdminsApi.GetPaginatedAsync(
@@ -278,31 +353,12 @@ namespace MAVN.Service.AdminAPI.DomainServices
             return (
                 result.TotalCount,
                 result.CurrentPage,
-                _mapper.Map<List<Admin>>(result.AdminUsers));
+                _mapper.Map<List<AdminModel>>(result.AdminUsers));
         }
 
         public List<PermissionType> GetAllPermissions()
         {
             return Enum.GetValues(typeof(PermissionType)).Cast<PermissionType>().ToList();
-        }
-
-        private async Task<List<Permission>> GetAdminPermissionsAsync(string adminId)
-        {
-            var adminPermissions = await _adminManagementServiceClient.AdminsApi.GetPermissionsAsync(
-                new GetAdminByIdRequestModel
-                {
-                    AdminUserId = adminId
-                });
-
-            var permissions = adminPermissions != null
-                ? adminPermissions.Select(x => new Permission
-                {
-                    Level = _mapper.Map<PermissionLevel>(x.Level),
-                    Type = Enum.Parse<PermissionType>(x.Type)
-                })
-                : new List<Permission>();
-
-            return permissions.ToList();
         }
     }
 }

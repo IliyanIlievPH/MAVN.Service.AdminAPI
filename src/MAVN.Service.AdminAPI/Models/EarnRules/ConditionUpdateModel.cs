@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using Lykke.Service.Campaign.Client.Models.Condition;
+using MAVN.Service.Campaign.Client.Models.Condition;
 
 namespace MAVN.Service.AdminAPI.Models.EarnRules
 {

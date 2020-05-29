@@ -1,34 +1,36 @@
 ﻿using Autofac;
-using Falcon.Common.Middleware.Authentication;
+using MAVN.Common.Middleware.Authentication;
 using JetBrains.Annotations;
-using Lykke.Job.TokensStatistics.Client;
-using Lykke.Service.AdminManagement.Client;
-using Lykke.Service.AgentManagement.Client;
-using Lykke.Service.BonusCustomerProfile.Client;
-using Lykke.Service.Campaign.Client;
-using Lykke.Service.Credentials.Client;
-using Lykke.Service.CrossChainTransfers.Client;
-using Lykke.Service.CrossChainWalletLinker.Client;
-using Lykke.Service.CurrencyConvertor.Client;
-using Lykke.Service.CustomerManagement.Client;
-using Lykke.Service.CustomerProfile.Client;
-using Lykke.Service.DashboardStatistics.Client;
-using Lykke.Service.OperationsHistory.Client;
-using Lykke.Service.PartnerManagement.Client;
-using Lykke.Service.PaymentTransfers.Client;
-using Lykke.Service.PrivateBlockchainFacade.Client;
-using Lykke.Service.QuorumExplorer.Client;
-using Lykke.Service.Referral.Client;
-using Lykke.Service.Reporting.Client;
-using Lykke.Service.Sessions.Client;
-using Lykke.Service.Tiers.Client;
-using Lykke.Service.Vouchers.Client.Extensions;
-using Lykke.Service.WalletManagement.Client;
+using MAVN.Job.TokensStatistics.Client;
+using MAVN.Service.AdminManagement.Client;
+using MAVN.Service.BonusCustomerProfile.Client;
+using MAVN.Service.Campaign.Client;
+using MAVN.Service.Credentials.Client;
+using MAVN.Service.CrossChainTransfers.Client;
+using MAVN.Service.CrossChainWalletLinker.Client;
+using MAVN.Service.CurrencyConvertor.Client;
+using MAVN.Service.CustomerManagement.Client;
+using MAVN.Service.CustomerProfile.Client;
+using MAVN.Service.DashboardStatistics.Client;
+using MAVN.Service.OperationsHistory.Client;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PrivateBlockchainFacade.Client;
+using MAVN.Service.QuorumExplorer.Client;
+using MAVN.Service.Referral.Client;
+using MAVN.Service.Reporting.Client;
+using MAVN.Service.Sessions.Client;
+using MAVN.Service.Tiers.Client;
+using MAVN.Service.Vouchers.Client.Extensions;
+using MAVN.Service.WalletManagement.Client;
 using Lykke.SettingsReader;
 using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.DomainServices;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Settings;
+using MAVN.Service.Kyc.Client;
+using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.SmartVouchers.Client;
+using RequestContext = MAVN.Service.AdminAPI.Infrastructure.RequestContext;
 
 namespace MAVN.Service.AdminAPI
 {
@@ -46,6 +48,7 @@ namespace MAVN.Service.AdminAPI
         {
             builder.RegisterType<RequestContext>()
                 .As<IRequestContext>()
+                .As<IExtRequestContext>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ReferralService>()
@@ -61,7 +64,6 @@ namespace MAVN.Service.AdminAPI
                 .As<IAdminsService>()
                 .SingleInstance();
 
-            builder.RegisterAgentManagementClient(_appSettings.AgentManagementServiceClient);
             builder.RegisterCredentialsClient(_appSettings.CredentialsServiceClient);
             builder.RegisterCampaignClient(_appSettings.CampaignServiceClient);
             builder.RegisterBonusCustomerProfileClient(_appSettings.BonusCustomerProfileServiceClient, null);
@@ -73,7 +75,6 @@ namespace MAVN.Service.AdminAPI
             builder.RegisterOperationsHistoryClient(_appSettings.OperationsHistoryServiceClient, null);
             builder.RegisterTokensStatisticsClient(_appSettings.TokensStatisticsJobClient, null);
             builder.RegisterPrivateBlockchainFacadeClient(_appSettings.PrivateBlockchainFacadeClient, null);
-            builder.RegisterPaymentTransfersClient(_appSettings.PaymentTransfersServiceClient, null);
             builder.RegisterQuorumExplorerClient(_appSettings.QuorumExplorerServiceClient, null);
             builder.RegisterWalletManagementClient(_appSettings.WalletManagementServiceClient, null);
             builder.RegisterDashboardStatisticsClient(_appSettings.DashboardStatisticsServiceClient, null);
@@ -85,6 +86,8 @@ namespace MAVN.Service.AdminAPI
             builder.RegisterReportClient(_appSettings.ReportServiceClient, null);
             builder.RegisterVouchersClient(_appSettings.VouchersServiceClient);
             builder.RegisterSmartVouchersClient(_appSettings.SmartVouchersServiceClient, null);
+            builder.RegisterPaymentManagementClient(_appSettings.PaymentManagementServiceClient, null);
+            builder.RegisterKycClient(_appSettings.KycServiceClient, null);
         }
     }
 }

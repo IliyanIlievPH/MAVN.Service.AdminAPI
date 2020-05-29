@@ -1,6 +1,7 @@
 ﻿using System;
-using Falcon.Numerics;
+using MAVN.Numerics;
 using JetBrains.Annotations;
+using MAVN.Service.AdminAPI.Models.Kyc.Enum;
 
 namespace MAVN.Service.AdminAPI.Models.Partners.Responses
 {
@@ -49,5 +50,10 @@ namespace MAVN.Service.AdminAPI.Models.Partners.Responses
         /// Represents the Business Vertical
         /// </summary>
         public BusinessVertical? BusinessVertical { get; set; }
+
+        /// <summary>
+        /// Holds possible statuses for KYC
+        /// </summary>
+        public KycStatus KycStatus { get; set; }
     }
 }

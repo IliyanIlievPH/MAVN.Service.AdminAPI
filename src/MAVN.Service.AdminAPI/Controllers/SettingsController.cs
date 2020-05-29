@@ -2,17 +2,15 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Falcon.Common.Middleware.Authentication;
-using Falcon.Numerics;
+using MAVN.Common.Middleware.Authentication;
+using MAVN.Numerics;
 using Lykke.Common.ApiLibrary.Exceptions;
-using Lykke.Service.AgentManagement.Client;
-using Lykke.Service.AgentManagement.Client.Models.Requirements;
-using Lykke.Service.CrossChainTransfers.Client;
-using Lykke.Service.CrossChainTransfers.Client.Models.Enums;
-using Lykke.Service.CrossChainTransfers.Client.Models.Requests;
-using Lykke.Service.CrossChainWalletLinker.Client;
-using Lykke.Service.CrossChainWalletLinker.Client.Models;
-using Lykke.Service.CurrencyConvertor.Client;
+using MAVN.Service.CrossChainTransfers.Client;
+using MAVN.Service.CrossChainTransfers.Client.Models.Enums;
+using MAVN.Service.CrossChainTransfers.Client.Models.Requests;
+using MAVN.Service.CrossChainWalletLinker.Client;
+using MAVN.Service.CrossChainWalletLinker.Client.Models;
+using MAVN.Service.CurrencyConvertor.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure.Constants;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
@@ -27,7 +25,6 @@ namespace MAVN.Service.AdminAPI.Controllers
     public class SettingsController : ControllerBase
     {
         private readonly ICurrencyConvertorClient _currencyConverterClient;
-        private readonly IAgentManagementClient _agentManagementClient;
         private readonly ICrossChainWalletLinkerClient _crossChainWalletLinkerClient;
         private readonly ICrossChainTransfersClient _crossChainTransfersClient;
 
@@ -35,14 +32,12 @@ namespace MAVN.Service.AdminAPI.Controllers
 
         public SettingsController(
             ICurrencyConvertorClient currencyConverterClient,
-            IAgentManagementClient agentManagementClient,
             ICrossChainWalletLinkerClient crossChainWalletLinkerClient,
             ICrossChainTransfersClient crossChainTransfersClient,
             IMapper mapper)
         {
             _currencyConverterClient = currencyConverterClient;
             _mapper = mapper;
-            _agentManagementClient = agentManagementClient;
             _crossChainWalletLinkerClient = crossChainWalletLinkerClient;
             _crossChainTransfersClient = crossChainTransfersClient;
         }
@@ -55,12 +50,19 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A global currency rate.</response>
         [HttpGet("globalCurrencyRate")]
-        [Permission(new PermissionType[]
-        { 
-            PermissionType.ActionRules,
-            PermissionType.ProgramPartners,
-            PermissionType.Settings
-        }, PermissionLevel.View)]
+        [Permission(
+            new []
+            {
+                PermissionType.ActionRules,
+                PermissionType.ProgramPartners,
+                PermissionType.Settings
+            },
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(GlobalCurrencyRateModel), (int)HttpStatusCode.OK)]
         public async Task<GlobalCurrencyRateModel> GetGlobalCurrencyRateAsync()
         {
@@ -78,40 +80,9 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         public Task UpdateGlobalCurrencyRateAsync([FromBody] GlobalCurrencyRateModel model)
         {
-            var request = _mapper.Map<Lykke.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>(model);
+            var request = _mapper.Map<MAVN.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>(model);
 
             return _currencyConverterClient.GlobalCurrencyRates.UpdateAsync(request);
-        }
-
-        /// <summary>
-        /// Returns agents requirements.
-        /// </summary>
-        /// <returns>
-        /// A global currency rate
-        /// </returns>
-        /// <response code="200">Agents requirements.</response>
-        [HttpGet("agentRequirements")]
-        [Permission(PermissionType.Settings, PermissionLevel.View)]
-        [ProducesResponseType(typeof(AgentRequirementResponse), (int)HttpStatusCode.OK)]
-        public async Task<AgentRequirementResponse> GetAgentRequirementsAsync()
-        {
-            var agentRequirements = await _agentManagementClient.Requirements.GetTokensRequirementsAsync();
-
-            return _mapper.Map<AgentRequirementResponse>(agentRequirements);
-        }
-
-        /// <summary>
-        /// Updates agents requirements.
-        /// </summary>
-        /// <response code="204">Agents requirements successfully updated.</response>
-        [HttpPut("agentRequirements")]
-        [Permission(PermissionType.Settings, PermissionLevel.Edit)]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        public Task UpdateAgentRequirementsAsync([FromBody] AgentRequirementUpdateRequest model)
-        {
-            var request = _mapper.Map<UpdateTokensRequirementModel>(model);
-
-            return _agentManagementClient.Requirements.UpdateTokensRequirementAsync(request);
         }
 
         /// <summary>

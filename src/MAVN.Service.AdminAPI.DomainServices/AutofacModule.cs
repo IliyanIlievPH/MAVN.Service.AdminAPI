@@ -6,19 +6,21 @@ namespace MAVN.Service.AdminAPI.DomainServices
     public class AutofacModule : Module
     {
         private readonly string _tokenName;
-        private readonly bool? _isPublicBlockchainFeatureDisabled;
+        private readonly bool _isPublicBlockchainFeatureDisabled;
         private readonly bool _mobileAppImageDoOptimization;
         private readonly int _mobileAppImageMinWidth;
         private readonly int _mobileAppImageWarningFileSizeInKB;
         private readonly int _suggestedAdminPasswordLength;
+        private readonly bool _isPhoneVerificationDisabled;
 
         public AutofacModule(
             string tokenName,
-            bool? isPublicBlockchainFeatureDisabled,
+            bool isPublicBlockchainFeatureDisabled,
             bool mobileAppImageDoOptimization,
             int mobileAppImageMinWidth,
             int mobileAppImageWarningFileSizeInKB,
-            int suggestedAdminPasswordLength
+            int suggestedAdminPasswordLength,
+            bool isPhoneVerificationDisabled
         )
         {
             _tokenName = tokenName;
@@ -27,13 +29,15 @@ namespace MAVN.Service.AdminAPI.DomainServices
             _mobileAppImageMinWidth = mobileAppImageMinWidth;
             _mobileAppImageWarningFileSizeInKB = mobileAppImageWarningFileSizeInKB;
             _suggestedAdminPasswordLength = suggestedAdminPasswordLength;
+            _isPhoneVerificationDisabled = isPhoneVerificationDisabled;
         }
 
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<SettingsService>()
                 .WithParameter(TypedParameter.From(_tokenName))
-                .WithParameter(TypedParameter.From(_isPublicBlockchainFeatureDisabled))
+                .WithParameter("isPublicBlockchainFeatureDisabled", _isPublicBlockchainFeatureDisabled)
+                .WithParameter("isPhoneVerificationDisabled", _isPhoneVerificationDisabled)
                 .As<ISettingsService>();
 
             builder.RegisterType<CredentialsGeneratorService>()

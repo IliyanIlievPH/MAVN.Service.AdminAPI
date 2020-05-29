@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using MAVN.Service.AdminAPI.Domain.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -13,6 +14,6 @@ namespace MAVN.Service.AdminAPI.Models.Admins
         /// List of all possible admin permission types.
         /// </summary>
         [JsonProperty (ItemConverterType = typeof(StringEnumConverter))]
-        public List<AdminPermissionType> Types { set; get; }
+        public List<PermissionType> Types { set; get; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using FluentValidation;
 using JetBrains.Annotations;
-using Lykke.Service.Campaign.Client.Models.Enums;
 using MAVN.Service.AdminAPI.Models.ActionRules;
 using MAVN.Service.AdminAPI.Models.EarnRules;
 using MAVN.Service.AdminAPI.Validators.ActionRules;
@@ -30,7 +29,7 @@ namespace MAVN.Service.AdminAPI.Validators.EarnRules
                 .WithMessage(o => $"There should be at least one item in the {nameof(o.MobileContents)} value")
                 .Must(contents =>
                 {
-                    return contents.Any(c => c.MobileLanguage == Localization.En);
+                    return contents.Any(c => c.MobileLanguage == MobileLocalization.En);
                 })
                 .WithMessage("English content is required.");
         }

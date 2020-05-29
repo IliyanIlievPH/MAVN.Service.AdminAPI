@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using FluentValidation;
-using Lykke.Service.Campaign.Client.Models.Enums;
 using MAVN.Service.AdminAPI.Interfaces.ActionRules;
+using MAVN.Service.AdminAPI.Models.ActionRules;
 using MAVN.Service.AdminAPI.Models.BurnRules;
 using MAVN.Service.AdminAPI.Validators.ActionRules;
 
@@ -38,7 +38,7 @@ namespace MAVN.Service.AdminAPI.Validators.BurnRules
             RuleFor(o => o.MobileContents)
                 .Must(contents => contents != null && contents.Any())
                 .WithMessage(o => $"There should be at least one item in the {nameof(o.MobileContents)} value")
-                .Must(contents => { return contents.Any(c => c.MobileLanguage == Localization.En); })
+                .Must(contents => { return contents.Any(c => c.MobileLanguage == MobileLocalization.En); })
                 .WithMessage("English content is required.");
         }
     }

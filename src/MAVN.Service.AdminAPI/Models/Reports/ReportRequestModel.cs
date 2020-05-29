@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
@@ -19,7 +19,12 @@ namespace MAVN.Service.AdminAPI.Models.Reports
         /// Date to
         /// </summary>
         public DateTime To { set; get; }
-        
+
+        /// <summary>
+        /// Partner Id
+        /// </summary>
+        public Guid? PartnerId { set; get; }
+
         /// <summary>
         /// The number of items per page.
         /// </summary>
@@ -31,5 +36,15 @@ namespace MAVN.Service.AdminAPI.Models.Reports
         /// </summary>
         [Range(1, int.MaxValue)]
         public int CurrentPage { get; set; }
+
+        /// <summary>
+        /// TransactionType
+        /// </summary>
+        public string TransactionType { get; set; }
+
+        /// <summary>
+        /// Status
+        /// </summary>
+        public string Status { get; set; }
     }
 }

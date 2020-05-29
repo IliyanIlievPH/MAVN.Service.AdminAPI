@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Lykke.Service.OperationsHistory.Client.Models.Responses;
+using MAVN.Service.OperationsHistory.Client.Models.Responses;
 using MAVN.Service.AdminAPI.Domain.Models;
 
 namespace MAVN.Service.AdminAPI.Domain.Services
@@ -9,10 +9,8 @@ namespace MAVN.Service.AdminAPI.Domain.Services
     {
         IEnumerable<CustomerOperation> FromTransfers(string customerId, IEnumerable<TransferResponse> source);
         IEnumerable<CustomerOperation> FromBonusCashIns(IEnumerable<BonusCashInResponse> source);
-        IEnumerable<CustomerOperation> FromPaymentTransfers(IEnumerable<PaymentTransferResponse> source);
         IEnumerable<CustomerOperation> FromPartnersPayments(IEnumerable<PartnersPaymentResponse> source);
         IEnumerable<CustomerOperation> FromRefundedPartnersPayments(string customerId, IEnumerable<PartnersPaymentResponse> source);
-        IEnumerable<CustomerOperation> FromRefundedPaymentTransfers(string customerId, IEnumerable<PaymentTransferResponse> source);
         IEnumerable<CustomerOperation> FromReferralStakes(IEnumerable<ReferralStakeResponse> source);
         IEnumerable<CustomerOperation> FromReleasedReferralStakes(IEnumerable<ReferralStakeResponse> source);
         IEnumerable<CustomerOperation> FromLinkedWalletTransfers(string customerId, IEnumerable<LinkedWalletTransferResponse> source);

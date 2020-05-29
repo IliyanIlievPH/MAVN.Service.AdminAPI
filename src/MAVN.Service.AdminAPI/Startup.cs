@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
-using Falcon.Common.Middleware.Filters;
+using MAVN.Common.Middleware.Filters;
 using FluentValidation.AspNetCore;
 using JetBrains.Annotations;
 using Lykke.Common;
@@ -31,6 +31,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Converters;
 
 namespace MAVN.Service.AdminAPI
 {
@@ -76,6 +77,8 @@ namespace MAVN.Service.AdminAPI
                 {
                     options.SerializerSettings.ContractResolver =
                         new Newtonsoft.Json.Serialization.DefaultContractResolver();
+
+                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
                 })
                 .AddFluentValidation(opt =>
                 {
@@ -139,7 +142,8 @@ namespace MAVN.Service.AdminAPI
                     adminSettings.MobileAppImageDoOptimization,
                     adminSettings.MobileAppImageMinWidth,
                     adminSettings.MobileAppImageWarningFileSizeInKB,
-                    adminSettings.SuggestedAdminPasswordLength));
+                    adminSettings.SuggestedAdminPasswordLength,
+                    adminSettings.IsPhoneVerificationDisabled));
 
             ApplicationContainer = builder.Build();
             InvalidModelStateResponseFactory.Logger = ApplicationContainer.Resolve<ILogFactory>()

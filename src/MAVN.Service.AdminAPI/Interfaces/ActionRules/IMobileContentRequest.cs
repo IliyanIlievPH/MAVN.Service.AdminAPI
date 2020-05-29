@@ -1,9 +1,9 @@
-﻿using Lykke.Service.Campaign.Client.Models.Enums;
+﻿using MAVN.Service.AdminAPI.Models.ActionRules;
 
 namespace MAVN.Service.AdminAPI.Interfaces.ActionRules
 {
     public interface IMobileContentRequest
     {
-        Localization MobileLanguage { get; set; }
+        MobileLocalization MobileLanguage { get; set; }
     }
 }

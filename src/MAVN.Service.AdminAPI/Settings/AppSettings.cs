@@ -1,30 +1,30 @@
 ﻿using JetBrains.Annotations;
-using Lykke.Job.TokensStatistics.Client;
-using Lykke.Service.AdminManagement.Client;
-using Lykke.Service.AgentManagement.Client;
-using Lykke.Service.BonusCustomerProfile.Client;
-using Lykke.Service.Campaign.Client;
-using Lykke.Service.Credentials.Client;
-using Lykke.Service.CrossChainTransfers.Client;
-using Lykke.Service.CrossChainWalletLinker.Client;
-using Lykke.Service.CurrencyConvertor.Client;
-using Lykke.Service.CustomerManagement.Client;
-using Lykke.Service.CustomerProfile.Client;
-using Lykke.Service.DashboardStatistics.Client;
-using Lykke.Service.OperationsHistory.Client;
-using Lykke.Service.PartnerManagement.Client;
-using Lykke.Service.PaymentTransfers.Client;
-using Lykke.Service.PrivateBlockchainFacade.Client;
-using Lykke.Service.QuorumExplorer.Client;
-using Lykke.Service.Referral.Client;
-using Lykke.Service.Reporting.Client;
-using Lykke.Service.Sessions.Client;
-using Lykke.Service.Tiers.Client;
-using Lykke.Service.Vouchers.Client;
-using Lykke.Service.WalletManagement.Client;
+using MAVN.Job.TokensStatistics.Client;
+using MAVN.Service.AdminManagement.Client;
+using MAVN.Service.BonusCustomerProfile.Client;
+using MAVN.Service.Campaign.Client;
+using MAVN.Service.Credentials.Client;
+using MAVN.Service.CrossChainTransfers.Client;
+using MAVN.Service.CrossChainWalletLinker.Client;
+using MAVN.Service.CurrencyConvertor.Client;
+using MAVN.Service.CustomerManagement.Client;
+using MAVN.Service.CustomerProfile.Client;
+using MAVN.Service.DashboardStatistics.Client;
+using MAVN.Service.OperationsHistory.Client;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PrivateBlockchainFacade.Client;
+using MAVN.Service.QuorumExplorer.Client;
+using MAVN.Service.Referral.Client;
+using MAVN.Service.Reporting.Client;
+using MAVN.Service.Sessions.Client;
+using MAVN.Service.Tiers.Client;
+using MAVN.Service.Vouchers.Client;
+using MAVN.Service.WalletManagement.Client;
 using MAVN.Service.AdminAPI.Settings.Clients;
 using MAVN.Service.AdminAPI.Settings.Service;
 using MAVN.Service.AdminAPI.Settings.Slack;
+using MAVN.Service.Kyc.Client;
+using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.SmartVouchers.Client;
 
 namespace MAVN.Service.AdminAPI.Settings
@@ -58,8 +58,6 @@ namespace MAVN.Service.AdminAPI.Settings
 
         public PrivateBlockchainFacadeServiceClientSettings PrivateBlockchainFacadeClient { get; set; }
 
-        public PaymentTransfersServiceClientSettings PaymentTransfersServiceClient { get; set; }
-
         public DashboardStatisticsServiceClientSettings DashboardStatisticsServiceClient { get; set; }
 
         public QuorumExplorerServiceClientSettings QuorumExplorerServiceClient { get; set; }
@@ -69,8 +67,6 @@ namespace MAVN.Service.AdminAPI.Settings
         public PartnerManagementServiceClientSettings PartnerManagementServiceClient { get; set; }
 
         public TiersServiceClientSettings TiersServiceClient { get; set; }
-        
-        public AgentManagementServiceClientSettings AgentManagementServiceClient { get; set; }
 
         public CurrencyConvertorServiceClientSettings CurrencyConverterServiceClient { get; set; }
         
@@ -85,5 +81,9 @@ namespace MAVN.Service.AdminAPI.Settings
         public VouchersServiceClientSettings VouchersServiceClient { get; set; }
 
         public SmartVouchersServiceClientSettings SmartVouchersServiceClient { get; set; }
+
+        public PaymentManagementServiceClientSettings PaymentManagementServiceClient { get; set; }
+
+        public KycServiceClientSettings KycServiceClient { get; set; }
     }
 }

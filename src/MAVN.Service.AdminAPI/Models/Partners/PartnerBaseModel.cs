@@ -1,4 +1,4 @@
-﻿using Falcon.Numerics;
+﻿using MAVN.Numerics;
 using JetBrains.Annotations;
 
 namespace MAVN.Service.AdminAPI.Models.Partners
@@ -35,18 +35,8 @@ namespace MAVN.Service.AdminAPI.Models.Partners
         public string Description { get; set; }
 
         /// <summary>
-        /// The partner's client identifier.
-        /// </summary>
-        public string ClientId { get; set; }
-
-        /// <summary>
-        /// The partner's client secret.
-        /// </summary>
-        public string ClientSecret { get; set; }
-
-        /// <summary>
         /// Represents a partner's business vertical
         /// </summary>
-        public BusinessVertical BusinessVertical { get; set; }
+        public BusinessVertical BusinessVertical { get; set; } = BusinessVertical.Retail;
     }
 }

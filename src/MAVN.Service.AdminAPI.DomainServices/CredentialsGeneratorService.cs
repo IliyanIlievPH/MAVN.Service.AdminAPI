@@ -1,6 +1,6 @@
-using System.Threading.Tasks;
-using Lykke.Service.Credentials.Client;
-using Lykke.Service.Credentials.Client.Models.Requests;
+﻿using System.Threading.Tasks;
+using MAVN.Service.Credentials.Client;
+using MAVN.Service.Credentials.Client.Models.Requests;
 using MAVN.Service.AdminAPI.Domain.Services;
 
 namespace MAVN.Service.AdminAPI.DomainServices

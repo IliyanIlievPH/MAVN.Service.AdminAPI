@@ -1,5 +1,5 @@
 ﻿using System;
-using Lykke.Service.Campaign.Client.Models.Enums;
+using MAVN.Service.Campaign.Client.Models.Enums;
 
 namespace MAVN.Service.AdminAPI.Models.ActionRules
 {

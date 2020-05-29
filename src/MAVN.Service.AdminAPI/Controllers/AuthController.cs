@@ -4,13 +4,14 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common;
-using Falcon.Common.Middleware.Authentication;
+using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Exceptions;
-using Lykke.Service.Sessions.Client;
+using MAVN.Service.Sessions.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Domain.Models;
 using MAVN.Service.AdminAPI.Domain.Services;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.Constants;
-using MAVN.Service.AdminAPI.Models.Admins;
 using MAVN.Service.AdminAPI.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -75,6 +76,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                 case AdminServiceCreateResponseError.LoginNotFound:
                 case AdminServiceCreateResponseError.PasswordMismatch:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.InvalidCredentials);
+                case AdminServiceCreateResponseError.AdminEmailIsNotVerified:
+                    throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminEmailIsNotVerified);
                 case AdminServiceCreateResponseError.InvalidEmailOrPasswordFormat:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.InvalidEmailOrPasswordFormat);
                 default:

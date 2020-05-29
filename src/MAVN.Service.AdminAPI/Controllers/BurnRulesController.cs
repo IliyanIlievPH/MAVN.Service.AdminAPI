@@ -7,26 +7,27 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common.Log;
-using Falcon.Common.Middleware.Authentication;
+using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Common.Log;
-using Lykke.Service.Campaign.Client;
-using Lykke.Service.Campaign.Client.Models;
-using Lykke.Service.Campaign.Client.Models.BurnRule.Requests;
-using Lykke.Service.Campaign.Client.Models.BurnRule.Responses;
-using Lykke.Service.Campaign.Client.Models.BurnRuleContent;
-using Lykke.Service.Campaign.Client.Models.Enums;
-using Lykke.Service.Campaign.Client.Models.Files.Requests;
-using Lykke.Service.CurrencyConvertor.Client;
-using Lykke.Service.PartnerManagement.Client;
-using Lykke.Service.PartnerManagement.Client.Models;
-using Lykke.Service.PartnerManagement.Client.Models.Partner;
-using Lykke.Service.Vouchers.Client;
-using Lykke.Service.Vouchers.Client.Models;
-using Lykke.Service.Vouchers.Client.Models.Vouchers;
+using MAVN.Service.Campaign.Client;
+using MAVN.Service.Campaign.Client.Models;
+using MAVN.Service.Campaign.Client.Models.BurnRule.Requests;
+using MAVN.Service.Campaign.Client.Models.BurnRule.Responses;
+using MAVN.Service.Campaign.Client.Models.BurnRuleContent;
+using MAVN.Service.Campaign.Client.Models.Enums;
+using MAVN.Service.Campaign.Client.Models.Files.Requests;
+using MAVN.Service.CurrencyConvertor.Client;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Models;
+using MAVN.Service.PartnerManagement.Client.Models.Partner;
+using MAVN.Service.Vouchers.Client;
+using MAVN.Service.Vouchers.Client.Models;
+using MAVN.Service.Vouchers.Client.Models.Vouchers;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.Constants;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Infrastructure.CustomFilters;
@@ -46,7 +47,7 @@ namespace MAVN.Service.AdminAPI.Controllers
     [Permission(PermissionType.ActionRules, PermissionLevel.View)]
     public class BurnRulesController : ControllerBase
     {
-        private readonly IRequestContext _requestContext;
+        private readonly IExtRequestContext _requestContext;
         private readonly ICampaignClient _campaignsClient;
         private readonly ICurrencyConvertorClient _currencyConverterClient;
         private readonly IImageService _imageService;
@@ -56,7 +57,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ILog _log;
 
         public BurnRulesController(
-            IRequestContext requestContext,
+            IExtRequestContext requestContext,
             ICampaignClient campaignClient,
             ICurrencyConvertorClient currencyConverterClient,
             IImageService imageService,
@@ -224,7 +225,9 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             var result = _mapper.Map<BurnRuleModel>(burnRuleResponse);
 
-            if (burnRuleResponse.Vertical == Vertical.Retail)
+            if (burnRuleResponse.Vertical.HasValue &&
+                Enum.TryParse<Vertical>(burnRuleResponse.Vertical.Value.ToString(), out var parsedVertical) &&
+                parsedVertical == Vertical.Retail)
             {
                 var spendRuleVouchers = await _vouchersClient.Reports.GetSpendRuleVouchersAsync(Guid.Parse(id));
 
@@ -243,7 +246,9 @@ namespace MAVN.Service.AdminAPI.Controllers
                 }
                 else
                 {
-                    var newMobileContent = new MobileContentResponse {MobileLanguage = content.Localization};
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
+                    var newMobileContent = new MobileContentResponse {MobileLanguage = mobileLanguage };
 
                     FillMobileContent(newMobileContent);
 
@@ -297,7 +302,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<BurnRuleCreatedResponse> CreateBurnRuleAsync([FromBody] BurnRuleCreateRequest model)
         {
             var request =
-                _mapper.Map<BurnRuleCreateRequest, Lykke.Service.Campaign.Client.Models.BurnRule.Requests.BurnRuleCreateRequest>(
+                _mapper.Map<BurnRuleCreateRequest, MAVN.Service.Campaign.Client.Models.BurnRule.Requests.BurnRuleCreateRequest>(
                     model,
                     opt => opt.AfterMap((src, dest) => { dest.CreatedBy = _requestContext.UserId; }));
 
@@ -305,11 +310,13 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             foreach (var mobileContent in model.MobileContents)
             {
+                Enum.TryParse<Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
                 if (!string.IsNullOrEmpty(mobileContent.Title))
                 {
                     mobileContents.Add(new BurnRuleContentCreateRequest
                     {
-                        Localization = mobileContent.MobileLanguage,
+                        Localization = mobileLanguage,
                         RuleContentType = RuleContentType.Title,
                         Value = mobileContent.Title
                     });
@@ -317,7 +324,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
                 mobileContents.Add(new BurnRuleContentCreateRequest
                 {
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     RuleContentType = RuleContentType.Description,
                     Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
                 });
@@ -325,7 +332,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 // create content for adding image
                 mobileContents.Add(new BurnRuleContentCreateRequest
                 {
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     RuleContentType = RuleContentType.UrlForPicture,
                     Value = null
                 });
@@ -353,9 +360,12 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 if (content.RuleContentType == RuleContentType.UrlForPicture)
                 {
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
                     createImageContents.Add(new ImageContentCreatedResponse
                     {
-                        MobileLanguage = content.Localization, RuleContentId = content.Id
+                        MobileLanguage = mobileLanguage,
+                        RuleContentId = content.Id
                     });
                 }
             }
@@ -432,13 +442,15 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             foreach (var mobileContent in model.MobileContents)
             {
+                Enum.TryParse<Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
                 if (!string.IsNullOrEmpty(mobileContent.Title))
                 {
                     mobileContents.Add(new BurnRuleContentEditRequest
                     {
                         Id = mobileContent.TitleId,
                         RuleContentType = RuleContentType.Title,
-                        Localization = mobileContent.MobileLanguage,
+                        Localization = mobileLanguage,
                         Value = mobileContent.Title
                     });
                 }
@@ -447,7 +459,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     Id = mobileContent.DescriptionId,
                     RuleContentType = RuleContentType.Description,
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
                 });
 
@@ -455,7 +467,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     Id = mobileContent.ImageId,
                     RuleContentType = RuleContentType.UrlForPicture,
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     Value = mobileContent.ImageBlobUrl
                 });
             }

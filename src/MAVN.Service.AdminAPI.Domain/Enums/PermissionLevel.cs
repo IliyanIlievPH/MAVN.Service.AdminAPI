@@ -1,8 +1,9 @@
-namespace MAVN.Service.AdminAPI.Domain.Enums
+﻿namespace MAVN.Service.AdminAPI.Domain.Enums
 {
     public enum PermissionLevel
     {
         View,
-        Edit
+        Edit,
+        PartnerEdit,
     }
 }

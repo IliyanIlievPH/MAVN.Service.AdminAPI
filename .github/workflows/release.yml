@@ -15,7 +15,7 @@ env:
   CONTRACT_PROJECT:
   JOB_DOCKER_IMAGE:
   JOB_PROJECT:
-  SERVICE_DOCKER_IMAGE: wamphost-service
+  SERVICE_DOCKER_IMAGE: admin-api
   SERVICE_PROJECT: ./src/MAVN.Service.AdminAPI/MAVN.Service.AdminAPI.csproj
     
   
@@ -90,7 +90,7 @@ jobs:
         if: env.RELEASE_CLIENT == 'true' || env.RELEASE_CONTRACT == 'true'
         env:
           API_KEY: ${{ secrets.NUGET_ORG_API_KEY }}
-        run: dotnet nuget push ./packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $API_KEY
+        run: dotnet nuget push ./packages/**/*.nupkg --source https://api.nuget.org/v3/index.json --api-key $API_KEY
         
       # Create next release draft
       - name: Create next release draft

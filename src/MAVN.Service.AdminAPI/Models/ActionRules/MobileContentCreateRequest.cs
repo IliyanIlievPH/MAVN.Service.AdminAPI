@@ -1,4 +1,4 @@
-﻿using Lykke.Service.Campaign.Client.Models.Enums;
+﻿using MAVN.Service.Campaign.Client.Models.Enums;
 using MAVN.Service.AdminAPI.Interfaces.ActionRules;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -14,7 +14,7 @@ namespace MAVN.Service.AdminAPI.Models.ActionRules
         /// Represents the language of the mobile content
         /// </summary>
         [JsonConverter(typeof(StringEnumConverter))]
-        public Localization MobileLanguage { get; set; }
+        public MobileLocalization MobileLanguage { get; set; }
 
         /// <summary>
         /// Represents the title of the mobile content

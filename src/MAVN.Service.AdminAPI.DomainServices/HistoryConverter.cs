@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Falcon.Numerics;
-using Lykke.Service.OperationsHistory.Client.Models.Responses;
+using MAVN.Numerics;
+using MAVN.Service.OperationsHistory.Client.Models.Responses;
 using MAVN.Service.AdminAPI.Domain.Models;
 using MAVN.Service.AdminAPI.Domain.Services;
 
@@ -49,20 +49,6 @@ namespace MAVN.Service.AdminAPI.DomainServices
             });
         }
 
-        public IEnumerable<CustomerOperation> FromPaymentTransfers(IEnumerable<PaymentTransferResponse> source)
-        {
-            return source.Select(item => new CustomerOperation
-            {
-                Timestamp = item.Timestamp,
-                PartnerId = item.TransferId,
-                TransactionId = item.TransferId,
-                TransactionType = CustomerOperationTransactionType.Burn,
-                CampaignName = item.BurnRuleName,
-                Amount = -1 * Money18.Abs(item.Amount),
-                AssetSymbol = item.AssetSymbol
-            });
-        }
-
         public IEnumerable<CustomerOperation> FromPartnersPayments(IEnumerable<PartnersPaymentResponse> source)
         {
             return source.Select(item => new CustomerOperation
@@ -88,22 +74,6 @@ namespace MAVN.Service.AdminAPI.DomainServices
                 TransactionType = CustomerOperationTransactionType.BurnCancelled,
                 Amount = Money18.Abs(item.Amount),
                 AssetSymbol = _tokenSymbol
-            });
-        }
-
-        public IEnumerable<CustomerOperation> FromRefundedPaymentTransfers(string customerId,
-            IEnumerable<PaymentTransferResponse> source)
-        {
-            return source.Select(item => new CustomerOperation
-            {
-                Timestamp = item.Timestamp,
-                PartnerId = item.TransferId,
-                TransactionId = item.TransferId,
-                TransactionType = CustomerOperationTransactionType.BurnCancelled,
-                ReceiverCustomerId = customerId,
-                CampaignName = item.BurnRuleName,
-                Amount = Money18.Abs(item.Amount),
-                AssetSymbol = item.AssetSymbol
             });
         }
 

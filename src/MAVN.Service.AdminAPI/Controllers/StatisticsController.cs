@@ -3,13 +3,13 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Falcon.Common.Middleware.Authentication;
-using Lykke.Job.TokensStatistics.Client;
-using Lykke.Job.TokensStatistics.Client.Models.Requests;
-using Lykke.Service.CustomerProfile.Client;
-using Lykke.Service.OperationsHistory.Client;
-using Lykke.Service.PrivateBlockchainFacade.Client;
-using Lykke.Service.Referral.Client;
+using MAVN.Common.Middleware.Authentication;
+using MAVN.Job.TokensStatistics.Client;
+using MAVN.Job.TokensStatistics.Client.Models.Requests;
+using MAVN.Service.CustomerProfile.Client;
+using MAVN.Service.OperationsHistory.Client;
+using MAVN.Service.PrivateBlockchainFacade.Client;
+using MAVN.Service.Referral.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Infrastructure.Extensions;
@@ -63,7 +63,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of customers.</response>
         [HttpGet("customers")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(CustomersStatisticsModel), (int)HttpStatusCode.OK)]
         public async Task<CustomersStatisticsModel> GetByCustomersAsync()
         {
@@ -99,7 +106,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A statistics of tokens.</response>
         [HttpGet("tokens-current")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(TokensStatisticsModel), (int)HttpStatusCode.OK)]
         public async Task<TokensStatisticsModel> GetByTokensCurrentAsync()
         {
@@ -120,25 +134,6 @@ namespace MAVN.Service.AdminAPI.Controllers
         }
 
         /// <summary>
-        /// Returns a statistics of Real Estate Leads.
-        /// </summary>
-        /// <returns>
-        /// A statistics of leads.
-        /// </returns>
-        /// <response code="200">A statistics of leads.</response>
-        [HttpGet("leads")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
-        [ProducesResponseType(typeof(LeadStatisticModel), (int)HttpStatusCode.OK)]
-        public async Task<LeadStatisticModel> GetByLeadsAsync()
-        {
-            var leadStatistic = await _referralClient.ReferralLeadApi.GetLeadStatisticAsync();
-
-            var model = _mapper.Map<LeadStatisticModel>(leadStatistic);
-
-            return model;
-        }
-
-        /// <summary>
         /// Returns a total supply of SPs.
         /// </summary>
         /// <returns>
@@ -146,6 +141,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </returns>
         /// <response code="200">A total supply of SPs.</response>
         [HttpGet("total-supply")]
+        [Permission(
+            PermissionType.Dashboard,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(TokenSupplyModel), (int)HttpStatusCode.OK)]
         public async Task<TokenSupplyModel> GetTotalSupplyAsync()
         {

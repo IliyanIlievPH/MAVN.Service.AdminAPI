@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Lykke.Service.Campaign.Client.Models.Enums;
+using MAVN.Service.Campaign.Client.Models.Enums;
 using MAVN.Service.AdminAPI.Models.ActionRules;
 
 namespace MAVN.Service.AdminAPI.Validators.ActionRules
@@ -15,11 +15,11 @@ namespace MAVN.Service.AdminAPI.Validators.ActionRules
                 RuleFor(o => o.TitleId)
                     .NotEmpty()
                     .WithMessage("TitleId should be specified");
-            });
 
-            RuleFor(o => o.DescriptionId)
-                .NotEmpty()
-                .WithMessage("DescriptionId should be specified");
+                RuleFor(o => o.DescriptionId)
+                    .NotEmpty()
+                    .WithMessage("DescriptionId should be specified");
+            });
         }
     }
 }

@@ -1,26 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Common.Log;
-using Falcon.Common.Middleware.Authentication;
-using Falcon.Numerics;
+using MAVN.Common.Middleware.Authentication;
+using MAVN.Numerics;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Common.Log;
-using Lykke.Service.Campaign.Client;
-using Lykke.Service.Campaign.Client.Models;
-using Lykke.Service.Campaign.Client.Models.Campaign.Responses;
-using Lykke.Service.Campaign.Client.Models.EarnRuleContent;
-using Lykke.Service.Campaign.Client.Models.Enums;
-using Lykke.Service.Campaign.Client.Models.Files.Requests;
-using Lykke.Service.CurrencyConvertor.Client;
-using Lykke.Service.PartnerManagement.Client;
-using Lykke.Service.PartnerManagement.Client.Models;
+using MAVN.Service.Campaign.Client;
+using MAVN.Service.Campaign.Client.Models;
+using MAVN.Service.Campaign.Client.Models.Campaign.Responses;
+using MAVN.Service.Campaign.Client.Models.EarnRuleContent;
+using MAVN.Service.Campaign.Client.Models.Enums;
+using MAVN.Service.Campaign.Client.Models.Files.Requests;
+using MAVN.Service.CurrencyConvertor.Client;
+using MAVN.Service.PartnerManagement.Client;
+using MAVN.Service.PartnerManagement.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Services;
+using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Infrastructure.CustomFilters;
 using MAVN.Service.AdminAPI.Models.ActionRules;
@@ -29,7 +31,7 @@ using MAVN.Service.AdminAPI.Models.EarnRules;
 using MAVN.Service.AdminAPI.Models.Partners;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RewardType = Lykke.Service.Campaign.Client.Models.Enums.RewardType;
+using RewardType = MAVN.Service.Campaign.Client.Models.Enums.RewardType;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -43,7 +45,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ICampaignClient _campaignsClient;
         private readonly ISettingsService _settingsService;
         private readonly IMapper _mapper;
-        private readonly IRequestContext _requestContext;
+        private readonly IExtRequestContext _requestContext;
         private readonly ICurrencyConvertorClient _currencyConverterClient;
         private readonly IImageService _imageService;
         private readonly IPartnerManagementClient _partnerManagementClient;
@@ -53,7 +55,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             ICampaignClient campaignClient,
             ISettingsService settingsService,
             IMapper mapper,
-            IRequestContext requestContext,
+            IExtRequestContext requestContext,
             ICurrencyConvertorClient convertorClient,
             IImageService imageService,
             IPartnerManagementClient partnerManagementClient,
@@ -83,7 +85,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<EarnRuleListResponse> GetEarnRuleListAsync([FromQuery] EarnRuleListRequest model)
         {
             var response = await _campaignsClient.Campaigns.GetAsync(
-                new Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignsPaginationRequestModel
+                new MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignsPaginationRequestModel
                 {
                     PageSize = model.PageSize,
                     CurrentPage = model.CurrentPage,
@@ -101,7 +103,10 @@ namespace MAVN.Service.AdminAPI.Controllers
                 var vertical = camp.Conditions.FirstOrDefault(c => !c.IsHiddenType)?.Vertical;
 
                 if (vertical != null)
-                    campaignVerticals.Add(camp.Id, vertical.Value);
+                {
+                    Enum.TryParse<Vertical>(vertical.Value.ToString(), out var parsedVertical);
+                    campaignVerticals.Add(camp.Id, parsedVertical);
+                }
 
                 if (!camp.UsePartnerCurrencyRate)
                     continue;
@@ -170,7 +175,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             // order conditions to have optional after first condition
             if (campaign.Conditions.Count > 0)
             {
-                var orderedConditions = new List<Lykke.Service.Campaign.Client.Models.Condition.ConditionModel>();
+                var orderedConditions = new List<MAVN.Service.Campaign.Client.Models.Condition.ConditionModel>();
                 var specialCondition = campaign.Conditions.FirstOrDefault(x => x.Type.Equals(ReferToRealEstateBonusType));
 
                 if (specialCondition != null)
@@ -195,10 +200,9 @@ namespace MAVN.Service.AdminAPI.Controllers
                 }
                 else
                 {
-                    var newMobileContent = new MobileContentResponse
-                    {
-                        MobileLanguage = content.Localization
-                    };
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
+                    var newMobileContent = new MobileContentResponse { MobileLanguage = mobileLanguage };
 
                     FillMobileContent(newMobileContent);
 
@@ -252,18 +256,20 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task<EarnRuleCreatedResponse> CreateEarnRuleAsync([FromBody] EarnRuleCreateModel model)
         {
             var request = _mapper.Map<EarnRuleCreateModel,
-                Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignCreateModel>(model,
+                MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignCreateModel>(model,
                 opt => opt.AfterMap((src, dest) => { dest.CreatedBy = _requestContext.UserId; }));
 
             var mobileContents = new List<EarnRuleContentCreateRequest>();
 
             foreach (var mobileContent in model.MobileContents)
             {
+                Enum.TryParse<Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
                 if (!string.IsNullOrEmpty(mobileContent.Title))
                 {
                     mobileContents.Add(new EarnRuleContentCreateRequest
                     {
-                        Localization = mobileContent.MobileLanguage,
+                        Localization = mobileLanguage,
                         RuleContentType = RuleContentType.Title,
                         Value = mobileContent.Title
                     });
@@ -271,7 +277,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
                 mobileContents.Add(new EarnRuleContentCreateRequest
                 {
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     RuleContentType = RuleContentType.Description,
                     Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
                 });
@@ -279,7 +285,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 // create content for adding image
                 mobileContents.Add(new EarnRuleContentCreateRequest
                 {
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     RuleContentType = RuleContentType.UrlForPicture,
                     Value = null
                 });
@@ -287,7 +293,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             request.Contents = mobileContents;
 
-            Lykke.Service.Campaign.Client.Models.Campaign.Responses.CampaignCreateResponseModel response;
+            MAVN.Service.Campaign.Client.Models.Campaign.Responses.CampaignCreateResponseModel response;
 
             try
             {
@@ -307,9 +313,11 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 if (content.RuleContentType == RuleContentType.UrlForPicture)
                 {
+                    Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
+
                     createImageContents.Add(new ImageContentCreatedResponse
                     {
-                        MobileLanguage = content.Localization,
+                        MobileLanguage = mobileLanguage,
                         RuleContentId = content.Id
                     });
                 }
@@ -380,19 +388,21 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task UpdateEarnRuleAsync([FromBody] EarnRuleUpdateModel model)
         {
             var request =
-                _mapper.Map<EarnRuleUpdateModel, Lykke.Service.Campaign.Client.Models.Campaign.Requests.CampaignEditModel>(model);
+                _mapper.Map<EarnRuleUpdateModel, MAVN.Service.Campaign.Client.Models.Campaign.Requests.CampaignEditModel>(model);
 
             var mobileContents = new List<EarnRuleContentEditRequest>();
 
             foreach (var mobileContent in model.MobileContents)
             {
+                Enum.TryParse<Localization>(mobileContent.MobileLanguage.ToString(), out var mobileLanguage);
+
                 if (!string.IsNullOrEmpty(mobileContent.Title))
                 {
                     mobileContents.Add(new EarnRuleContentEditRequest
                     {
                         Id = mobileContent.TitleId,
                         RuleContentType = RuleContentType.Title,
-                        Localization = mobileContent.MobileLanguage,
+                        Localization = mobileLanguage,
                         Value = mobileContent.Title
                     });
                 }
@@ -401,7 +411,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     Id = mobileContent.DescriptionId,
                     RuleContentType = RuleContentType.Description,
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     Value = string.IsNullOrEmpty(mobileContent.Description) ? null : mobileContent.Description
                 });
 
@@ -409,14 +419,14 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     Id = mobileContent.ImageId,
                     RuleContentType = RuleContentType.UrlForPicture,
-                    Localization = mobileContent.MobileLanguage,
+                    Localization = mobileLanguage,
                     Value = mobileContent.ImageBlobUrl
                 });
             }
 
             request.Contents = mobileContents;
 
-            Lykke.Service.Campaign.Client.Models.Campaign.Responses.CampaignDetailResponseModel response;
+            MAVN.Service.Campaign.Client.Models.Campaign.Responses.CampaignDetailResponseModel response;
 
             try
             {

@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Common.Log;
-using Falcon.Common.Middleware.Authentication;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using MAVN.Service.AdminAPI.Domain.Enums;
-using MAVN.Service.AdminAPI.Domain.Services;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
 {
@@ -20,17 +18,15 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
     public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
     {
         private readonly IReadOnlyList<PermissionType> _permissionTypes;
-        private readonly PermissionLevel _permissionLevel;
-        private IRequestContext _requestContext;
-        private IAdminsService _adminsService;
-        private ILog _log;
+        private readonly IReadOnlyList<PermissionLevel> _permissionLevels;
+        private IExtRequestContext _requestContext;
 
         public PermissionAttribute(
             PermissionType permissionType,
             PermissionLevel permissionLevel)
         {
             _permissionTypes = new List<PermissionType> { permissionType };
-            _permissionLevel = permissionLevel;
+            _permissionLevels = new List<PermissionLevel> { permissionLevel };
         }
 
         public PermissionAttribute(
@@ -38,19 +34,32 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
             PermissionLevel permissionLevel)
         {
             _permissionTypes = permissionTypes.ToList();
-            _permissionLevel = permissionLevel;
+            _permissionLevels = new List<PermissionLevel> { permissionLevel };
+        }
+
+        public PermissionAttribute(
+            PermissionType permissionType,
+            PermissionLevel[] permissionLevels)
+        {
+            _permissionTypes = new List<PermissionType> { permissionType };
+            _permissionLevels = permissionLevels.ToList();
+        }
+
+        public PermissionAttribute(
+            PermissionType[] permissionTypes,
+            PermissionLevel[] permissionLevels)
+        {
+            _permissionTypes = permissionTypes.ToList();
+            _permissionLevels = permissionLevels.ToList();
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            var logFactory = (ILogFactory)context.HttpContext.RequestServices.GetService(typeof(ILogFactory));
-            _log = logFactory.CreateLog(this);
-            _requestContext = (IRequestContext)context.HttpContext.RequestServices.GetService(typeof(IRequestContext));
-            _adminsService = (IAdminsService)context.HttpContext.RequestServices.GetService(typeof(IAdminsService));
+            _requestContext = context.HttpContext.RequestServices.GetService<IExtRequestContext>();
 
             try
             {
-                var hasPermission = await _adminsService.AdminHasPermissionAsync(_requestContext.UserId, _permissionTypes, _permissionLevel);
+                var hasPermission = await _requestContext.AdminHasPermissionAsync(_permissionTypes, _permissionLevels);
 
                 if (!hasPermission)
                 {
@@ -62,7 +71,9 @@ namespace MAVN.Service.AdminAPI.Infrastructure.CustomAttributes
             }
             catch(Exception ex)
             {
-                _log.Error(ex, context: new
+                var logFactory = context.HttpContext.RequestServices.GetService<ILogFactory>();
+                var log = logFactory.CreateLog(this);
+                log.Error(ex, context: new
                 {
                     sessionToken = _requestContext.SessionToken,
                     url = context.HttpContext.Request.GetUri()

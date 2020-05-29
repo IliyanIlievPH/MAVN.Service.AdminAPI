@@ -1,4 +1,4 @@
-﻿using Falcon.Numerics;
+﻿using MAVN.Numerics;
 using JetBrains.Annotations;
 
 namespace MAVN.Service.AdminAPI.Models.Statistics

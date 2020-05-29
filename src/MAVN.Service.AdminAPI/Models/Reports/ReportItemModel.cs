@@ -1,5 +1,5 @@
 ﻿using System;
-using Falcon.Numerics;
+using MAVN.Numerics;
 using JetBrains.Annotations;
 
 namespace MAVN.Service.AdminAPI.Models.Reports
@@ -57,5 +57,8 @@ namespace MAVN.Service.AdminAPI.Models.Reports
 
         /// <summary>Location integration code</summary>
         public string LocationIntegrationCode { get; set; }
+
+        /// <summary>Currency</summary>
+        public string Currency { get; set; }
     }
 }

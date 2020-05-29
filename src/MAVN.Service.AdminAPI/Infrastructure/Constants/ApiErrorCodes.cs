@@ -37,6 +37,9 @@ namespace MAVN.Service.AdminAPI.Infrastructure.Constants
             /// </summary>
             public static readonly ILykkeApiErrorCode InvalidCredentials =
                 new LykkeApiErrorCode(nameof(InvalidCredentials), "Login or password is not valid.");
+            
+            public static readonly ILykkeApiErrorCode AdminEmailIsNotVerified =
+                new LykkeApiErrorCode(nameof(AdminEmailIsNotVerified), "Admin Email is not verified.");
 
             /// <summary>
             ///     Customer not found.
