@@ -72,6 +72,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 To = request.To.Date.AddDays(1).AddMilliseconds(-1),
                 TransactionType = request.TransactionType,
                 Status = request.Status,
+                CampaignId = request.CampaignId
             };
             var clientResult = await _reportClient.Api.FetchReportAsync(requestModel, filter.PartnerIds);
 
@@ -84,7 +85,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
         [HttpGet("exportToCsv")]
         [ProducesResponseType(typeof(FileResult), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required] DateTime to, [FromQuery] Guid partnerId, [FromQuery] string transactionType, [FromQuery] string status)
+        public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required] DateTime to, [FromQuery] Guid partnerId, [FromQuery] string transactionType, [FromQuery] string status, [FromQuery] Guid? campaignId)
         {
             var fileName = $"transactions_from_{from:dd-MM-yyyy}_to_{to:dd-MM-yyyy}.csv";
             var filter = await FilterByPartnerAsync(partnerId);
@@ -103,6 +104,10 @@ namespace MAVN.Service.AdminAPI.Controllers
                 To = to.Date.AddDays(1).AddMilliseconds(-1),
                 TransactionType = transactionType,
                 Status = status,
+                CampaignId = campaignId,
+                //TODO: remove pagination requirement from Reporting service.
+                PageSize = 500,
+                CurrentPage = 1
             };
             var clientResult = await _reportClient.Api.FetchReportCsvAsync(requestModel, filter.PartnerIds);
 

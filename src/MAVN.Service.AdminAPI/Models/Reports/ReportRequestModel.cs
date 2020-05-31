@@ -46,5 +46,10 @@ namespace MAVN.Service.AdminAPI.Models.Reports
         /// Status
         /// </summary>
         public string Status { get; set; }
+
+        /// <summary>
+        /// Optional Campaign Id filter
+        /// </summary>
+        public Guid? CampaignId { get; set; }
     }
 }
