@@ -219,10 +219,6 @@ namespace MAVN.Service.AdminAPI
             CreateMap<CustomerOperation, CustomerOperationModel>();
 
             //Dashboard
-            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsListResponseModel, LeadsListResponse>();
-            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsStatisticsForDayReportModel, LeadsStatisticsForDayReportModel>();
-            CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsStatisticsModel, LeadsStatistics>();
-
             CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Tokens.TokensListResponseModel, TokensListResponse>();
             CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Tokens.TokensStatisticsModel, TokensStatistics>();
 
@@ -231,7 +227,6 @@ namespace MAVN.Service.AdminAPI
 
             CreateMap<TokensListRequest, MAVN.Service.DashboardStatistics.Client.Models.Tokens.TokensListRequestModel>();
             CreateMap<CustomersListRequest, MAVN.Service.DashboardStatistics.Client.Models.Customers.CustomersListRequestModel>();
-            CreateMap<LeadsListRequest, MAVN.Service.DashboardStatistics.Client.Models.Leads.LeadsListRequestModel>();
 
             //Partners
             CreateMap<PartnerListRequest, PartnerListRequestModel>()
@@ -255,24 +250,30 @@ namespace MAVN.Service.AdminAPI
                 PartnerLinkingInfoResponse>();
 
             CreateMap<LocationCreateRequest, LocationCreateModel>()
-                .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src =>
-                        new MAVN.Service.PartnerManagement.Client.Models.ContactPersonModel
-                        {
-                            Email = src.Email,
-                            FirstName = src.FirstName,
-                            LastName = src.LastName,
-                            PhoneNumber = src.Phone
-                        }));
+                .ForMember(dest => dest.ContactPerson,
+                    opt => opt.MapFrom(src =>
+                        src.Email != null
+                            ? new PartnerManagement.Client.Models.ContactPersonModel
+                            {
+                                Email = src.Email,
+                                FirstName = src.FirstName,
+                                LastName = src.LastName,
+                                PhoneNumber = src.Phone
+                            }
+                            : null));
 
             CreateMap<LocationEditRequest, LocationUpdateModel>()
-                .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src =>
-                    new MAVN.Service.PartnerManagement.Client.Models.ContactPersonModel
-                    {
-                        Email = src.Email,
-                        FirstName = src.FirstName,
-                        LastName = src.LastName,
-                        PhoneNumber = src.Phone
-                    }));
+                .ForMember(dest => dest.ContactPerson,
+                    opt => opt.MapFrom(src =>
+                        src.Email != null
+                            ? new PartnerManagement.Client.Models.ContactPersonModel
+                            {
+                                Email = src.Email,
+                                FirstName = src.FirstName,
+                                LastName = src.LastName,
+                                PhoneNumber = src.Phone
+                            }
+                            : null));
 
             CreateMap<LocationDetailsModel, LocationResponse>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.ContactPerson.FirstName))

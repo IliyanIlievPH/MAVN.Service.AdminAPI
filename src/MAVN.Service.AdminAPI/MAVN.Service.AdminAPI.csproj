@@ -34,8 +34,8 @@
     <PackageReference Include="MAVN.Service.CrossChainWalletLinker.Client" Version="1.1.0" />
     <PackageReference Include="MAVN.Service.CurrencyConverter.Client" Version="1.2.0" />
     <PackageReference Include="MAVN.Service.CustomerManagement.Client" Version="1.1.0" />
-    <PackageReference Include="MAVN.Service.CustomerProfile.Client" Version="1.3.0" />
-    <PackageReference Include="MAVN.Service.DashboardStatistics.Client" Version="1.1.0" />
+    <PackageReference Include="MAVN.Service.CustomerProfile.Client" Version="2.0.0" />
+    <PackageReference Include="MAVN.Service.DashboardStatistics.Client" Version="2.0.0" />
     <PackageReference Include="MAVN.Service.Kyc.Client" Version="2.1.0" />
     <PackageReference Include="MAVN.Service.OperationsHistory.Client" Version="1.4.2" />
     <PackageReference Include="MAVN.Service.PrivateBlockchainFacade.Client" Version="1.1.0" />
