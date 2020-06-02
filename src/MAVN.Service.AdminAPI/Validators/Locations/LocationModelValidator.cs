@@ -34,7 +34,6 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
                 .WithMessage("First Name should be between 2 and 50 chars")
                 .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.Phone));
 
-
             RuleFor(o => o.LastName)
                 .NotEmpty()
                 .WithMessage("Last Name required")
@@ -44,14 +43,12 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
                 .WithMessage("Last Name should be between 2 and 50 chars")
                 .When(x => !string.IsNullOrEmpty(x.FirstName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.Phone));
 
-
             RuleFor(o => o.Email)
                 .NotEmpty()
                 .WithMessage("Email required")
                 .EmailAddress()
                 .WithMessage("Please enter a valid email address")
                 .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.FirstName) || !string.IsNullOrEmpty(x.Phone));
-
 
             RuleFor(o => o.Phone)
                 .NotEmpty()
@@ -62,7 +59,6 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
                 .Must(o => o != null && _phoneNumberRegex.IsMatch(o))
                 .WithMessage("Phone number contains illegal characters.")
                 .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.FirstName));
-
 
             RuleFor(l => l.ExternalId)
                 .NotEmpty()
