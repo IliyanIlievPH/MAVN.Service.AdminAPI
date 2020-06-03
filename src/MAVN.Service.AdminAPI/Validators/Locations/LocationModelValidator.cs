@@ -31,7 +31,8 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
                 .Must(o => o != null && _onlyLettersRegex.IsMatch(o))
                 .WithMessage("First Name should contains only letters")
                 .Length(2, 50)
-                .WithMessage("First Name should be between 2 and 50 chars");
+                .WithMessage("First Name should be between 2 and 50 chars")
+                .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.Phone));
 
             RuleFor(o => o.LastName)
                 .NotEmpty()
@@ -39,13 +40,15 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
                 .Must(o => o != null && _onlyLettersRegex.IsMatch(o))
                 .WithMessage("Last Name should contains only letters")
                 .Length(2, 50)
-                .WithMessage("Last Name should be between 2 and 50 chars");
+                .WithMessage("Last Name should be between 2 and 50 chars")
+                .When(x => !string.IsNullOrEmpty(x.FirstName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.Phone));
 
             RuleFor(o => o.Email)
                 .NotEmpty()
                 .WithMessage("Email required")
                 .EmailAddress()
-                .WithMessage("Please enter a valid email address");
+                .WithMessage("Please enter a valid email address")
+                .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.FirstName) || !string.IsNullOrEmpty(x.Phone));
 
             RuleFor(o => o.Phone)
                 .NotEmpty()
@@ -54,7 +57,8 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
                 .MaximumLength(50)
                 .WithMessage("Phone number should be within 3 and 50 characters long.")
                 .Must(o => o != null && _phoneNumberRegex.IsMatch(o))
-                .WithMessage("Phone number contains illegal characters.");
+                .WithMessage("Phone number contains illegal characters.")
+                .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.FirstName));
 
             RuleFor(l => l.ExternalId)
                 .NotEmpty()

@@ -4,7 +4,6 @@ using AutoMapper;
 using MAVN.Common.Middleware.Authentication;
 using MAVN.Service.DashboardStatistics.Client;
 using MAVN.Service.DashboardStatistics.Client.Models.Customers;
-using MAVN.Service.DashboardStatistics.Client.Models.Leads;
 using MAVN.Service.DashboardStatistics.Client.Models.Tokens;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Infrastructure;
@@ -33,23 +32,6 @@ namespace MAVN.Service.AdminAPI.Controllers
             _dashboardStatisticsClient = dashboardStatisticsClient;
             _mapper = mapper;
             _requestContext = requestContext;
-        }
-
-        /// <summary>
-        /// Returns a statistics of leads.
-        /// </summary>
-        /// <returns>
-        /// A statistics of leads.
-        /// </returns>
-        /// <response code="200">A statistics of leads.</response>
-        [HttpGet("leads")]
-        [Permission(PermissionType.Dashboard, PermissionLevel.View)]
-        [ProducesResponseType(typeof(LeadsListResponse), (int)HttpStatusCode.OK)]
-        public async Task<LeadsListResponse> GetLeadsStatisticsAsync([FromQuery] LeadsListRequest request)
-        {
-            var result = await _dashboardStatisticsClient.LeadsApi.GetAsync(_mapper.Map<LeadsListRequestModel>(request));
-
-            return _mapper.Map<LeadsListResponse>(result);
         }
 
         /// <summary>
