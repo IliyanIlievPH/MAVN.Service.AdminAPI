@@ -5,37 +5,27 @@ using JetBrains.Annotations;
 namespace MAVN.Service.AdminAPI.Models.Reports
 {
     /// <summary>
-    /// Represents request for a report
+    /// Represents request for a export report
     /// </summary>
     [PublicAPI]
-    public class ReportRequestModel
+    public class ExportReportRequestModel
     {
         /// <summary>
         /// Date from
         /// </summary>
+        [Required]
         public DateTime From { set; get; }
-        
+
         /// <summary>
         /// Date to
         /// </summary>
+        [Required]
         public DateTime To { set; get; }
 
         /// <summary>
         /// Partner Id
         /// </summary>
         public Guid? PartnerId { set; get; }
-
-        /// <summary>
-        /// The number of items per page.
-        /// </summary>
-        [Range(1, 1000)]
-        public int PageSize { get; set; }
-
-        /// <summary>
-        /// The current page index.
-        /// </summary>
-        [Range(1, int.MaxValue)]
-        public int CurrentPage { get; set; }
 
         /// <summary>
         /// TransactionType

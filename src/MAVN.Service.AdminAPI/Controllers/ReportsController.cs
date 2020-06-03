@@ -72,6 +72,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 To = request.To.Date.AddDays(1).AddMilliseconds(-1),
                 TransactionType = request.TransactionType,
                 Status = request.Status,
+                CampaignId = request.CampaignId
             };
             var clientResult = await _reportClient.Api.FetchReportAsync(requestModel, filter.PartnerIds);
 
@@ -84,10 +85,10 @@ namespace MAVN.Service.AdminAPI.Controllers
 
         [HttpGet("exportToCsv")]
         [ProducesResponseType(typeof(FileResult), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ExportTransactionReportAsync([FromQuery][Required] DateTime from, [FromQuery][Required] DateTime to, [FromQuery] Guid partnerId, [FromQuery] string transactionType, [FromQuery] string status)
+        public async Task<IActionResult> ExportTransactionReportAsync([FromQuery]ExportReportRequestModel model)
         {
-            var fileName = $"transactions_from_{from:dd-MM-yyyy}_to_{to:dd-MM-yyyy}.csv";
-            var filter = await FilterByPartnerAsync(partnerId);
+            var fileName = $"transactions_from_{model.From:dd-MM-yyyy}_to_{model.To:dd-MM-yyyy}.csv";
+            var filter = await FilterByPartnerAsync(model.PartnerId);
 
             if (filter.IsEmptyResult)
             {
@@ -97,15 +98,17 @@ namespace MAVN.Service.AdminAPI.Controllers
                 };
             }
 
-            var requestModel = new TransactionReportByTimeRequest()
+            var requestModel = new FetchReportCsvRequest()
             {
-                From = from.Date,
-                To = to.Date.AddDays(1).AddMilliseconds(-1),
-                TransactionType = transactionType,
-                Status = status,
+                From = model.From.Date,
+                To = model.To.Date.AddDays(1).AddMilliseconds(-1),
+                TransactionType = model.TransactionType,
+                Status = model.Status,
+                CampaignId = model.CampaignId,
+                PartnerIds = filter.PartnerIds
             };
-            var clientResult = await _reportClient.Api.FetchReportCsvAsync(requestModel, filter.PartnerIds);
 
+            var clientResult = await _reportClient.Api.FetchReportCsvAsync(requestModel);
             return clientResult.ToCsvFile(fileName);
         }
 
