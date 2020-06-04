@@ -34,6 +34,9 @@ namespace MAVN.Service.AdminAPI.Models.Reports
         /// <summary>Campaign name</summary>
         public string CampaignName { get; set; }
 
+        /// <summary>Campaign Id</summary>
+        public Guid? CampaignId { get; set; }
+
         /// <summary>Info</summary>
         public string Info { get; set; }
 
@@ -48,6 +51,9 @@ namespace MAVN.Service.AdminAPI.Models.Reports
 
         /// <summary>Receiver email</summary>
         public string ReceiverEmail { get; set; }
+
+        /// <summary>Partner name</summary>
+        public string PartnerName { get; set; }
 
         /// <summary>Location info</summary>
         public string LocationInfo { get; set; }
