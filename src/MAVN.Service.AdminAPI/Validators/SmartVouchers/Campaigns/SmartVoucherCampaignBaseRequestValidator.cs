@@ -37,6 +37,14 @@ namespace MAVN.Service.AdminAPI.Validators.SmartVouchers.Campaigns
                 .WithMessage(o => $"There should be at least one item in the {nameof(o.MobileContents)} value")
                 .Must(contents => { return contents.Any(c => c.MobileLanguage == MobileLocalization.En); })
                 .WithMessage("English content is required.");
+
+            RuleFor(x => x.ExpirationDate)
+                .GreaterThan(x => x.ToDate)
+                .WithMessage(x => $"{nameof(x.ExpirationDate)} must be after {nameof(x.ToDate)}")
+                .When(x => x.ToDate != default)
+                .Must(x => x == default)
+                .When(x => x.ToDate == default, ApplyConditionTo.CurrentValidator)
+                .WithMessage(x => $"{nameof(x.ExpirationDate)} must be empty when {nameof(x.ToDate)} is empty");
         }
     }
 }
