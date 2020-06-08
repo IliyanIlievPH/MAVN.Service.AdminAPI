@@ -12,6 +12,8 @@ namespace MAVN.Service.AdminAPI.Models.Dashboard
 
         public int TotalNewCustomers { get; set; }
 
+        public int TotalRepeatCustomers { get; set; }
+
         public IReadOnlyList<CustomerStatisticsByDayResponse> NewCustomers { get; set; }
     }
 }
