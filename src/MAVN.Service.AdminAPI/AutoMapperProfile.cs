@@ -226,7 +226,9 @@ namespace MAVN.Service.AdminAPI
             CreateMap<MAVN.Service.DashboardStatistics.Client.Models.Customers.CustomerStatisticsByDayResponse, CustomerStatisticsByDayResponseModel>();
 
             CreateMap<TokensListRequest, MAVN.Service.DashboardStatistics.Client.Models.Tokens.TokensListRequestModel>();
-            CreateMap<CustomersListRequest, MAVN.Service.DashboardStatistics.Client.Models.Customers.CustomersListRequestModel>();
+            CreateMap<DashboardStatistics.Client.Models.VoucherStatistic.VoucherStatisticsResponse, VoucherStatisticsResponse>();
+            CreateMap<DashboardStatistics.Client.Models.VoucherStatistic.VoucherDailyStatisticsModel, VoucherDailyStatisticsModel>();
+            CreateMap<DashboardStatistics.Client.Models.VoucherStatistic.VoucherDailyStatisticsResponse, VoucherDailyStatisticsResponse>();
 
             //Partners
             CreateMap<PartnerListRequest, PartnerListRequestModel>()
