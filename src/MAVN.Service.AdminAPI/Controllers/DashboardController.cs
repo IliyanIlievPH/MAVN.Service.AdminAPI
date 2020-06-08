@@ -103,7 +103,6 @@ namespace MAVN.Service.AdminAPI.Controllers
             return _mapper.Map<TokensListResponse>(result);
         }
 
-
         /// <summary>
         /// Returns a statistics for smart vouchers.
         /// </summary>
@@ -152,7 +151,6 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(VoucherDailyStatisticsResponse), (int)HttpStatusCode.OK)]
         public async Task<VoucherDailyStatisticsResponse> GetSmartVouchersStatisticsForPeriodAsync([FromQuery] BasePeriodRequest request)
         {
-
             var (partnerIds, isEmptyResult) = await FilterByPartnerAsync();
 
             if (isEmptyResult)
@@ -172,7 +170,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         {
             var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.Dashboard);
 
-            if (!permissionLevel.HasValue || permissionLevel.Value != PermissionLevel.PartnerEdit) 
+            if (!permissionLevel.HasValue || permissionLevel.Value == PermissionLevel.View) 
                 return (null, true);
 
             var partnersResponse =
