@@ -18,5 +18,10 @@ namespace MAVN.Service.AdminAPI.Models.Partners.Responses
         /// List with partner's locations
         /// </summary>
         public IReadOnlyList<LocationResponse> Locations { get; set; }
+
+        /// <summary>
+        /// Represents code which is used to refer customers
+        /// </summary>
+        public string ReferralCode { get; set; }
     }
 }
