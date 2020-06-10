@@ -143,7 +143,8 @@ namespace MAVN.Service.AdminAPI
                     adminSettings.MobileAppImageMinWidth,
                     adminSettings.MobileAppImageWarningFileSizeInKB,
                     adminSettings.SuggestedAdminPasswordLength,
-                    adminSettings.IsPhoneVerificationDisabled));
+                    adminSettings.IsPhoneVerificationDisabled,
+                    adminSettings.ReferralUrlTemplate));
 
             ApplicationContainer = builder.Build();
             InvalidModelStateResponseFactory.Logger = ApplicationContainer.Resolve<ILogFactory>()

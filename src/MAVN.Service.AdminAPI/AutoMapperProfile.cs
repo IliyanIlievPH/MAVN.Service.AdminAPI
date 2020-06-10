@@ -238,7 +238,8 @@ namespace MAVN.Service.AdminAPI
             CreateMap<PartnerListDetailsModel, PartnerRowResponse>(MemberList.Destination)
                 .ForMember(dest => dest.KycStatus, opt => opt.Ignore());
 
-            CreateMap<PartnerDetailsModel, PartnerDetailsResponse>();
+            CreateMap<PartnerDetailsModel, PartnerDetailsResponse>()
+                .ForMember(dest => dest.ReferralUrl, opt => opt.Ignore());
 
             CreateMap<PartnerCreateRequest, PartnerCreateModel>()
                 .ForMember(dest => dest.ClientId, opt => opt.Ignore())

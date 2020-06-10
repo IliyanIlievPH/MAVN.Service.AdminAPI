@@ -23,6 +23,8 @@ AdminApiService:
     settings-key: IsPhoneVerificationDisabled
     types:
       - Optional
+  ReferralUrlTemplate:
+    settings-key: AdminApiService-ReferralUrlTemplate
 
 CampaignServiceClient:
   ServiceUrl:
