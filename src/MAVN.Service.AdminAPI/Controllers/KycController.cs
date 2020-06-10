@@ -42,7 +42,14 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </summary>
         /// <param name="partnerId"></param>
         [HttpGet("current")]
-        [Permission(PermissionType.ProgramPartners, PermissionLevel.View)]
+        [Permission(
+            PermissionType.ProgramPartners,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
         [ProducesResponseType(typeof(KycInformationResponse), (int)HttpStatusCode.OK)]
         public async Task<KycInformationResponse> GetCurrentByPartnerIdAsync([FromQuery]Guid partnerId)
         {
@@ -56,8 +63,15 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// </summary>
         /// <param name="partnerId"></param>
         [HttpGet("history")]
-        [Permission(PermissionType.ProgramPartners, PermissionLevel.Edit)]
-        [ProducesResponseType(typeof(KycStatusChangeResponse), (int)HttpStatusCode.OK)]
+        [Permission(
+            PermissionType.ProgramPartners,
+            new[]
+            {
+                PermissionLevel.View,
+                PermissionLevel.PartnerEdit,
+            }
+        )]
+        [ProducesResponseType(typeof(IReadOnlyList<KycStatusChangeResponse>), (int)HttpStatusCode.OK)]
         public async Task<IReadOnlyList<KycStatusChangeResponse>> GetKycStatusChangeHistoryByPartnerIdAsync([FromQuery]Guid partnerId)
         {
             var result = await _kycClient.KycApi.GetKycStatusChangeHistoryByPartnerIdAsync(partnerId);
