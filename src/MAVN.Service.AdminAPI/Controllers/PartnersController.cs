@@ -9,6 +9,7 @@ using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using MAVN.Common.Middleware.Authentication;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
@@ -44,13 +45,15 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly IExtRequestContext _requestContext;
         private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IKycClient _kycClient;
+        private readonly ISettingsService _settingsService;
         private readonly IMapper _mapper;
 
         public PartnersController(
             IExtRequestContext requestContext,
             IPartnerManagementClient partnerManagementClient,
             IMapper mapper,
-            IKycClient kycClient)
+            IKycClient kycClient,
+            ISettingsService settingsService)
         {
             _requestContext = requestContext ??
                               throw new ArgumentNullException(nameof(requestContext));
@@ -59,6 +62,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             _mapper = mapper ??
                       throw new ArgumentNullException(nameof(mapper));
             _kycClient = kycClient;
+            _settingsService = settingsService;
         }
 
         /// <summary>
@@ -150,7 +154,10 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             #endregion
 
-            return _mapper.Map<PartnerDetailsResponse>(response);
+            var result = _mapper.Map<PartnerDetailsResponse>(response);
+            result.ReferralUrl = string.Format(_settingsService.GetReferralUrlTemplate(), response.ReferralCode);
+
+            return result;
         }
 
         /// <summary>

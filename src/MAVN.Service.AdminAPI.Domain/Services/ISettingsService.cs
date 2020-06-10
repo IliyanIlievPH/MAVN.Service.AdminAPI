@@ -3,9 +3,8 @@
     public interface ISettingsService
     {
         string GetTokenName();
-
         bool IsPublicBlockchainFeatureDisabled();
-
         bool IsPhoneVerificationDisabled();
+        string GetReferralUrlTemplate();
     }
 }

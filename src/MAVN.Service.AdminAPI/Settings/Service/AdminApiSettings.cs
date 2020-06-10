@@ -24,5 +24,7 @@ namespace MAVN.Service.AdminAPI.Settings.Service
 
         [Optional]
         public bool IsPhoneVerificationDisabled { get; set; }
+
+        public string ReferralUrlTemplate { get; set; }
     }
 }

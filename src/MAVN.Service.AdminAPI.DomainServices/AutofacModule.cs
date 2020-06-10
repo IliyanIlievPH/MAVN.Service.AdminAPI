@@ -12,6 +12,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
         private readonly int _mobileAppImageWarningFileSizeInKB;
         private readonly int _suggestedAdminPasswordLength;
         private readonly bool _isPhoneVerificationDisabled;
+        private readonly string _referralUrlTemplate;
 
         public AutofacModule(
             string tokenName,
@@ -20,8 +21,8 @@ namespace MAVN.Service.AdminAPI.DomainServices
             int mobileAppImageMinWidth,
             int mobileAppImageWarningFileSizeInKB,
             int suggestedAdminPasswordLength,
-            bool isPhoneVerificationDisabled
-        )
+            bool isPhoneVerificationDisabled,
+            string referralUrlTemplate)
         {
             _tokenName = tokenName;
             _isPublicBlockchainFeatureDisabled = isPublicBlockchainFeatureDisabled;
@@ -30,14 +31,16 @@ namespace MAVN.Service.AdminAPI.DomainServices
             _mobileAppImageWarningFileSizeInKB = mobileAppImageWarningFileSizeInKB;
             _suggestedAdminPasswordLength = suggestedAdminPasswordLength;
             _isPhoneVerificationDisabled = isPhoneVerificationDisabled;
+            _referralUrlTemplate = referralUrlTemplate;
         }
 
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<SettingsService>()
-                .WithParameter(TypedParameter.From(_tokenName))
+                .WithParameter("tokenName", _tokenName)
                 .WithParameter("isPublicBlockchainFeatureDisabled", _isPublicBlockchainFeatureDisabled)
                 .WithParameter("isPhoneVerificationDisabled", _isPhoneVerificationDisabled)
+                .WithParameter("referralUrlTemplate", _referralUrlTemplate)
                 .As<ISettingsService>();
 
             builder.RegisterType<CredentialsGeneratorService>()
