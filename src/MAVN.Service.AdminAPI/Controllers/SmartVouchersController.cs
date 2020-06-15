@@ -80,6 +80,13 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// Present smart vouchers to customers
         /// </summary>
         /// <param name="request">Request model</param>
+        /// <remarks>
+        /// Error codes:
+        /// - **VoucherCampaignNotFound**
+        /// - **VoucherCampaignNotActive**
+        /// - **NotEnoughVouchersInStock**
+        /// - **IncorrectAdminUser**
+        /// </remarks>
         [HttpPost("present")]
         [ProducesResponseType(typeof(PagedSmartVouchersListResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
