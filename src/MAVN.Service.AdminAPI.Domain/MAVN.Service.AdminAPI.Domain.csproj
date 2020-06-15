@@ -6,6 +6,6 @@
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="7.5.0" />
     <PackageReference Include="MAVN.Numerics" Version="1.0.0" />
-    <PackageReference Include="MAVN.Service.OperationsHistory.Client" Version="1.4.2" />
+    <PackageReference Include="MAVN.Service.OperationsHistory.Client" Version="2.0.1" />
   </ItemGroup>
 </Project>
