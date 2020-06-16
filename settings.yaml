@@ -7,7 +7,7 @@ AdminApiService:
   Rabbit:
     Publishers:
       ConnectionString:
-        settings-key: UserManagmentRabbitMQ
+        settings-key: UserManagementRabbitMQ
         types:
           - RabbitMq
   TokenSymbol:
