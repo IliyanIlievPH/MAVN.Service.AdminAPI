@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using Common.Log;
 using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
@@ -53,6 +54,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly IImageService _imageService;
         private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IVouchersClient _vouchersClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly IMapper _mapper;
         private readonly ILog _log;
 
@@ -63,6 +65,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             IImageService imageService,
             IPartnerManagementClient partnerManagementClient,
             IVouchersClient vouchersClient,
+            IAuditLogPublisher auditLogPublisher,
             ILogFactory logFactory,
             IMapper mapper)
         {
@@ -72,6 +75,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             _imageService = imageService;
             _partnerManagementClient = partnerManagementClient;
             _vouchersClient = vouchersClient;
+            _auditLogPublisher = auditLogPublisher;
             _mapper = mapper;
             _log = logFactory.CreateLog(this);
         }
@@ -85,8 +89,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">A collection of burn rules.</response>
         /// <response code="400">An error occurred while getting burn rules.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(BurnRulesListResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BurnRulesListResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<BurnRulesListResponse> GetBurnRulesListAsync([FromQuery] BurnRuleListRequest model)
         {
             var result = await _campaignsClient.BurnRules.GetAsync(
@@ -195,7 +199,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                 BurnRules = _mapper.Map<IEnumerable<BurnRuleInfoModel>>(result.BurnRules),
                 PagedResponse = new PagedResponseModel
                 {
-                    CurrentPage = result.CurrentPage, TotalCount = result.TotalCount
+                    CurrentPage = result.CurrentPage,
+                    TotalCount = result.TotalCount
                 }
             };
         }
@@ -210,8 +215,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="200">A burn rule.</response>
         /// <response code="400">An error occurred while getting the burn rule.</response>
         [HttpGet("query")]
-        [ProducesResponseType(typeof(BurnRuleModel), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BurnRuleModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<BurnRuleModel> GetBurnRuleByIdAsync([FromQuery] string id)
         {
             if (!Guid.TryParse(id, out var idGuid))
@@ -248,7 +253,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     Enum.TryParse<MobileLocalization>(content.Localization.ToString(), out var mobileLanguage);
 
-                    var newMobileContent = new MobileContentResponse {MobileLanguage = mobileLanguage };
+                    var newMobileContent = new MobileContentResponse { MobileLanguage = mobileLanguage };
 
                     FillMobileContent(newMobileContent);
 
@@ -297,8 +302,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         [HttpPost]
         [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
         [NotSerializedFilter]
-        [ProducesResponseType(typeof(BurnRuleCreatedResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BurnRuleCreatedResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<BurnRuleCreatedResponse> CreateBurnRuleAsync([FromBody] BurnRuleCreateRequest model)
         {
             var request =
@@ -370,14 +375,15 @@ namespace MAVN.Service.AdminAPI.Controllers
                 }
             }
 
-            return new BurnRuleCreatedResponse {Id = response.BurnRuleId, CreatedImageContents = createImageContents};
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.CreateBurnRule);
+            return new BurnRuleCreatedResponse { Id = response.BurnRuleId, CreatedImageContents = createImageContents };
         }
 
         [HttpPost("vouchers")]
         [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
         [NotSerializedFilter]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task AddVouchersAsync([FromQuery] [Required] Guid spendRuleId, [Required] IFormFile formFile)
         {
             if (formFile == null || formFile.Length == 0 || !formFile.FileName.EndsWith(".csv"))
@@ -412,7 +418,8 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 result = await _vouchersClient.Vouchers.AddAsync(new VoucherCreateModel
                 {
-                    Codes = codes, SpendRuleId = spendRuleId
+                    Codes = codes,
+                    SpendRuleId = spendRuleId
                 });
             }
             catch (ClientApiException exception)
@@ -422,6 +429,8 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (result.ErrorCode != VoucherErrorCode.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(result.ErrorCode.ToString()));
+
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, spendRuleId.ToJson(), ActionType.AddVouchers);
         }
 
         /// <summary>
@@ -432,8 +441,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         [HttpPut]
         [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
         [NotSerializedFilter]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task UpdateBurnRuleAsync([FromBody] BurnRuleUpdateRequest model)
         {
             var request = _mapper.Map<BurnRuleEditRequest>(model);
@@ -486,6 +495,8 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.UpdateBurnRule);
         }
 
         /// <summary>
@@ -497,8 +508,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         [HttpDelete]
         [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
         [NotSerializedFilter]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task DeleteBurnRuleAsync([FromQuery] string id)
         {
             if (!Guid.TryParse(id, out var idGuid))
@@ -509,6 +520,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             var response = await _campaignsClient.BurnRules.DeleteAsync(idGuid);
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, id.ToJson(), ActionType.DeleteBurnRule);
         }
 
         /// <summary>
@@ -520,8 +532,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="400">An error occurred while adding a burn rule image.</response>
         [HttpPost("image")]
         [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task AddImageAsync([FromQuery] ImageAddRequest model, [Required] IFormFile formFile)
         {
             var imageContent = _imageService.HandleFile(formFile, model.RuleContentId);
@@ -546,6 +558,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.AddBurnRuleImage);
         }
 
         /// <summary>
@@ -557,8 +570,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         /// <response code="400">An error occurred while updating an image.</response>
         [HttpPut("image")]
         [Permission(PermissionType.ActionRules, PermissionLevel.Edit)]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task UpdateImageAsync([FromQuery] ImageEditRequest model, [Required] IFormFile formFile)
         {
             var imageContent = _imageService.HandleFile(formFile, model.RuleContentId);
@@ -583,6 +596,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.UpdateBurnRuleImage);
         }
 
         private static void ThrowIfError(CampaignServiceErrorCodes errorCode, string message)

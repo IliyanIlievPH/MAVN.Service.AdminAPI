@@ -22,6 +22,8 @@ using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.PartnerManagement.Client;
 using MAVN.Service.PartnerManagement.Client.Models.Partner;
 using System.Linq;
+using Common;
+using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Models.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -45,6 +47,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly IPaymentManagementClient _paymentManagementClient;
         private readonly IExtRequestContext _requestContext;
         private readonly ICustomerProfileClient _customerProfileClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly IMapper _mapper;
 
         public PaymentProviderDetailsController(
@@ -52,12 +55,14 @@ namespace MAVN.Service.AdminAPI.Controllers
             IPaymentManagementClient paymentManagementClient,
             IExtRequestContext requestContext,
             ICustomerProfileClient customerProfileClient,
+            IAuditLogPublisher auditLogPublisher,
             IMapper mapper)
         {
             _partnerManagementClient = partnerManagementClient;
             _paymentManagementClient = paymentManagementClient;
             _requestContext = requestContext;
             _customerProfileClient = customerProfileClient;
+            _auditLogPublisher = auditLogPublisher;
             _mapper = mapper;
         }
 
@@ -184,6 +189,9 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (error != PaymentProviderDetailsErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(error.ToString()));
+
+            request.PaymentIntegrationProperties = null;
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.CreatePaymentProviderDetails);
         }
 
         /// <summary>
@@ -206,6 +214,9 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (error != PaymentProviderDetailsErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(error.ToString()));
+
+            request.PaymentIntegrationProperties = null;
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.UpdatePaymentProviderDetails);
         }
 
         /* TODO: implement when will be 2 or more payment providers

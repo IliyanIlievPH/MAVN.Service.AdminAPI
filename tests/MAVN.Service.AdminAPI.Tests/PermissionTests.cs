@@ -54,7 +54,8 @@ namespace MAVN.Service.AdminAPI.Tests
             nameof(PermissionType.VoucherManager),
             nameof(PermissionType.Reports),
             nameof(PermissionType.ProgramPartners),
-            nameof(PermissionType.BlockchainOperations)
+            nameof(PermissionType.BlockchainOperations),
+            nameof(PermissionType.AuditLogs),
         };
         
         /// <summary>

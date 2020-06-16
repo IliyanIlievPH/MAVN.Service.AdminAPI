@@ -14,6 +14,7 @@ using MAVN.Service.Reporting.Client.Models;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Models;
 using MAVN.Service.AdminAPI.Models.ActionRules;
+using MAVN.Service.AdminAPI.Models.AuditLogs;
 using MAVN.Service.AdminAPI.Models.Auth;
 using MAVN.Service.AdminAPI.Models.Blockchain;
 using MAVN.Service.AdminAPI.Models.BonusTypes;
@@ -339,6 +340,11 @@ namespace MAVN.Service.AdminAPI
             CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycInformationResponse, KycInformationResponse>();
             CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycStatusChangeResponse, KycStatusChangeResponse>();
             CreateMap<MAVN.Service.Kyc.Client.Models.Responses.KycUpdateResponse, KycInformationUpdateResponse>();
+
+            //Audit logs
+            CreateMap<MAVN.Service.AuditLogs.Client.Models.Responses.AuditLogResponse, AuditLogResponse>();
+            CreateMap<MAVN.Service.AuditLogs.Client.Models.Responses.GetAuditLogsResponse, GetAuditLogsResponse>();
+            CreateMap<GetAuditLogsRequest, MAVN.Service.AuditLogs.Client.Models.Requests.GetAuditLogsRequest>();
         }
 
         private static DateTime ToDateTime(long input)

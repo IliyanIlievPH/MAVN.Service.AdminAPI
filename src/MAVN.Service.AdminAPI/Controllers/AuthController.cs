@@ -25,6 +25,7 @@ namespace MAVN.Service.AdminAPI.Controllers
     {
         private readonly ISessionsServiceClient _sessionsServiceClient;
         private readonly IAdminsService _adminsService;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly IRequestContext _requestContext;
         private readonly IMapper _mapper;
 
@@ -34,11 +35,13 @@ namespace MAVN.Service.AdminAPI.Controllers
             ISessionsServiceClient sessionsServiceClient,
             IRequestContext requestContext,
             IAdminsService adminsService, 
+            IAuditLogPublisher auditLogPublisher,
             IMapper mapper)
         {
             _sessionsServiceClient = sessionsServiceClient;
             _requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
             _adminsService = adminsService;
+            _auditLogPublisher = auditLogPublisher;
             _mapper = mapper;
         }
 
@@ -108,11 +111,15 @@ namespace MAVN.Service.AdminAPI.Controllers
             var email = admin.Email;
 
             var error = await _adminsService.ChangePasswordAsync(email, model.CurrentPassword, model.NewPassword);
-            
+
+            if (error == AdminChangePasswordErrorCodes.None)
+            {
+                await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, null, ActionType.ChangeAdminPassword);
+                return Ok();
+            }
+
             switch (error)
             {
-                case AdminChangePasswordErrorCodes.None:
-                    return Ok();
                 case AdminChangePasswordErrorCodes.AdminNotActive:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminNotActive);
                 case AdminChangePasswordErrorCodes.LoginNotFound:
@@ -149,7 +156,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.InvalidEmailFormat);
 
             var error = await _adminsService.ChangePasswordAsync(model.Email, model.CurrentPassword, model.NewPassword);
-            
+
             switch (error)
             {
                 case AdminChangePasswordErrorCodes.None:

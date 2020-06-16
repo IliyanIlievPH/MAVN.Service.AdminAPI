@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using MAVN.Common.Middleware.Authentication;
 using MAVN.Numerics;
 using Lykke.Common.ApiLibrary.Exceptions;
@@ -12,6 +13,7 @@ using MAVN.Service.CrossChainWalletLinker.Client;
 using MAVN.Service.CrossChainWalletLinker.Client.Models;
 using MAVN.Service.CurrencyConvertor.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure.Constants;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Settings;
@@ -27,6 +29,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ICurrencyConvertorClient _currencyConverterClient;
         private readonly ICrossChainWalletLinkerClient _crossChainWalletLinkerClient;
         private readonly ICrossChainTransfersClient _crossChainTransfersClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
+        private readonly IRequestContext _requestContext;
 
         private readonly IMapper _mapper;
 
@@ -34,12 +38,16 @@ namespace MAVN.Service.AdminAPI.Controllers
             ICurrencyConvertorClient currencyConverterClient,
             ICrossChainWalletLinkerClient crossChainWalletLinkerClient,
             ICrossChainTransfersClient crossChainTransfersClient,
+            IAuditLogPublisher auditLogPublisher,
+            IRequestContext requestContext,
             IMapper mapper)
         {
             _currencyConverterClient = currencyConverterClient;
             _mapper = mapper;
             _crossChainWalletLinkerClient = crossChainWalletLinkerClient;
             _crossChainTransfersClient = crossChainTransfersClient;
+            _auditLogPublisher = auditLogPublisher;
+            _requestContext = requestContext;
         }
 
         /// <summary>
@@ -78,11 +86,13 @@ namespace MAVN.Service.AdminAPI.Controllers
         [HttpPut("globalCurrencyRate")]
         [Permission(PermissionType.Settings, PermissionLevel.Edit)]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        public Task UpdateGlobalCurrencyRateAsync([FromBody] GlobalCurrencyRateModel model)
+        public async Task UpdateGlobalCurrencyRateAsync([FromBody] GlobalCurrencyRateModel model)
         {
             var request = _mapper.Map<MAVN.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>(model);
 
-            return _currencyConverterClient.GlobalCurrencyRates.UpdateAsync(request);
+            await _currencyConverterClient.GlobalCurrencyRates.UpdateAsync(request);
+
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.UpdateGlobalCurrencyRate);
         }
 
         /// <summary>
@@ -175,6 +185,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.UnknownError);
                 }
             }
+
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.UpdateOperationFees);
         }
     }
 }

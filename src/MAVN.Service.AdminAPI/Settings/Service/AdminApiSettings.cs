@@ -19,6 +19,8 @@ namespace MAVN.Service.AdminAPI.Settings.Service
 
         public DbSettings Db { get; set; }
 
+        public RabbitMqSettings Rabbit { get; set; }
+
         [Optional]
         public bool IsPublicBlockchainFeatureDisabled { get; set; }
 
