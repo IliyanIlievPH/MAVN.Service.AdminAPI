@@ -24,7 +24,6 @@ using SuggestedValueType = MAVN.Service.AdminAPI.Models.Admins.SuggestedValueTyp
 using Microsoft.AspNetCore.Authorization;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.StringUtils;
-using MAVN.Service.AuditLogs.Contract.Events;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -75,7 +74,6 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     model.Password = null;
                     model.Email = model.Email.SanitizeEmail();
-                    model.CompanyName = model.CompanyName.SanitizeName();
                     await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.PartnerAdminCreate);
                     return _mapper.Map<AdminModel>(admin);
                 }
