@@ -10,6 +10,7 @@
         BlockchainOperations,
         ProgramPartners,
         Settings,
-        AdminUsers
+        AdminUsers,
+        AuditLogs,
     }
 }

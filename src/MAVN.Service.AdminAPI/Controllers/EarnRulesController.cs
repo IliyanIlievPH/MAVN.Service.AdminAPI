@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using Common.Log;
 using MAVN.Common.Middleware.Authentication;
 using MAVN.Numerics;
@@ -49,6 +50,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ICurrencyConvertorClient _currencyConverterClient;
         private readonly IImageService _imageService;
         private readonly IPartnerManagementClient _partnerManagementClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly ILog _log;
 
         public EarnRulesController(
@@ -59,6 +61,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             ICurrencyConvertorClient convertorClient,
             IImageService imageService,
             IPartnerManagementClient partnerManagementClient,
+            IAuditLogPublisher auditLogPublisher,
             ILogFactory logFactory)
         {
             _campaignsClient = campaignClient;
@@ -68,6 +71,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             _currencyConverterClient = convertorClient;
             _imageService = imageService;
             _partnerManagementClient = partnerManagementClient;
+            _auditLogPublisher = auditLogPublisher;
             _log = logFactory.CreateLog(this);
         }
 
@@ -331,6 +335,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                     Action = "CreateEarnRule"
                 });
 
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.AddEarnRule);
+
             return new EarnRuleCreatedResponse
             {
                 Id = response.CampaignId,
@@ -373,6 +379,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.AddEarnRuleImage);
         }
 
         /// <summary>
@@ -446,6 +453,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                     EarnRuleId = model.Id,
                     Action = "UpdateEarnRule"
                 });
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.UpdateEarnRule);
         }
 
         /// <summary>
@@ -483,6 +491,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.UpdateEarnRuleImage);
         }
 
         /// <summary>
@@ -509,6 +518,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                     EarnRuleId = earnRuleId,
                     Action = "DeleteEarnRule"
                 });
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, earnRuleId.ToJson(), ActionType.DeleteEarnRule);
         }
 
         private static void ThrowIfError(CampaignServiceErrorCodes errorCode, string message)

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
@@ -45,6 +46,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly IExtRequestContext _requestContext;
         private readonly IImageService _imageService;
         private readonly IPaymentManagementClient _paymentManagementClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly IMapper _mapper;
 
         public VoucherCampaignsController(
@@ -52,12 +54,14 @@ namespace MAVN.Service.AdminAPI.Controllers
             IExtRequestContext requestContext,
             IImageService imageService,
             IPaymentManagementClient paymentManagementClient,
+            IAuditLogPublisher auditLogPublisher,
             IMapper mapper)
         {
             _smartVouchersClient = smartVouchersClient;
             _requestContext = requestContext;
             _imageService = imageService;
             _paymentManagementClient = paymentManagementClient;
+            _auditLogPublisher = auditLogPublisher;
             _mapper = mapper;
         }
 
@@ -272,6 +276,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                 }
             }
 
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.CreateSmartVoucherCampaign);
+
             return new SmartVoucherCampaignCreatedResponse { Id = campaignId, CreatedImageContents = createImageContents };
         }
 
@@ -361,6 +367,8 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (response != UpdateVoucherCampaignErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(response.ToString()));
+
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.UpdateSmartVoucherCampaign);
         }
 
         /// <summary>
@@ -397,6 +405,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (result == false)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode("Campaign was not deleted"));
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, campaignId.ToJson(), ActionType.DeleteSmartVoucherCampaign);
         }
 
         /// <summary>
@@ -460,6 +469,7 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (error != SaveImageErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(error.ToString()));
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.SetSmartVoucherCampaignImage);
         }
 
         /// <summary>

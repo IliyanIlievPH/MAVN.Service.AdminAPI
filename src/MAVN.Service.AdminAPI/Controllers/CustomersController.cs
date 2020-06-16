@@ -56,6 +56,8 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly ICrossChainWalletLinkerClient _crossChainWalletLinkerClient;
         private readonly IHistoryConverter _historyConverter;
         private readonly ICampaignClient _campaignClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
+        private readonly IRequestContext _requestContext;
         private readonly IMapper _mapper;
 
         public CustomersController(
@@ -70,6 +72,8 @@ namespace MAVN.Service.AdminAPI.Controllers
             ICrossChainWalletLinkerClient crossChainWalletLinkerClient,
             IHistoryConverter historyConverter,
             ICampaignClient campaignClient,
+            IAuditLogPublisher auditLogPublisher,
+            IRequestContext requestContext,
             IMapper mapper)
         {
             _customerProfileClient = customerProfileClient;
@@ -87,6 +91,8 @@ namespace MAVN.Service.AdminAPI.Controllers
                 throw new ArgumentNullException(nameof(crossChainWalletLinkerClient));
             _historyConverter = historyConverter;
             _campaignClient = campaignClient;
+            _auditLogPublisher = auditLogPublisher;
+            _requestContext = requestContext;
             _mapper = mapper;
         }
 
@@ -427,6 +433,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 throw new ValidationApiException(exception.ErrorResponse);
             }
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, customerId.ToJson(), ActionType.BlockCustomer);
         }
 
         /// <summary>
@@ -463,6 +470,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 throw new ValidationApiException(exception.ErrorResponse);
             }
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, customerId.ToJson(), ActionType.UnblockCustomer);
         }
 
         /// <summary>
@@ -499,6 +507,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 throw new ValidationApiException(exception.ErrorResponse);
             }
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, customerId.ToJson(), ActionType.BlockWallet);
         }
 
         /// <summary>
@@ -535,6 +544,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 throw new ValidationApiException(exception.ErrorResponse);
             }
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, customerId.ToJson(), ActionType.UnblockWallet);
         }
 
         private async Task SetCustomersStatuses(IReadOnlyList<CustomerModel> customers)

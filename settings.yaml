@@ -4,7 +4,12 @@ AdminApiService:
       settings-key: AdminApiService-LogsConnString
       types:
         - AzureTableStorage
-
+  Rabbit:
+    Publishers:
+      ConnectionString:
+        settings-key: UserManagmentRabbitMQ
+        types:
+          - RabbitMq
   TokenSymbol:
     settings-key: Constant-TokenSymbol
   MobileAppImageDoOptimization:
@@ -122,6 +127,10 @@ KycServiceClient:
   ServiceUrl:
     settings-key: KycServiceUrl
 
+AuditLogsServiceClient:
+  ServiceUrl:
+    settings-key: AuditLogsServiceUrl
+    
 SlackNotifications:
   AzureQueue:
     ConnectionString:

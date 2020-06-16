@@ -5,9 +5,11 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using MAVN.Common.Middleware.Authentication;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
+using Lykke.RabbitMqBroker.Publisher;
 using MAVN.Service.AdminManagement.Client;
 using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Domain.Models;
@@ -21,6 +23,8 @@ using SuggestedValueMapping = MAVN.Service.AdminAPI.Models.Admins.SuggestedValue
 using SuggestedValueType = MAVN.Service.AdminAPI.Models.Admins.SuggestedValueType;
 using Microsoft.AspNetCore.Authorization;
 using MAVN.Service.AdminAPI.Infrastructure;
+using MAVN.Service.AdminAPI.StringUtils;
+using MAVN.Service.AuditLogs.Contract.Events;
 
 namespace MAVN.Service.AdminAPI.Controllers
 {
@@ -32,6 +36,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly IExtRequestContext _requestContext;
         private readonly IAdminsService _adminsService;
         private readonly IAdminManagementServiceClient _adminManagementServiceClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly IMapper _mapper;
 
         public AdminsController(
@@ -39,11 +44,13 @@ namespace MAVN.Service.AdminAPI.Controllers
             ICredentialsGeneratorService credentialsGeneratorService,
             IExtRequestContext requestContext,
             IMapper mapper,
-            IAdminManagementServiceClient adminManagementServiceClient)
+            IAdminManagementServiceClient adminManagementServiceClient,
+            IAuditLogPublisher auditLogPublisher)
         {
             _adminsService = adminsService;
             _mapper = mapper;
             _adminManagementServiceClient = adminManagementServiceClient;
+            _auditLogPublisher = auditLogPublisher;
             _credentialsGeneratorService = credentialsGeneratorService;
             _requestContext = requestContext;
         }
@@ -64,10 +71,17 @@ namespace MAVN.Service.AdminAPI.Controllers
             {
                 var (error, admin) = await _adminsService.RegisterPartnerAdminAsync(model);
 
+                if (error == AdminServiceCreateResponseError.None)
+                {
+                    model.Password = null;
+                    model.Email = model.Email.SanitizeEmail();
+                    model.CompanyName = model.CompanyName.SanitizeName();
+                    await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.PartnerAdminCreate);
+                    return _mapper.Map<AdminModel>(admin);
+                }
+
                 switch (error)
                 {
-                    case AdminServiceCreateResponseError.None:
-                        return _mapper.Map<AdminModel>(admin);
                     case AdminServiceCreateResponseError.AlreadyRegistered:
                         throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminAlreadyRegistered);
                     case AdminServiceCreateResponseError.InvalidEmailOrPasswordFormat:
@@ -105,10 +119,21 @@ namespace MAVN.Service.AdminAPI.Controllers
                 model.Department,
                 model.JobTitle);
 
+            if (error == AdminServiceCreateResponseError.None)
+            {
+                model.Password = null;
+                model.Email = model.Email.SanitizeEmail();
+                model.FirstName = model.FirstName.SanitizeName();
+                model.LastName = model.LastName.SanitizeName();
+                model.PhoneNumber = model.PhoneNumber.SanitizePhone();
+                model.Company = model.Company.SanitizeName();
+                model.Department = model.Department.SanitizeName();
+                await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.AdminCreate);
+                return _mapper.Map<AdminModel>(admin);
+            }
+
             switch (error)
             {
-                case AdminServiceCreateResponseError.None:
-                    return _mapper.Map<AdminModel>(admin);
                 case AdminServiceCreateResponseError.AlreadyRegistered:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminAlreadyRegistered);
                 case AdminServiceCreateResponseError.InvalidEmailOrPasswordFormat:
@@ -161,10 +186,19 @@ namespace MAVN.Service.AdminAPI.Controllers
                 model.JobTitle,
                 model.IsActive);
 
+            if (error == AdminServiceResponseError.None)
+            {
+                model.FirstName = model.FirstName.SanitizeName();
+                model.LastName = model.LastName.SanitizeName();
+                model.PhoneNumber = model.PhoneNumber.SanitizePhone();
+                model.Company = model.Company.SanitizeName();
+                model.Department = model.Department.SanitizeName();
+                await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.AdminUpdate);
+                return _mapper.Map<AdminModel>(admin);
+            }
+
             switch (error)
             {
-                case AdminServiceResponseError.None:
-                    return _mapper.Map<AdminModel>(admin);
                 case AdminServiceResponseError.AdminUserDoesNotExist:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminNotFound);
                 default:
@@ -189,10 +223,14 @@ namespace MAVN.Service.AdminAPI.Controllers
                 model.AdminUserId.ToString(),
                 _mapper.Map<List<Permission>>(model.Permissions));
 
+            if (error == AdminServiceResponseError.None)
+            {
+                await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.UpdateAdminPermissions);
+                return _mapper.Map<AdminModel>(admin);
+            }
+
             switch (error)
             {
-                case AdminServiceResponseError.None:
-                    return _mapper.Map<AdminModel>(admin);
                 case AdminServiceResponseError.AdminUserDoesNotExist:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminNotFound);
                 default:
@@ -369,10 +407,13 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             var (error, admin) = await _adminsService.ResetPasswordAsync(model.AdminId);
 
+            if (error == AdminResetPasswordErrorCodes.None)
+            {
+                await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.ResetAdminPassword);
+                return _mapper.Map<AdminModel>(admin);
+            }
             switch (error)
             {
-                case AdminResetPasswordErrorCodes.None:
-                    return _mapper.Map<AdminModel>(admin);
                 case AdminResetPasswordErrorCodes.AdminUserDoesNotExist:
                     throw LykkeApiErrorException.BadRequest(ApiErrorCodes.Service.AdminNotFound);
                 default:

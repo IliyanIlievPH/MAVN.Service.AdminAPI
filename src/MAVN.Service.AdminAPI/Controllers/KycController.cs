@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using MAVN.Common.Middleware.Authentication;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Kyc.Requests;
@@ -24,15 +26,18 @@ namespace MAVN.Service.AdminAPI.Controllers
     public class KycController : ControllerBase
     {
         private readonly IKycClient _kycClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly IExtRequestContext _requestContext;
         private readonly IMapper _mapper;
 
         public KycController(
             IKycClient kycClient,
+            IAuditLogPublisher auditLogPublisher,
             IMapper mapper,
             IExtRequestContext requestContext)
         {
             _kycClient = kycClient;
+            _auditLogPublisher = auditLogPublisher;
             _mapper = mapper;
             _requestContext = requestContext;
         }
@@ -98,6 +103,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             };
             var result = await _kycClient.KycApi.UpdateKycInfoAsync(model);
 
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.ChangeKycStatus);
             return _mapper.Map<KycInformationUpdateResponse>(result);
         }
     }

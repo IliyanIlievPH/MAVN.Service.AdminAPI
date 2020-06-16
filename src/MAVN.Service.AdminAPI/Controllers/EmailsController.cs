@@ -4,6 +4,7 @@ using Common.Log;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Common.Log;
+using MAVN.Service.AdminAPI.Domain.Enums;
 using MAVN.Service.AdminAPI.Models.Emails;
 using MAVN.Service.AdminManagement.Client;
 using MAVN.Service.AdminManagement.Client.Models.Enums;

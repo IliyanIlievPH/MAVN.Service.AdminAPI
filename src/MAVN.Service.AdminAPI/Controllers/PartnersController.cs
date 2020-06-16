@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using MAVN.Common.Middleware.Authentication;
@@ -16,6 +17,7 @@ using MAVN.Service.AdminAPI.Models.Common;
 using MAVN.Service.AdminAPI.Models.Kyc.Enum;
 using MAVN.Service.AdminAPI.Models.Partners.Requests;
 using MAVN.Service.AdminAPI.Models.Partners.Responses;
+using MAVN.Service.AdminAPI.StringUtils;
 using MAVN.Service.Kyc.Client;
 using MAVN.Service.Kyc.Client.Models.Responses;
 using MAVN.Service.PartnerManagement.Client;
@@ -45,6 +47,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         private readonly IExtRequestContext _requestContext;
         private readonly IPartnerManagementClient _partnerManagementClient;
         private readonly IKycClient _kycClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly ISettingsService _settingsService;
         private readonly IMapper _mapper;
 
@@ -53,6 +56,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             IPartnerManagementClient partnerManagementClient,
             IMapper mapper,
             IKycClient kycClient,
+            IAuditLogPublisher auditLogPublisher,
             ISettingsService settingsService)
         {
             _requestContext = requestContext ??
@@ -62,6 +66,7 @@ namespace MAVN.Service.AdminAPI.Controllers
             _mapper = mapper ??
                       throw new ArgumentNullException(nameof(mapper));
             _kycClient = kycClient;
+            _auditLogPublisher = auditLogPublisher;
             _settingsService = settingsService;
         }
 
@@ -196,7 +201,14 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
-
+            foreach (var location in request.Locations)
+            {
+                location.FirstName = location.FirstName.SanitizeName();
+                location.LastName = location.LastName.SanitizeName();
+                location.Email = location.Email.SanitizeName();
+                location.Phone = location.Phone.SanitizePhone();
+            }
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.CreatePartner);
             return new PartnerCreateResponse
             {
                 PartnerId = response.Id.ToString()
@@ -251,6 +263,14 @@ namespace MAVN.Service.AdminAPI.Controllers
             }
 
             ThrowIfError(response.ErrorCode, response.ErrorMessage);
+            foreach (var location in request.Locations)
+            {
+                location.FirstName = location.FirstName.SanitizeName();
+                location.LastName = location.LastName.SanitizeName();
+                location.Email = location.Email.SanitizeName();
+                location.Phone = location.Phone.SanitizePhone();
+            }
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.UpdatePartner);
         }
 
         /// <summary>
@@ -290,6 +310,7 @@ namespace MAVN.Service.AdminAPI.Controllers
         public async Task RegeneratePartnerLinkingInfoAsync([FromBody] RegeneratePartnerLinkingInfoRequest request)
         {
             await _partnerManagementClient.Linking.RegeneratePartnerLinkingInfoAsync(request.PartnerId);
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.RegeneratePartnerLinkingInfo);
         }
 
         /// <summary>

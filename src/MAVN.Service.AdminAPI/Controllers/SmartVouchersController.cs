@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using Lykke.Common.ApiLibrary.Contract;
 using Lykke.Common.ApiLibrary.Exceptions;
 using MAVN.Common.Middleware.Authentication;
 using MAVN.Service.AdminAPI.Domain.Enums;
+using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Infrastructure.CustomAttributes;
 using MAVN.Service.AdminAPI.Models.Common;
@@ -26,12 +29,18 @@ namespace MAVN.Service.AdminAPI.Controllers
     public class SmartVouchersController : ControllerBase
     {
         private readonly ISmartVouchersClient _smartVouchersClient;
+        private readonly IAuditLogPublisher _auditLogPublisher;
         private readonly IExtRequestContext _requestContext;
         private readonly IMapper _mapper;
 
-        public SmartVouchersController(ISmartVouchersClient smartVouchersClient, IExtRequestContext requestContext, IMapper mapper)
+        public SmartVouchersController(
+            ISmartVouchersClient smartVouchersClient,
+            IAuditLogPublisher auditLogPublisher,
+            IExtRequestContext requestContext,
+            IMapper mapper)
         {
             _smartVouchersClient = smartVouchersClient;
+            _auditLogPublisher = auditLogPublisher;
             _requestContext = requestContext;
             _mapper = mapper;
         }
@@ -102,6 +111,9 @@ namespace MAVN.Service.AdminAPI.Controllers
 
             if (result.Error != PresentVouchersErrorCodes.None)
                 throw LykkeApiErrorException.BadRequest(new LykkeApiErrorCode(result.Error.ToString()));
+
+            request.CustomersEmails = request.CustomersEmails.Select(x => x.SanitizeEmail()).ToList();
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.PresentSmartVouchers);
 
             return new PresentSmartVouchersResponse
             {

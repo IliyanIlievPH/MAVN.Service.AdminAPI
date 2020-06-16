@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using MAVN.Common.Middleware.Authentication;
 using JetBrains.Annotations;
+using Lykke.RabbitMqBroker.Publisher;
 using MAVN.Job.TokensStatistics.Client;
 using MAVN.Service.AdminManagement.Client;
 using MAVN.Service.BonusCustomerProfile.Client;
@@ -27,6 +28,8 @@ using MAVN.Service.AdminAPI.Domain.Services;
 using MAVN.Service.AdminAPI.DomainServices;
 using MAVN.Service.AdminAPI.Infrastructure;
 using MAVN.Service.AdminAPI.Settings;
+using MAVN.Service.AuditLogs.Client;
+using MAVN.Service.AuditLogs.Contract.Events;
 using MAVN.Service.Kyc.Client;
 using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.SmartVouchers.Client;
@@ -37,6 +40,7 @@ namespace MAVN.Service.AdminAPI
     [UsedImplicitly]
     public class AutofacModule : Module
     {
+        private const string AuditLogCreateExchangeName = "lykke.customer.auditlogcreate";
         private readonly AppSettings _appSettings;
 
         public AutofacModule(IReloadingManager<AppSettings> appSettings)
@@ -64,6 +68,13 @@ namespace MAVN.Service.AdminAPI
                 .As<IAdminsService>()
                 .SingleInstance();
 
+            builder.RegisterType<AuditLogPublisher>()
+                .As<IAuditLogPublisher>()
+                .SingleInstance();
+
+            builder.RegisterJsonRabbitPublisher<AuditLogEvent>(
+                _appSettings.AdminApiService.Rabbit.Publishers.ConnectionString, AuditLogCreateExchangeName);
+
             builder.RegisterCredentialsClient(_appSettings.CredentialsServiceClient);
             builder.RegisterCampaignClient(_appSettings.CampaignServiceClient);
             builder.RegisterBonusCustomerProfileClient(_appSettings.BonusCustomerProfileServiceClient, null);
@@ -88,6 +99,7 @@ namespace MAVN.Service.AdminAPI
             builder.RegisterSmartVouchersClient(_appSettings.SmartVouchersServiceClient, null);
             builder.RegisterPaymentManagementClient(_appSettings.PaymentManagementServiceClient, null);
             builder.RegisterKycClient(_appSettings.KycServiceClient, null);
+            builder.RegisterAuditLogsClient(_appSettings.AuditLogsServiceClient, null);
         }
     }
 }
