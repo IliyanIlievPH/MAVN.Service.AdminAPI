@@ -130,7 +130,7 @@ KycServiceClient:
 AuditLogsServiceClient:
   ServiceUrl:
     settings-key: AuditLogsServiceUrl
-    
+
 SlackNotifications:
   AzureQueue:
     ConnectionString:

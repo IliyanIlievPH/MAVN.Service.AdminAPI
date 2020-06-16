@@ -90,9 +90,9 @@ namespace MAVN.Service.AdminAPI.Controllers
         {
             var request = _mapper.Map<MAVN.Service.CurrencyConvertor.Client.Models.Requests.GlobalCurrencyRateRequest>(model);
 
-            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.UpdateGlobalCurrencyRate);
-
             await _currencyConverterClient.GlobalCurrencyRates.UpdateAsync(request);
+
+            await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, request.ToJson(), ActionType.UpdateGlobalCurrencyRate);
         }
 
         /// <summary>

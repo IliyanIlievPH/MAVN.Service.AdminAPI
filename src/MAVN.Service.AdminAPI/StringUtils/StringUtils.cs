@@ -7,7 +7,7 @@
             if (string.IsNullOrEmpty(name))
                 return string.Empty;
 
-            return name[0].ToString();
+            return $"{name[0]}***";
         }
     }
 }

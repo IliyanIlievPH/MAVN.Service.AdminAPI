@@ -126,8 +126,6 @@ namespace MAVN.Service.AdminAPI.Controllers
                 model.FirstName = model.FirstName.SanitizeName();
                 model.LastName = model.LastName.SanitizeName();
                 model.PhoneNumber = model.PhoneNumber.SanitizePhone();
-                model.Company = model.Company.SanitizeName();
-                model.Department = model.Department.SanitizeName();
                 await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.AdminCreate);
                 return _mapper.Map<AdminModel>(admin);
             }
@@ -191,8 +189,6 @@ namespace MAVN.Service.AdminAPI.Controllers
                 model.FirstName = model.FirstName.SanitizeName();
                 model.LastName = model.LastName.SanitizeName();
                 model.PhoneNumber = model.PhoneNumber.SanitizePhone();
-                model.Company = model.Company.SanitizeName();
-                model.Department = model.Department.SanitizeName();
                 await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.AdminUpdate);
                 return _mapper.Map<AdminModel>(admin);
             }
