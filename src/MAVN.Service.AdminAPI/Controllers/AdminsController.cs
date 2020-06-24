@@ -74,7 +74,7 @@ namespace MAVN.Service.AdminAPI.Controllers
                 {
                     model.Password = null;
                     model.Email = model.Email.SanitizeEmail();
-                    await _auditLogPublisher.PublishAuditLogAsync(_requestContext.UserId, model.ToJson(), ActionType.PartnerAdminCreate);
+                    await _auditLogPublisher.PublishAuditLogAsync(admin.Id, model.ToJson(), ActionType.PartnerAdminCreate);
                     return _mapper.Map<AdminModel>(admin);
                 }
 
