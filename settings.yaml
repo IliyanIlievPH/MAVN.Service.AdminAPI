@@ -12,6 +12,8 @@ AdminApiService:
           - RabbitMq
   TokenSymbol:
     settings-key: Constant-TokenSymbol
+  IsDemoOn:
+    settings-key: IsDemoOn
   BaseCurrencyCode:
     settings-key: Constant-BaseCurrencyCode
   MobileAppImageDoOptimization:

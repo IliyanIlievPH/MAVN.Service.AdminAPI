@@ -14,6 +14,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
         private readonly bool _isPhoneVerificationDisabled;
         private readonly string _referralUrlTemplate;
         private readonly string _baseCurrency;
+        private readonly bool _isDemoOn;
 
         public AutofacModule(
             string tokenName,
@@ -24,7 +25,8 @@ namespace MAVN.Service.AdminAPI.DomainServices
             int suggestedAdminPasswordLength,
             bool isPhoneVerificationDisabled,
             string referralUrlTemplate,
-            string baseCurrency)
+            string baseCurrency,
+            bool isDemoOn)
         {
             _tokenName = tokenName;
             _isPublicBlockchainFeatureDisabled = isPublicBlockchainFeatureDisabled;
@@ -35,6 +37,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             _isPhoneVerificationDisabled = isPhoneVerificationDisabled;
             _referralUrlTemplate = referralUrlTemplate;
             _baseCurrency = baseCurrency;
+            _isDemoOn = isDemoOn;
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -45,6 +48,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
                 .WithParameter("isPhoneVerificationDisabled", _isPhoneVerificationDisabled)
                 .WithParameter("referralUrlTemplate", _referralUrlTemplate)
                 .WithParameter("baseCurrency", _baseCurrency)
+                .WithParameter("isDemoOn", _isDemoOn)
                 .As<ISettingsService>();
 
             builder.RegisterType<CredentialsGeneratorService>()
