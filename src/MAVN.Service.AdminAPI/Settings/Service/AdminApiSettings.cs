@@ -9,6 +9,8 @@ namespace MAVN.Service.AdminAPI.Settings.Service
     {
         public string TokenSymbol { get; set; }
 
+        public string BaseCurrencyCode { get; set; }
+
         public bool MobileAppImageDoOptimization { get; set; }
 
         public int MobileAppImageMinWidth { get; set; }

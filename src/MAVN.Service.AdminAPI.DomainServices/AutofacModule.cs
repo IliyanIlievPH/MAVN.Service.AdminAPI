@@ -13,6 +13,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
         private readonly int _suggestedAdminPasswordLength;
         private readonly bool _isPhoneVerificationDisabled;
         private readonly string _referralUrlTemplate;
+        private readonly string _baseCurrency;
 
         public AutofacModule(
             string tokenName,
@@ -22,7 +23,8 @@ namespace MAVN.Service.AdminAPI.DomainServices
             int mobileAppImageWarningFileSizeInKB,
             int suggestedAdminPasswordLength,
             bool isPhoneVerificationDisabled,
-            string referralUrlTemplate)
+            string referralUrlTemplate,
+            string baseCurrency)
         {
             _tokenName = tokenName;
             _isPublicBlockchainFeatureDisabled = isPublicBlockchainFeatureDisabled;
@@ -32,6 +34,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
             _suggestedAdminPasswordLength = suggestedAdminPasswordLength;
             _isPhoneVerificationDisabled = isPhoneVerificationDisabled;
             _referralUrlTemplate = referralUrlTemplate;
+            _baseCurrency = baseCurrency;
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -41,6 +44,7 @@ namespace MAVN.Service.AdminAPI.DomainServices
                 .WithParameter("isPublicBlockchainFeatureDisabled", _isPublicBlockchainFeatureDisabled)
                 .WithParameter("isPhoneVerificationDisabled", _isPhoneVerificationDisabled)
                 .WithParameter("referralUrlTemplate", _referralUrlTemplate)
+                .WithParameter("baseCurrency", _baseCurrency)
                 .As<ISettingsService>();
 
             builder.RegisterType<CredentialsGeneratorService>()
