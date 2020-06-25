@@ -11,6 +11,8 @@ namespace MAVN.Service.AdminAPI.Settings.Service
 
         public string BaseCurrencyCode { get; set; }
 
+        public bool IsDemoOn { get; set; }
+
         public bool MobileAppImageDoOptimization { get; set; }
 
         public int MobileAppImageMinWidth { get; set; }

@@ -145,7 +145,8 @@ namespace MAVN.Service.AdminAPI
                     adminSettings.SuggestedAdminPasswordLength,
                     adminSettings.IsPhoneVerificationDisabled,
                     adminSettings.ReferralUrlTemplate,
-                    adminSettings.BaseCurrencyCode));
+                    adminSettings.BaseCurrencyCode,
+                    adminSettings.IsDemoOn));
 
             ApplicationContainer = builder.Build();
             InvalidModelStateResponseFactory.Logger = ApplicationContainer.Resolve<ILogFactory>()

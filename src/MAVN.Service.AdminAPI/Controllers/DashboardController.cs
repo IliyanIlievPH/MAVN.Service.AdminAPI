@@ -72,10 +72,23 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(CustomersStatisticResponseModel), (int)HttpStatusCode.OK)]
         public async Task<CustomersStatisticResponseModel> GetCustomerStatisticsAsync([FromQuery] CustomersListRequest request)
         {
-            var (partnerIds, isEmptyResult) = await FilterByPartnerAsync();
+            var (partnerIds, shouldReturnEmptyResult) = await FilterByPartnerAsync();
 
-            if (isEmptyResult)
-                return new CustomersStatisticResponseModel();
+            if (shouldReturnEmptyResult)
+            {
+                var response = new CustomersStatisticResponseModel();
+                if (!_settingsService.IsDemoOn()) 
+                    return response;
+
+                var rnd = new Random();
+                response.TotalCustomers = rnd.Next(1000);
+                response.TotalActiveCustomers = rnd.Next(response.TotalCustomers);
+                response.TotalNewCustomers = rnd.Next(response.TotalActiveCustomers);
+                response.TotalRepeatCustomers = rnd.Next(response.TotalActiveCustomers);
+                response.TotalNonActiveCustomers = rnd.Next(response.TotalActiveCustomers);
+
+                return response;
+            }
 
             var result = await _dashboardStatisticsClient.CustomersApi.GetAsync(new CustomersListRequestModel
             {
@@ -130,15 +143,18 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(VoucherStatisticsResponse), (int)HttpStatusCode.OK)]
         public async Task<VoucherStatisticsResponse> GetSmartVouchersStatisticsAsync()
         {
-            var (partnerIds, isEmptyResult) = await FilterByPartnerAsync();
+            var (partnerIds, shouldReturnEmptyResult) = await FilterByPartnerAsync();
 
             var result = new VoucherStatisticsResponse
             {
                 Currency = _settingsService.GetBaseCurrency(),
             };
 
-            if (isEmptyResult)
+            if (shouldReturnEmptyResult)
             {
+                if (!_settingsService.IsDemoOn())
+                    return result;
+
                 // Add some random data so only View admins will see something
                 var rand = new Random();
                 result.TotalPurchasesCost = rand.Next(1000);
@@ -148,7 +164,9 @@ namespace MAVN.Service.AdminAPI.Controllers
                 return result;
             }
 
-            var statisticsForAllCurrencies = await _dashboardStatisticsClient.SmartVouchersApi.GetTotalStatisticsAsync(partnerIds);
+            var statisticsForAllCurrencies =
+                await _dashboardStatisticsClient.SmartVouchersApi.GetTotalStatisticsAsync(
+                    new VoucherStatisticsRequest {PartnerIds = partnerIds,});
 
             foreach (var statistics in statisticsForAllCurrencies)
             {
@@ -194,11 +212,11 @@ namespace MAVN.Service.AdminAPI.Controllers
         [ProducesResponseType(typeof(VoucherDailyStatisticsResponse), (int)HttpStatusCode.OK)]
         public async Task<VoucherDailyStatisticsResponse> GetSmartVouchersStatisticsForPeriodAsync([FromQuery] BasePeriodRequest request)
         {
-            var (partnerIds, isEmptyResult) = await FilterByPartnerAsync();
+            var (partnerIds, shouldReturnEmptyResult) = await FilterByPartnerAsync();
 
             var result = new VoucherDailyStatisticsResponse();
 
-            if (isEmptyResult)
+            if (shouldReturnEmptyResult)
                 return result;
 
             var dailyStatistics = await _dashboardStatisticsClient.SmartVouchersApi.GetPeriodStatsAsync(new VouchersDailyStatisticsRequest
@@ -251,12 +269,16 @@ namespace MAVN.Service.AdminAPI.Controllers
             return statisticsPerDay.Values.ToList();
         }
 
-        private async Task<(Guid[] PartnerIds, bool IsEmptyResult)> FilterByPartnerAsync()
+        private async Task<(Guid[] PartnerIds, bool ShouldReturnEmptyResult)> FilterByPartnerAsync()
         {
             var permissionLevel = await _requestContext.GetPermissionLevelAsync(PermissionType.Dashboard);
 
             if (!permissionLevel.HasValue || permissionLevel.Value == PermissionLevel.View)
                 return (null, true);
+
+            //This mean that user is superadmin and we won't filter by PartnerId
+            if (permissionLevel.Value == PermissionLevel.Edit)
+                return (null, false);
 
             var partnersResponse =
                 await _partnerManagementClient.Partners.GetAsync(

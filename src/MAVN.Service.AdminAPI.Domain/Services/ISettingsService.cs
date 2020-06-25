@@ -7,5 +7,6 @@
         bool IsPublicBlockchainFeatureDisabled();
         bool IsPhoneVerificationDisabled();
         string GetReferralUrlTemplate();
+        bool IsDemoOn();
     }
 }
