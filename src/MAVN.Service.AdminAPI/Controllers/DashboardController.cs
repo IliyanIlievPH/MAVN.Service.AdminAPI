@@ -132,14 +132,23 @@ namespace MAVN.Service.AdminAPI.Controllers
         {
             var (partnerIds, isEmptyResult) = await FilterByPartnerAsync();
 
-            var result = new VoucherStatisticsResponse();
+            var result = new VoucherStatisticsResponse
+            {
+                Currency = _settingsService.GetBaseCurrency(),
+            };
 
             if (isEmptyResult)
+            {
+                // Add some random data so only View admins will see something
+                var rand = new Random();
+                result.TotalPurchasesCost = rand.Next(1000);
+                result.TotalRedeemedVouchersCost = rand.Next(1000);
+                result.TotalPurchasesCount = rand.Next(100);
+                result.TotalRedeemedVouchersCount = rand.Next(100);
                 return result;
+            }
 
             var statisticsForAllCurrencies = await _dashboardStatisticsClient.SmartVouchersApi.GetTotalStatisticsAsync(partnerIds);
-
-            result.Currency = _settingsService.GetBaseCurrency();
 
             foreach (var statistics in statisticsForAllCurrencies)
             {
