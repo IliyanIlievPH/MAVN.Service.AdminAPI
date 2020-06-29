@@ -26,39 +26,31 @@ namespace MAVN.Service.AdminAPI.Validators.Locations
                 .WithMessage("Address should be between 3 and 100 chars");
 
             RuleFor(o => o.FirstName)
-                .NotEmpty()
-                .WithMessage("First Name required")
                 .Must(o => o != null && _onlyLettersRegex.IsMatch(o))
                 .WithMessage("First Name should contains only letters")
                 .Length(2, 50)
                 .WithMessage("First Name should be between 2 and 50 chars")
-                .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.Phone));
+                .When(x => !string.IsNullOrEmpty(x.FirstName));
 
             RuleFor(o => o.LastName)
-                .NotEmpty()
-                .WithMessage("Last Name required")
                 .Must(o => o != null && _onlyLettersRegex.IsMatch(o))
                 .WithMessage("Last Name should contains only letters")
                 .Length(2, 50)
                 .WithMessage("Last Name should be between 2 and 50 chars")
-                .When(x => !string.IsNullOrEmpty(x.FirstName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.Phone));
+                .When(x => !string.IsNullOrEmpty(x.LastName));
 
             RuleFor(o => o.Email)
-                .NotEmpty()
-                .WithMessage("Email required")
                 .EmailAddress()
                 .WithMessage("Please enter a valid email address")
-                .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.FirstName) || !string.IsNullOrEmpty(x.Phone));
+                .When(x => !string.IsNullOrEmpty(x.Email));
 
             RuleFor(o => o.Phone)
-                .NotEmpty()
-                .WithMessage("Phone number required.")
                 .MinimumLength(3)
                 .MaximumLength(50)
                 .WithMessage("Phone number should be within 3 and 50 characters long.")
                 .Must(o => o != null && _phoneNumberRegex.IsMatch(o))
                 .WithMessage("Phone number contains illegal characters.")
-                .When(x => !string.IsNullOrEmpty(x.LastName) || !string.IsNullOrEmpty(x.Email) || !string.IsNullOrEmpty(x.FirstName));
+                .When(x => !string.IsNullOrEmpty(x.Phone));
 
             RuleFor(l => l.ExternalId)
                 .NotEmpty()
