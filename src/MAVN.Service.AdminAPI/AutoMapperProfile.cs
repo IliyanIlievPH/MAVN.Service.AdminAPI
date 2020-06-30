@@ -256,28 +256,24 @@ namespace MAVN.Service.AdminAPI
             CreateMap<LocationCreateRequest, LocationCreateModel>()
                 .ForMember(dest => dest.ContactPerson,
                     opt => opt.MapFrom(src =>
-                        src.Email != null
-                            ? new PartnerManagement.Client.Models.ContactPersonModel
-                            {
-                                Email = src.Email,
-                                FirstName = src.FirstName,
-                                LastName = src.LastName,
-                                PhoneNumber = src.Phone
-                            }
-                            : null));
+                        new PartnerManagement.Client.Models.ContactPersonModel
+                        {
+                            Email = src.Email,
+                            FirstName = src.FirstName,
+                            LastName = src.LastName,
+                            PhoneNumber = src.Phone
+                        }));
 
             CreateMap<LocationEditRequest, LocationUpdateModel>()
                 .ForMember(dest => dest.ContactPerson,
-                    opt => opt.MapFrom(src =>
-                        src.Email != null
-                            ? new PartnerManagement.Client.Models.ContactPersonModel
+                    opt => opt.MapFrom(src => 
+                         new PartnerManagement.Client.Models.ContactPersonModel
                             {
                                 Email = src.Email,
                                 FirstName = src.FirstName,
                                 LastName = src.LastName,
                                 PhoneNumber = src.Phone
-                            }
-                            : null));
+                            }));
 
             CreateMap<LocationDetailsModel, LocationResponse>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.ContactPerson.FirstName))
